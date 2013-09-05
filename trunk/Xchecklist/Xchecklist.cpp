@@ -5,7 +5,7 @@
 //     Michal Navratil
 //     William Good
 //
-//     Ver 0.6 Working to 32/64bit multiplatform
+//     Ver 0.7 Working to 32/64bit multiplatform
 //     X-Plane.org
 //
 //     A plugin to display a clist.txt in widget window
@@ -156,10 +156,10 @@ PLUGIN_API int XPluginStart(
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
 
-         XPLMDebugString("Xchecklist ver 0.6\n");
+         XPLMDebugString("Xchecklist ver 0.7\n");
 
         /* First set up our plugin info. */
-        strcpy(outName, "Xchecklist ver 0.6");
+        strcpy(outName, "Xchecklist ver 0.7");
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
@@ -205,9 +205,9 @@ PLUGIN_API int XPluginStart(
         do_cleanup();
 	init_checklists();
 
-        cmdcheckitem = XPLMCreateCommand("xplugins/xchecklist/check_item","Check Item");
-        cmdnextchecklist = XPLMCreateCommand("xplugins/xchecklist/next_checklist","Next Checklist");
-        cmdhidechecklist = XPLMCreateCommand("xplugins/xchecklist/hide_checklist","Hide Checklist");
+        cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
+        cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
+        cmdhidechecklist = XPLMCreateCommand("bgood/xchecklist/hide_checklist","Hide Checklist");
 
         XPLMRegisterCommandHandler(
                     cmdcheckitem,
