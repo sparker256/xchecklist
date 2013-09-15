@@ -44,10 +44,20 @@ static bool speaking = 0;
 static int load_functions()
 {
   dlerror();
-  lib_handle = dlopen("libspeechd.so.2", RTLD_NOW | RTLD_LOCAL);
+  lib_handle = NULL; 
+  char *libenv = getenv("XCHECKLIST_SPEECHD_LIB");
+  if(libenv != NULL){
+    lib_handle = dlopen(libenv, RTLD_NOW | RTLD_LOCAL);
+    if(lib_handle == NULL){
+      fprintf(stderr, "Couldn't load library '%s' - %s!\n", libenv, dlerror());
+    }
+  }
   if(lib_handle == NULL){
-    fprintf(stderr, "Couldn't load library!\n");
-    return -1;
+    lib_handle = dlopen("libspeechd.so.2", RTLD_NOW | RTLD_LOCAL);
+    if(lib_handle == NULL){
+      fprintf(stderr, "Couldn't load library '%s' - %s!\n", "libspeechd.so.2", dlerror());
+      return -1;
+    }
   }
   int i = 0;
   void *symbol;
