@@ -57,12 +57,12 @@ bool item_checked(int item)
   return binder->item_checked(item);
 }
 
-bool do_processing(bool visible)
+bool do_processing(bool visible, bool copilotOn)
 {
   if(binder == NULL){
     return false;
   }
-  return binder->do_processing(visible);
+  return binder->do_processing(visible, copilotOn);
 }
 
 bool get_checklist_names(int *size, constname_t *names[])

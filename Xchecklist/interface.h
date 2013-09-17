@@ -64,7 +64,7 @@ bool item_checked(int item);
 //  check values of datarefs and act accordingly...
 //
 //  Returns true if no problems were encountered.
-bool do_processing(bool visible);
+bool do_processing(bool visible, bool copilotOn);
 
 //Returns/disposes of list of all checklist names
 //
