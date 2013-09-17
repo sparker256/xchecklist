@@ -40,6 +40,7 @@ void cleanup_speech()
 
 bool speech_active()
 {
+  //printf("Speech: %s\n", active?"Active\n":"Inactive");
   return active;
 }
 

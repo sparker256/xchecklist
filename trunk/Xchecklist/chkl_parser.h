@@ -33,7 +33,7 @@ class checklist_item{
   virtual ~checklist_item(){};
   virtual bool getDesc(checklist_item_desc_t &desc) = 0;
   virtual bool activate() = 0;
-  virtual bool do_processing() = 0;
+  virtual bool do_processing(bool copilotOn) = 0;
   virtual bool show(bool &val){(void) val; return false;};
   virtual void reset(){};
   void setIndex(int i){index = i;};
@@ -56,7 +56,7 @@ class checklist{
   void set_width(int f);
   bool activate(int index, bool force = false);
   bool item_checked(int item);
-  bool do_processing();
+  bool do_processing(bool copilotOn);
   bool restart_checklist();
   bool activate_next_item(bool init = false);
   const std::string& get_name()const;
@@ -82,7 +82,7 @@ class checklist_binder{
     bool prev_checklist();
     bool next_checklist();
     bool item_checked(int item);
-    bool do_processing(bool visible);
+    bool do_processing(bool visible, bool copilotOn);
     bool get_checklist_names(int *size, constname_t *names[]);
     bool free_checklist_names(int size, constname_t *names[]);
     bool checklist_finished();
@@ -158,7 +158,7 @@ class show_item: public checklist_item{
   virtual void print(std::ostream &output)const;
   virtual bool getDesc(checklist_item_desc_t &desc);
   virtual bool activate(){return false;};
-  virtual bool do_processing(){return false;};
+  virtual bool do_processing(bool copilotOn){(void) copilotOn; return false;};
   virtual bool show(bool &val);
   virtual void reset();
  private:
@@ -172,7 +172,7 @@ class void_item:public checklist_item{
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate(){return false;};
-    virtual bool do_processing(){return false;};
+    virtual bool do_processing(bool copilotOn){(void) copilotOn; return false;};
   private:
     std::string text;
 };
@@ -184,7 +184,7 @@ class chk_item:public checklist_item{
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
-    virtual bool do_processing();
+    virtual bool do_processing(bool copilotOn);
   private:
     item_label *label;
     dataref_dsc *dataref;

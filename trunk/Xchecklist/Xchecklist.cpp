@@ -391,8 +391,7 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   (void) ref;
   static int hide_cntr;        
 
-  if(state[COPILOT_ON])
-    do_processing(XPIsWidgetVisible(xCheckListWidget));
+  do_processing(XPIsWidgetVisible(xCheckListWidget), state[COPILOT_ON]);
 
   if((XPIsWidgetVisible(xCheckListWidget)) && (state[AUTO_HIDE])){
       if(checklist_finished()){
@@ -542,7 +541,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 
         if (inMessage == xpMsg_ButtonStateChanged)
         {
-                printf("Got button state chenge message!\n");
+                printf("Got button state change message!\n");
                 for (size_t ItemNo=0; ItemNo<SETUP_TEXT_ITEMS; ItemNo++)
                 {
                         intptr_t tmp;

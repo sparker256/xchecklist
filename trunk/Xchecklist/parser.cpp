@@ -539,10 +539,10 @@ bool checklist::triggered()
   }
 }
 
-bool checklist_binder::do_processing(bool visible)
+bool checklist_binder::do_processing(bool visible, bool copilotOn)
 {
   if(visible){
-    return checklists[current]->do_processing();
+    return checklists[current]->do_processing(copilotOn);
   }else{
     for(unsigned int i = 0; i < checklists.size(); ++i){
       if(checklists[i]->triggered()){
@@ -553,10 +553,10 @@ bool checklist_binder::do_processing(bool visible)
   }
 }
 
-bool checklist::do_processing()
+bool checklist::do_processing(bool copilotOn)
 {
   if(current_item > -1){
-    items[current_item]->do_processing();
+    items[current_item]->do_processing(copilotOn);
   }
   return true;
 }
@@ -567,9 +567,10 @@ bool chk_item::activate()
   return true;
 }
 
-bool chk_item::do_processing()
+bool chk_item::do_processing(bool copilotOn)
 {
     static float elapsed = 0.0f;
+    //printf("State: %d\n", state);
     switch(state){
     case INACTIVE:
         elapsed = 0.0f;
@@ -598,7 +599,7 @@ bool chk_item::do_processing()
             state = NEXT;
             break;
         }
-        if((dataref != NULL) && dataref->trigered()){
+        if(copilotOn && (dataref != NULL) && dataref->trigered()){
           state = SAY_SUFFIX;
           label->say_suffix();
         }
