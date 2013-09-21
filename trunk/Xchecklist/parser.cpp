@@ -751,16 +751,23 @@ bool parse_clist(const std::string &fname, int debug)
     parsed_file = NULL;
     
     if(res == 0){
-      fprintf(stderr, "Preferences read OK!\n");
-      return(true);
+        sprintf(xcbuf,"Xchecklist: Preferences read OK!\n");
+        XPLMDebugString(xcbuf);
+        fprintf(stderr, "Preferences read OK!\n");
+        return(true);
     }
   }
-  fprintf(stderr, "Error encountered while reading preferences!\n");
+  sprintf(xcbuf,"Xchecklist: Error encountered while reading preferences!\n");
+  XPLMDebugString(xcbuf);
+  fprintf(stderr, "Error encountered while reading preferences!\n");  
   return(false);
 }
 
 void chklerror(char const *s)
 {
+  sprintf(xcbuf,"Xchecklist: %s in file %s, line %d near '%s'\n",
+          s, parsed_file, chkllineno, chkltext);
+  XPLMDebugString(xcbuf);
   fprintf(stderr, "%s in file %s, line %d near '%s'\n",
                  s, parsed_file, chkllineno, chkltext);
 }
