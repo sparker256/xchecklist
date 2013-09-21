@@ -26,6 +26,7 @@
 #include "chkl_parser.h"
 #include "interface.h"
 #include "speech.h"
+#include "utils.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -63,7 +64,6 @@ int Item;
 
 char FileName[256], AircraftPath[512];
 char prefsPath[512];
-//char xcbuf[256];
 
 enum {NEXT_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, HIDE_CHECKLIST_COMMAND};
 
@@ -157,7 +157,7 @@ PLUGIN_API int XPluginStart(
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
 
-         XPLMDebugString("Xchecklist: ver 0.72\n");
+         xcDebug("Xchecklist: ver 0.72\n");
 
         /* First set up our plugin info. */
         strcpy(outName, "Xchecklist ver 0.72");
@@ -238,6 +238,7 @@ PLUGIN_API void	XPluginStop(void)
         XPLMUnregisterFlightLoopCallback(dataProcessingCallback, NULL);
 	XPLMDestroyMenu(checklistsMenu);
 	XPLMDestroyMenu(PluginMenu);
+	xcClose();
 }
 
 PLUGIN_API int XPluginEnable(void)
@@ -602,9 +603,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                         my_stream = fopen (myPrefsPath.c_str(), "w");
 
                         for(size_t i = 0; i < SETUP_TEXT_ITEMS; ++i){
-                            sprintf(xcbuf, "%s ", ((state[i])?"true":"false"));
-                            XPLMDebugString(xcbuf);
-                            fprintf(my_stream, "%s ", ((state[i])?"true":"false"));
+                            xcDebug("%s ", ((state[i])?"true":"false"));
                         }
 
                         fclose (my_stream);

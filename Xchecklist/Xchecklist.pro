@@ -57,12 +57,14 @@ macx {
 HEADERS += interface.h \
            chkl_parser.h \
            speech.h \
-    stdbool.h
+    stdbool.h \
+    utils.h
 
 
 SOURCES += Xchecklist.cpp \
            interface.cpp \
-           parser.cpp
+           parser.cpp \
+           utils.c
 
 LEXSOURCES += chkl.l
 YACCSOURCES += chkl.y

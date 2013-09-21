@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <libspeechd.h>
 #include <dlfcn.h>
+#include "utils.h"
 
 
 typedef SPDConnection* (*spd_open_t)(const char* client_name, const char* connection_name, 
@@ -51,17 +52,13 @@ static int load_functions()
   if(libenv != NULL){
     lib_handle = dlopen(libenv, RTLD_NOW | RTLD_LOCAL);
     if(lib_handle == NULL){
-        sprintf(xcbuf,"Xchecklist: Couldn't load library '%s' - %s!\n", libenv, dlerror());
-        XPLMDebugString(xcbuf);
-        fprintf(stderr, "Couldn't load library '%s' - %s!\n", libenv, dlerror());
+      xcDebug("Xchecklist: Couldn't load library '%s' - %s!\n", libenv, dlerror());
     }
   }
   if(lib_handle == NULL){
     lib_handle = dlopen("libspeechd.so.2", RTLD_NOW | RTLD_LOCAL);
     if(lib_handle == NULL){
-        sprintf(xcbuf,"Xchecklist: Couldn't load library '%s' - %s!\n", "libspeechd.so.2", dlerror());
-        XPLMDebugString(xcbuf);
-        fprintf(stderr, "Couldn't load library '%s' - %s!\n", "libspeechd.so.2", dlerror());
+        xcDebug("Xchecklist: Couldn't load library '%s' - %s!\n", "libspeechd.so.2", dlerror());
         return -1;
     }
   }
@@ -70,9 +67,7 @@ static int load_functions()
   while((functions[i]).name != NULL){
     dlerror();
     if((symbol = dlsym(lib_handle, (functions[i]).name)) == NULL){
-       sprintf(xcbuf,"Xchecklist: Couldn't load symbol '%s': %s\n", (functions[i]).name, dlerror());
-       XPLMDebugString(xcbuf);
-       fprintf(stderr, "Couldn't load symbol '%s': %s\n", (functions[i]).name, dlerror());
+       xcDebug("Xchecklist: Couldn't load symbol '%s': %s\n", (functions[i]).name, dlerror());
        return -1;
     }
     *((void **)(functions[i]).ref) = symbol;
@@ -141,17 +136,13 @@ static void finish_callback(size_t msg_id, size_t client_id, SPDNotificationType
 bool init_speech()
 {
   if(load_functions()){
-     sprintf(xcbuf,"Xchecklist: Failed to load speech-dispatch library!\n");
-     XPLMDebugString(xcbuf);
-     fprintf(stderr, "Failed to load speech-dispatch library!\n");
+     xcDebug("Xchecklist: Failed to load speech-dispatch library!\n");
      return false;
   }
   
   connection = wspd_open("xchecklist", "copilot", NULL, SPD_MODE_THREADED);
   if(connection == NULL){
-    sprintf(xcbuf,"Xchecklist: Failed to open speech-dispatch connection!\n");
-    XPLMDebugString(xcbuf);
-    fprintf(stderr, "Failed to open speech-dispatch connection!\n");
+    xcDebug("Xchecklist: Failed to open speech-dispatch connection!\n");
     return false;
   }
   
