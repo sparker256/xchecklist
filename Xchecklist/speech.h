@@ -14,6 +14,7 @@ void close_speech();
 void cleanup_speech();
 bool speech_active();
 bool spoken(float elapsed);
+extern char xcbuf[];
 
 #ifdef __cplusplus
 }
