@@ -13,6 +13,7 @@ static size_t msgSize = 0;
 
 static void xcDebugInt(const char *format, va_list va)
 {
+  int cntr = 0;
   if(msg == NULL){
     msgSize = 2;
     msg = (char *)malloc(msgSize);
@@ -21,10 +22,9 @@ static void xcDebugInt(const char *format, va_list va)
     XPLMDebugString("Xchecklist: Couldn't allocate buffer for messages!\n");
     return;
   }
-  int cntr = 0;
   while(cntr < 2){//looping once, in case of string too big
-    ++cntr;
     int res = vsnprintf(msg, msgSize, format, va);
+    ++cntr;
     if((res > 0) && ((size_t)res < msgSize)){
       XPLMDebugString(msg);
       return;
