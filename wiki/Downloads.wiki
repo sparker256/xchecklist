@@ -2,9 +2,9 @@
 
 = Introduction =
 
-Since I cannot add a download here this is how you can get the current version
+Since I cannot add a download here this is how you can get the current version complete with manual.
 
 
 = Details =
 
-[https://docs.google.com/file/d/0B9TcbxCaWqMBVG5CTExpVFJIMGM/edit?usp=sharing Xchecklist_0_72_Manual.zip]
+[https://docs.google.com/file/d/0B9TcbxCaWqMBLTNSa0FybS0yVTQ/edit?usp=sharing Xchecklist_0_72.zip]
