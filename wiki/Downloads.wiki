@@ -7,7 +7,4 @@ Since I cannot add a download here this is the path to the current version
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+https://docs.google.com/file/d/0B9TcbxCaWqMBVG5CTExpVFJIMGM/edit?usp=sharing
