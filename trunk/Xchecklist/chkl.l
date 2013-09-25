@@ -4,6 +4,7 @@
   #include <string.h>
   //#include <stdbool.h>
   #include "chkl_yacc.h"
+  #include "utils.h"
   
 %}
 %option noyywrap
@@ -17,7 +18,7 @@
 %x WHATEVER ERR NUM
 
 EOL                     (\r|\n|\r\r)
-STRING			[^\n\r:\[\]!=<>\|]+
+STRING			        [^\n\r:|]+
 COLON                   :
 RBRACKET                \[
 LBRACKET                \]
@@ -73,12 +74,12 @@ sw_rcolsize             {BEGIN(PAYLOAD);return(TOKEN_RCOLSIZE);}
 //			  fprintf(stderr, "\nWhatever:'%s'\n", yytext);
 			  return(TOKEN_STRING);
                         }
-<PAYLOAD,INITIAL,WHATEVER,NUM>. {fprintf(stderr, "Problem: Unmatched character '%s'!\n", yytext);}
+<PAYLOAD,INITIAL,WHATEVER,NUM>. {xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", yytext, yylineno);}
 %%
 
 void start_error_recovery()
 {
-  printf("Starting error recovery!!!\n");
+  //printf("Starting error recovery!!!\n");
   BEGIN(ERR);
 }
 
