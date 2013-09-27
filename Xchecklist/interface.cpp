@@ -2,13 +2,15 @@
 #include "speech.h"
 #include <string>
 
-bool start_checklists(const std::string &fname)
+checklist_binder *binder = NULL;
+
+bool start_checklists(const char *fname, int debug)
 {
   if(binder != NULL){
     delete binder;
     binder = NULL;
   }
-  if(!parse_clist(fname, 0)){
+  if(!parse_clist(std::string(fname), debug)){
     return false;
   }
   if(binder != NULL){

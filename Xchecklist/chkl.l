@@ -6,6 +6,7 @@
   #include "chkl_yacc.h"
   #include "utils.h"
   
+  static int colons = 0;
 %}
 %option noyywrap
 %option nounput
@@ -14,11 +15,11 @@
 %option warn
 %option yylineno
 
-%s PAYLOAD
-%x WHATEVER ERR NUM
+%x ERR NUM DREF
 
 EOL                     (\r|\n|\r\r)
 STRING			        [^\n\r:|]+
+DATAREF			        [^\n\r:|\[\]]+
 COLON                   :
 RBRACKET                \[
 LBRACKET                \]
@@ -31,22 +32,20 @@ DOT                     \.
 NUMBER                  [+-]?[0-9]+
 
 %%
-sw_checklist            {BEGIN(PAYLOAD);return(TOKEN_CHECKLIST);}
-sw_item                 {BEGIN(PAYLOAD);return(TOKEN_ITEM);}
-sw_iteminfo             {BEGIN(PAYLOAD);return(TOKEN_ITEMINFO);}
-sw_itemvoid             {BEGIN(WHATEVER);return(TOKEN_ITEMVOID);}
-sw_show                 {BEGIN(PAYLOAD);return(TOKEN_SHOW);}
-sw_rcolsize             {BEGIN(PAYLOAD);return(TOKEN_RCOLSIZE);}
+sw_checklist            {colons = 0; return(TOKEN_CHECKLIST);}
+sw_item                 {colons = 0; return(TOKEN_ITEM);}
+sw_iteminfo             {colons = 0; return(TOKEN_ITEMINFO);}
+sw_itemvoid             {colons = 0; return(TOKEN_ITEMVOID);}
+sw_show                 {colons = 0; return(TOKEN_SHOW);}
+sw_rcolsize             {colons = 0; return(TOKEN_RCOLSIZE);}
 
-<WHATEVER,PAYLOAD,NUM>{COLON}	{return(TOKEN_COLON);}
+<INITIAL,NUM,DREF>{COLON}	{/*++colons; if(colons == 2){BEGIN(DREF);}*/return(TOKEN_COLON);}
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
 <NUM>{LE}                    {return(TOKEN_LE);}
 <NUM>{GE}                    {return(TOKEN_GE);}
-{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
-{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
-<NUM,PAYLOAD>{PIPE}     {return(TOKEN_PIPE);}
+<INITIAL,NUM>{PIPE}                   {return(TOKEN_PIPE);}
 <NUM>{NUMBER}                {
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_NUMBER);
@@ -59,22 +58,25 @@ sw_rcolsize             {BEGIN(PAYLOAD);return(TOKEN_RCOLSIZE);}
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_EXPONENT);
                         }
-#.*			{}
+<DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
+<DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
+<INITIAL,NUM,DREF>#.*			{}
 <ERR>[^\r\n]*           {return(TOKEN_ERR);}
-<INITIAL,PAYLOAD,WHATEVER,ERR,NUM>{EOL}	{
+<INITIAL,ERR,NUM,DREF>{EOL}	{
                           BEGIN(INITIAL);
+                          //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                         }
-<PAYLOAD>{STRING}	{
+{STRING}	{
 			  chkllval.str=strdup(yytext);
-//			  fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
 			}
-<WHATEVER>[^:\r\n]*     {
+<DREF>{DATAREF}	{
 			  chkllval.str=strdup(yytext);
-//			  fprintf(stderr, "\nWhatever:'%s'\n", yytext);
+			  //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
-                        }
-<PAYLOAD,INITIAL,WHATEVER,NUM>. {xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", yytext, yylineno);}
+			}
+<INITIAL,NUM,DREF>. {xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", chkltext, chkllineno);}
 %%
 
 void start_error_recovery()
@@ -86,4 +88,18 @@ void start_error_recovery()
 void expect_number()
 {
   BEGIN(NUM);
+  //fprintf(stderr, ">>>>>>>>>Expect number\n");
 }
+
+void expect_dataref()
+{
+  BEGIN(DREF);
+  //fprintf(stderr, ">>>>>>>>>Expect dataref\n");
+}
+
+void expect_nothing()
+{
+  BEGIN(INITIAL);
+  //fprintf(stderr, ">>>>>>>>>Expect nothing\n");
+}
+

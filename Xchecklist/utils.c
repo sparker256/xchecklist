@@ -13,6 +13,8 @@ static size_t msgSize = 0;
 
 static void xcDebugInt(const char *format, va_list va)
 {
+  va_list vc;
+  
   int cntr = 0;
   if(msg == NULL){
     msgSize = 2;
@@ -23,7 +25,10 @@ static void xcDebugInt(const char *format, va_list va)
     return;
   }
   while(cntr < 2){//looping once, in case of string too big
-    int res = vsnprintf(msg, msgSize, format, va);
+    //copy, in case we need another go
+    va_copy(vc, va);
+    int res = vsnprintf(msg, msgSize, format, vc);
+    va_end(vc);
     ++cntr;
     if((res > 0) && ((size_t)res < msgSize)){
       XPLMDebugString(msg);

@@ -1,0 +1,21 @@
+#regression tester
+
+sw_checklist:Checklist name with strange chars like <>/![]=
+sw_rcolsize:120
+sw_item:Simplest item
+sw_item:Simple item|really
+sw_item:Simple item with strange chars <>/![]=|some more <>/![]=
+sw_item:Item with dataref|check:sim/cockpit/electrical/strobe_lights_on:0
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:!1.0
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:<1.0e-3
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:.1e-1|.5e0
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:0:1
+
+sw_checklist:Checklist name with strange chars like <>/![]=:menutext with strange chars like <>/![]=
+sw_itemvoid:Simplest item
+sw_itemvoid:Simple item
+sw_itemvoid:Simple item with strange chars <>/![]=some more <>/![]=
+sw_iteminfo:Simple item with strange chars <>/![]=|some more <>/![]=
+sw_iteminfo:Item with array dataref:sim/cockpit/engine/ignition_on[0]:>0.5
+sw_show:sim/cockpit/engine/ignition_on[0]:!1
+
