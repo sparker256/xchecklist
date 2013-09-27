@@ -23,6 +23,11 @@
 #include "XPStandardWidgets.h"
 #include "XPLMDataAccess.h"
 
+#include <vector>
+#include <string>
+#include <fstream>
+#include <algorithm>
+
 #include "chkl_parser.h"
 #include "interface.h"
 #include "speech.h"
@@ -34,10 +39,6 @@
 #if IBM
 #include <windows.h>
 #endif
-#include <vector>
-#include <string>
-#include <fstream>
-#include <algorithm>
 
 // need to use _WIN32 to get VS2012 to be happy
 #if _WIN32
@@ -45,8 +46,6 @@
 #define strncasecmp( s1, s2, n ) strnicmp( s1, s2, n )
 #define snprintf sprintf_s
 #endif
-
-checklist_binder *binder = NULL;
 
 static int x = 10;
 int y = 550;
@@ -319,7 +318,7 @@ bool init_checklists()
         bool res = false;
         std::string clist = find_checklist(myACFPath);
         if(!clist.empty()){
-          res = start_checklists(clist);
+          res = start_checklists(clist.c_str(), 0);
         }
         checklists_count = -1; // to make it rebuild menus...
         return res;
@@ -943,13 +942,6 @@ bool dispose_dataref(dataref_p *dref)
 {
   (void)dref;
   return true;
-}
-
-//We don't need this one...
-void dataref_val(dataref_p dref, float f)
-{
-  (void) dref;
-  (void) f;
 }
 
 void get_sim_path(char *path)

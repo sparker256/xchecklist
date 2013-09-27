@@ -10,6 +10,9 @@
   checklist *current_checklist = NULL;
   extern void start_error_recovery();
   extern void expect_number();
+  extern void expect_dataref();
+  extern void expect_nothing();
+
 %}
 
 %debug
@@ -56,7 +59,9 @@
 
 %%
 input:		/* empty */
-      		| input line
+      		| input line{
+      		    expect_nothing();
+      		  }
 ;
 
 line:		checklist{
@@ -130,11 +135,13 @@ colsize:	TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
 spec_string:    TOKEN_STRING{
                     $$ = new item_label($1);
                     free($1);
+                    expect_dataref();
                   }
 		| TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
                     $$ = new item_label($1, $3);
                     free($1);
                     free($3);
+                    expect_dataref();
                   }
 ;
 

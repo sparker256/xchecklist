@@ -1,6 +1,7 @@
 #ifndef INTERFACE__H
 #define INTERFACE__H
 
+#include <stdbool.h>
 
 typedef struct{
   //Text of the checklist item
@@ -24,7 +25,7 @@ typedef enum{
   XC_INT_ARRAY   = 16
 } dataref_type_t;
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -36,7 +37,7 @@ extern "C" {
 //  fname is the checklist file name
 //
 //  Returns true if no problems were encountered
-bool start_checklists(const std::string &fname);
+bool start_checklists(const char *fname, int debug);
 bool stop_checklists();
 
 //Call by the plugin, go back to the previous checklist
@@ -130,7 +131,7 @@ bool dispose_dataref(dataref_p *dref);
 void dataref_val(dataref_p dref, float f);
 void get_sim_path(char *path);
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -291,10 +291,6 @@ bool dataref_dsc::registerDsc()
 {
   dataref_struct = data_ref->getDataref();
 //  get_dataref_type(dataref_struct);
-  dataref_val(dataref_struct, val1->get_value());
-  if(op == XC_IN){
-    dataref_val(dataref_struct, val2->get_value());
-  }
   return true;
 }
 
