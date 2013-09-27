@@ -9,12 +9,12 @@
 static char *msg = NULL;
 static size_t msgSize = 0;
 
-//NOT THREAD SAFE!!!
+/*NOT THREAD SAFE!!!*/
 
 static void xcDebugInt(const char *format, va_list va)
 {
   va_list vc;
-  
+  int res;
   int cntr = 0;
   if(msg == NULL){
     msgSize = 2;
@@ -24,10 +24,14 @@ static void xcDebugInt(const char *format, va_list va)
     XPLMDebugString("Xchecklist: Couldn't allocate buffer for messages!\n");
     return;
   }
-  while(cntr < 2){//looping once, in case of string too big
-    //copy, in case we need another go
+  while(cntr < 2){ /*looping once, in case of string too big*/
+    /*copy, in case we need another go*/
+#if IBM
+    vc = va; /*no va_copy on VC*/
+#else
     va_copy(vc, va);
-    int res = vsnprintf(msg, msgSize, format, vc);
+#endif
+    res = vsnprintf(msg, msgSize, format, vc);
     va_end(vc);
     ++cntr;
     if((res > 0) && ((size_t)res < msgSize)){

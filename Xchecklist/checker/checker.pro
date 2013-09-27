@@ -18,10 +18,9 @@ DEFINES += XPLM200
 DEFINES += APL=0 IBM=0 LIN=1
 # WARNING! This requires the latest version of the X-SDK !!!!
 QMAKE_CXXFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 --coverage
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
 QMAKE_CFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 --coverage
-LIBS += --coverage
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
 
 HEADERS += ../interface.h \
            ../chkl_parser.h \
