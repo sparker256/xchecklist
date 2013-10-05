@@ -77,7 +77,7 @@ XPWidgetID	xCheckListWidget = NULL;
 
 XPWidgetID	setupWidget = NULL;
 
-XPWidgetID xCheckListCopilotInfoWidget;
+//XPWidgetID xCheckListCopilotInfoWidget;
 
 XPWidgetID      xChecklistPreviousButton = NULL;
 XPWidgetID      xChecklistNextButton = NULL;
@@ -568,7 +568,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                     XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 1);
 		  }
 
-                  XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 1);
+                  //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 1);
 
 
 	        }else{
@@ -580,7 +580,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                     XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 0);
 		  }
 
-                  XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 0);
+                  //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 0);
 
 		}
         }
@@ -799,7 +799,7 @@ bool create_checklist(unsigned int size, const char *title,
 
      // Create a checklist item sction description text widget
      yOffset = (5+18+(15*20));
-
+/*
      xCheckListCopilotInfoWidget = XPCreateWidget(x+5, y-yOffset, x+60+200, y-yOffset-20,
                                    1,	// Visible
                                    "+ = Automaticly Checked Items (Copilot)",// desc
@@ -812,7 +812,7 @@ bool create_checklist(unsigned int size, const char *title,
       XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 1);
 
       }
-
+*/
      int bw = w / 2 - 10;
      xChecklistPreviousButton = XPCreateWidget(WindowCentre-bw, y2+40, WindowCentre-5, y2+10,
                                 1,

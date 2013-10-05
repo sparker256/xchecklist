@@ -592,11 +592,8 @@ bool chk_item::do_processing(bool copilotOn)
         break;
     case PROCESSING:
         elapsed = 0;
-        if(checked){
-            state = NEXT;
-            break;
-        }
-        if(copilotOn && (dataref != NULL) && dataref->trigered()){
+        if(checked || 
+           (copilotOn && (dataref != NULL) && dataref->trigered())){
           state = SAY_SUFFIX;
           label->say_suffix();
         }
