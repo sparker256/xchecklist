@@ -259,6 +259,19 @@ dataref_dsc::dataref_dsc(dataref_name *dr, number *v1, number *v2, bool plain_in
   }
 }
 
+dataref_dsc::~dataref_dsc()
+{
+  if(val1 != NULL){
+    delete(val1);
+    val1 = NULL;
+  }
+  if(val2 != NULL){
+    delete(val2);
+    val2 = NULL;
+  }
+  delete data_ref;
+}
+
 dataref_name::~dataref_name()
 {
   if(dataref_struct != NULL){

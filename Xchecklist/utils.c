@@ -15,7 +15,6 @@ static void xcDebugInt(const char *format, va_list va)
 {
   va_list vc;
   int res;
-  int cntr = 0;
   if(msg == NULL){
     msgSize = 2;
     msg = (char *)malloc(msgSize);
@@ -24,7 +23,7 @@ static void xcDebugInt(const char *format, va_list va)
     XPLMDebugString("Xchecklist: Couldn't allocate buffer for messages!\n");
     return;
   }
-  while(cntr < 2){ /*looping once, in case of string too big*/
+  while(1){ /*looping once, in case of string too big*/
     /*copy, in case we need another go*/
 #if IBM
     vc = va; /*no va_copy on VC*/
@@ -33,22 +32,23 @@ static void xcDebugInt(const char *format, va_list va)
 #endif
     res = vsnprintf(msg, msgSize, format, vc);
     va_end(vc);
-    ++cntr;
-    if((res > 0) && ((size_t)res < msgSize)){
+    
+    if((res > -1) && ((size_t)res < msgSize)){
       XPLMDebugString(msg);
       return;
-    }else if((res < 0)){
-      char *err = strerror(errno);
-      XPLMDebugString("Xchecklist: Problem with debug message formatting!\n");
-      XPLMDebugString(err);
-      return;
     }else{
-      free(msg);
-      msgSize = 2 * res;
-      msg = (char *)malloc(msgSize);
+      void *tmp;
+      msgSize *= 2;
+      if((tmp = realloc(msg, msgSize)) == NULL){
+        break;
+      }
+      msg = tmp;
     }
   }
-  XPLMDebugString("Xchecklist: Problem enlarging message buffer!\n");
+  XPLMDebugString("Xchecklist: Problem with debug message formatting!\n");
+  msg = NULL;
+  msgSize = 0;
+  return;
 }
 
 void xcDebug(const char *format, ...)

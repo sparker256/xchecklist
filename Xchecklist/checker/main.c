@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "interface.h"
 #include "speech.h"
+#include "utils.h"
 
 bool voice_state = false;
 
@@ -80,6 +81,8 @@ int main(int argc, char *argv[])
   }else{
     printf("Usage: %s checklist_name", argv[0]);
   }
+  stop_checklists();
+  xcClose();
   return 0;
 }
 

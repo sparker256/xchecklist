@@ -124,7 +124,7 @@ class dataref_dsc{
   dataref_dsc(dataref_name *dr, number *val);
   dataref_dsc(dataref_name *dr, operation_t *o, number *val);
   dataref_dsc(dataref_name *dr, number *v1, number *v2, bool plain_in = true);
-  ~dataref_dsc(){delete data_ref;};
+  ~dataref_dsc();
   bool registerDsc();
   void reset_trig(){state = NONE;};
   bool trigered();
