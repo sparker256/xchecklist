@@ -6,7 +6,8 @@
   #include "chkl_yacc.h"
   #include "utils.h"
   
-  static int colons = 0;
+  static bool isVoid = false;
+
 %}
 %option noyywrap
 %option nounput
@@ -15,10 +16,11 @@
 %option warn
 %option yylineno
 
-%x ERR NUM DREF
+%x ERR NUM DREF VOID
 
-EOL                     (\r|\n|\r\r)
+EOL                     (\r|\n|\n\r)
 STRING			        [^\n\r:|]+
+VOIDSTRING		        [^\n\r]+
 DATAREF			        [^\n\r:|\[\]]+
 COLON                   :
 RBRACKET                \[
@@ -32,14 +34,14 @@ DOT                     \.
 NUMBER                  [+-]?[0-9]+
 
 %%
-sw_checklist            {colons = 0; return(TOKEN_CHECKLIST);}
-sw_item                 {colons = 0; return(TOKEN_ITEM);}
-sw_iteminfo             {colons = 0; return(TOKEN_ITEMINFO);}
-sw_itemvoid             {colons = 0; return(TOKEN_ITEMVOID);}
-sw_show                 {colons = 0; return(TOKEN_SHOW);}
-sw_rcolsize             {colons = 0; return(TOKEN_RCOLSIZE);}
+sw_checklist            {isVoid = false; return(TOKEN_CHECKLIST);}
+sw_item                 {isVoid = false; return(TOKEN_ITEM);}
+sw_iteminfo             {isVoid = false; return(TOKEN_ITEMINFO);}
+sw_itemvoid             {isVoid = true; return(TOKEN_ITEMVOID);}
+sw_show                 {isVoid = false; return(TOKEN_SHOW);}
+sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 
-<INITIAL,NUM,DREF>{COLON}	{/*++colons; if(colons == 2){BEGIN(DREF);}*/return(TOKEN_COLON);}
+<INITIAL,NUM,DREF>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
@@ -60,10 +62,11 @@ sw_rcolsize             {colons = 0; return(TOKEN_RCOLSIZE);}
                         }
 <DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
 <DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
-<INITIAL,NUM,DREF>#.*			{}
+<INITIAL,NUM,DREF,VOID>#.*			{}
 <ERR>[^\r\n]*           {return(TOKEN_ERR);}
-<INITIAL,ERR,NUM,DREF>{EOL}	{
+<INITIAL,ERR,NUM,DREF,VOID>{EOL}	{
                           BEGIN(INITIAL);
+                          isVoid = false;
                           //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                         }
 {STRING}	{
@@ -71,12 +74,21 @@ sw_rcolsize             {colons = 0; return(TOKEN_RCOLSIZE);}
 			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
 			}
+
 <DREF>{DATAREF}	{
 			  chkllval.str=strdup(yytext);
 			  //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
 			}
-<INITIAL,NUM,DREF>. {xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", chkltext, chkllineno);}
+<VOID>{VOIDSTRING}      {
+			  chkllval.str=strdup(yytext);
+			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+			  return(TOKEN_STRING);
+                        }
+<INITIAL,NUM,DREF,VOID>. {
+                                xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", 
+                                  chkltext, chkllineno);
+                             }
 %%
 
 void start_error_recovery()

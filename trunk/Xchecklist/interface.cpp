@@ -23,6 +23,10 @@ bool stop_checklists()
 {
   close_speech();
   cleanup_speech();
+  if(binder != NULL){
+    delete binder;
+    binder = NULL;
+  }
   return true;
 }
 
@@ -90,3 +94,4 @@ bool checklist_finished()
     }
     return binder->checklist_finished();
 }
+
