@@ -35,7 +35,19 @@ unix:!macx {
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
 }
 
+macx {
+    DEFINES += APL=1 IBM=0 LIN=0
 
+    QMAKE_CXXFLAGS += -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 -fpermissive
+    QMAKE_CFLAGS += -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
+    QMAKE_LFLAGS += -flat_namespace -undefined suppress
+
+
+    CONFIG += x86_64 x86
+
+}
 
 HEADERS += ../interface.h \
            ../chkl_parser.h \
