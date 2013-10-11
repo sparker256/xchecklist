@@ -61,8 +61,8 @@ int loopnum = 0;
 
 int Item;
 
-char FileName[256], AircraftPath[512];
-char prefsPath[512];
+//char FileName[256], AircraftPath[512];
+//char prefsPath[512];
 
 enum {NEXT_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, HIDE_CHECKLIST_COMMAND};
 
@@ -123,28 +123,6 @@ const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist ex
 
 enum {TRANSLUCENT, SHOW_CHECKLIST, COPILOT_ON, VOICE, AUTO_HIDE};
 bool state[SETUP_TEXT_ITEMS];
-
-#if IBM
-  const std::string dirSep = "\\";
-#else
-  const std::string dirSep = "/";
-#endif
-
-static std::string processPath(char *path)
-{
-    std::string mypath(path);
-#if APL
-    //On apple a core foundation "link" is used; this is a crude but
-    //  effective way to get a path of it...
-    std::replace(mypath.begin(), mypath.end(), ':', '/');
-    mypath.insert(0, "/Volumes/");
-#endif
-    //equivalent of dirname(mypath)
-    mypath.erase(mypath.rfind(dirSep));
-    
-    //printf("PATH: '%s'\n", mypath.c_str());
-    return mypath;
-}
 
 
 
@@ -286,40 +264,15 @@ bool create_checklists_menu(void)
   return false;
 }
 
-std::string find_checklist(const std::string path)
-{
-    std::string name1 = path + dirSep + "clist.txt";
-    std::string name2 = path + dirSep + "plane.txt";
-    FILE *f;
-    if((f = fopen(name1.c_str(), "r")) != NULL){
-        fclose(f);
-        return name1;
-    }
-
-    if((f = fopen(name2.c_str(), "r")) != NULL){
-        fclose(f);
-        return name2;
-    }
-    return std::string("");
-}
-
 
 bool init_checklists()
 {
-        XPLMGetNthAircraftModel(0, FileName, AircraftPath);
-	//To make sure I don't corrupt XPlane stuff
-	if(strlen(AircraftPath) == 0){
-	  return false; 
-	}
-        //Aircraft path contains path to the *.acf file
-        //  but we need only the directory name
-	    std::string myACFPath = processPath(AircraftPath);
-	    
-        bool res = false;
-        std::string clist = find_checklist(myACFPath);
-        if(!clist.empty()){
-          res = start_checklists(clist.c_str(), 0);
+  bool res = false;
+        char *clist = findChecklist();
+        if(clist){
+          res = start_checklists(clist, 0);
         }
+        free(clist);
         checklists_count = -1; // to make it rebuild menus...
         return res;
 }
@@ -343,13 +296,10 @@ static void readBoolean(std::fstream &str, bool &res)
 
 bool init_setup()
 {
-    XPLMGetPrefsPath(prefsPath);
-    //To make sure I don't corrupt XPlane stuff
-    std::string myPrefsPath = processPath(prefsPath);
-    //Add xchecklist.prf to preferences path
-    myPrefsPath += dirSep + "Xchecklist.prf";
-    printf("\nPrefs Path to initilize setup  %s \n\n", myPrefsPath.c_str());
-
+    char *prefs = prefsPath();
+    if(!prefs){
+      return false;
+    }
     state[TRANSLUCENT] = true;
     state[SHOW_CHECKLIST] = true;
     state[COPILOT_ON] = true;
@@ -358,13 +308,14 @@ bool init_setup()
     state[AUTO_HIDE] = true;
     
     std::fstream fin;
-    fin.open(myPrefsPath.c_str(), std::ios::in);
+    fin.open(prefs, std::ios::in);
     if(fin.is_open()){
       for(size_t i = 0; i < SETUP_TEXT_ITEMS; ++i){
         readBoolean(fin, state[i]);
       }
       fin.close();
     }
+    free(prefs);
     voice_state = (state[VOICE]);
     printf("\nTRANSLUCENT: %d \n", state[TRANSLUCENT]);
     printf("SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
@@ -589,17 +540,17 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
         {
                 if (inParam1 == (intptr_t)setupSaveSettingsButton)
                 {
+                        char *prefs;
                         // ToDo Need to add saving settings to a file
                         XPHideWidget(setupWidget);
                         printf("Save settings pressed \n");
 
                         //Prefs Path  /home/bill/X-Plane_9.61/Output/preferences/Set X-Plane.prf
-                        XPLMGetPrefsPath(prefsPath);
-                        //To make sure I don't corrupt XPlane stuff
-                        std::string myPrefsPath = processPath(prefsPath);
-                        myPrefsPath += dirSep + "Xchecklist.prf";
-                        printf("\nPrefs Path  %s \n\n", myPrefsPath.c_str());
-                        my_stream = fopen (myPrefsPath.c_str(), "w");
+                        prefs = prefsPath();
+                        if(!prefs){
+                          return 1;
+                        }
+                        my_stream = fopen (prefs, "w");
 
                         for(size_t i = 0; i < SETUP_TEXT_ITEMS; ++i){
                             fprintf(my_stream, "%s ", ((state[i])?"true":"false"));
@@ -607,7 +558,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                         }
 
                         fclose (my_stream);
-
+                        free(prefs);
                         return 1;
                 }
 
