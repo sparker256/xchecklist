@@ -9,10 +9,17 @@ extern "C" {
 
 void xcDebug(const char *format, ...);
 void xcClose();
+char *prefsPath(void);
+char *findChecklist(void);
 
 #ifdef __cplusplus
 }
+
+
+
 #endif
+
+
 
 
 #endif

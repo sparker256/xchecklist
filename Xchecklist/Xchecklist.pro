@@ -64,7 +64,7 @@ HEADERS += interface.h \
 SOURCES += Xchecklist.cpp \
            interface.cpp \
            parser.cpp \
-           utils.c
+           utils.cpp
 
 LEXSOURCES += chkl.l
 YACCSOURCES += chkl.y
