@@ -568,6 +568,9 @@ bool checklist::do_processing(bool copilotOn)
   if(current_item > -1){
     items[current_item]->do_processing(copilotOn);
   }
+  if(items[current_item]->item_done()){
+    activate_next_item();
+  }
   return true;
 }
 
@@ -609,17 +612,18 @@ bool chk_item::do_processing(bool copilotOn)
            (copilotOn && (dataref != NULL) && dataref->trigered())){
           state = SAY_SUFFIX;
           label->say_suffix();
+          check_item(index);
         }
         break;
     case SAY_SUFFIX:
         elapsed += 0.1f; // interval the flight loop is set to
+        printf("Saying suffix!\n");
         if(spoken(elapsed)){
             state = NEXT;
         }
         break;
     case NEXT:
         elapsed = 0;
-        return check_item(index);
         break;
     default:
         elapsed = 0;
@@ -635,7 +639,7 @@ bool checklist::item_checked(int item)
 {
   (void) item;
   //Current item is checked, find the next checkable/activatable item
-  activate_next_item();
+  items[current_item]->check();
   return true;
 }
 
