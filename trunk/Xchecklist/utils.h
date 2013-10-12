@@ -10,6 +10,7 @@ extern "C" {
 void xcDebug(const char *format, ...);
 void xcClose();
 char *prefsPath(void);
+char *pluginPath(const char *name);
 char *findChecklist(void);
 
 #ifdef __cplusplus

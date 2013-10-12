@@ -56,6 +56,19 @@ char *prefsPath(void)
   return c_strFromString(myPrefsPath);
 }
 
+char *pluginPath(const char *name)
+{
+  char path[512];
+  XPLMGetSystemPath(path);
+  //To make sure I don't corrupt XPlane stuff
+  std::string myPrefsPath = processPath(path);
+  //Add xchecklist.prf to preferences path
+  myPrefsPath += dirSep + "Resources" + dirSep + "plugins" + dirSep + 
+    "Xchecklist" + dirSep + name;
+  //printf("\nPrefs Path to initilize setup  %s \n\n", myPrefsPath.c_str());
+  return c_strFromString(myPrefsPath);
+}
+
 char *findChecklist(void)
 {
   char FileName[1024];
