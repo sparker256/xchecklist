@@ -567,9 +567,9 @@ bool checklist::do_processing(bool copilotOn)
 {
   if(current_item > -1){
     items[current_item]->do_processing(copilotOn);
-  }
-  if(items[current_item]->item_done()){
-    activate_next_item();
+    if(items[current_item]->item_done()){
+      activate_next_item();
+    }
   }
   return true;
 }
@@ -639,7 +639,9 @@ bool checklist::item_checked(int item)
 {
   (void) item;
   //Current item is checked, find the next checkable/activatable item
-  items[current_item]->check();
+  if(current_item > -1){
+    items[current_item]->check();
+  }
   return true;
 }
 
