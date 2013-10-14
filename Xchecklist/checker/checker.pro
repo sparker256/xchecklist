@@ -59,7 +59,7 @@ HEADERS += ../interface.h \
 SOURCES += main.c \
            ../interface.cpp \
            ../parser.cpp \
-           ../utils.c
+           ../utils.cpp
 
 LEXSOURCES += ../chkl.l
 YACCSOURCES += ../chkl.y
