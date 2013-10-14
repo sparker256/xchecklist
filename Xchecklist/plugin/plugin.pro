@@ -35,7 +35,7 @@ unix:!macx {
     QMAKE_CFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     SOURCES += speech_sd.c
-    LIBS += -ldl -Wl,--version-script -Wl,Xchecklist.sym
+    LIBS += -ldl -Wl,--version-script -Wl,../Xchecklist.sym
 }
 
 macx {
