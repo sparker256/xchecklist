@@ -610,8 +610,12 @@ bool chk_item::do_processing(bool copilotOn)
         elapsed = 0;
         if(checked || 
            (copilotOn && (dataref != NULL) && dataref->trigered())){
-          state = SAY_SUFFIX;
-          label->say_suffix();
+          if(speech_active()){
+            label->say_suffix();
+            state = SAY_SUFFIX;
+          }else{
+            state = NEXT;
+          }
           check_item(index);
         }
         break;
