@@ -73,7 +73,7 @@ bool spoken(float elapsed){(void)elapsed;return true;}
 
 int main(int argc, char *argv[])
 {
-  printf("Hello World!\n");
+  xcDebug("Hello %s!\n", "World");
   if(argc > 2){
     start_checklists(argv[1], atoi(argv[2]));
   }else if(argc > 1){

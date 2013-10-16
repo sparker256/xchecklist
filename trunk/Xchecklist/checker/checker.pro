@@ -14,7 +14,7 @@ INCLUDEPATH += ../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
-DEFINES += XPLM200
+DEFINES += XPLM200 CHECKER
 
 win32 {
     DEFINES += APL=0 IBM=1 LIN=0
