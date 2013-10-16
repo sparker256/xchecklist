@@ -12,6 +12,8 @@ static size_t msgSize = 0;
 
 /*NOT THREAD SAFE!!!*/
 
+#ifndef CHECKER
+
 #if IBM
   static const std::string dirSep = "\\";
 #else
@@ -21,7 +23,8 @@ static size_t msgSize = 0;
 static char *c_strFromString(const std::string str)
 {
   char *res = NULL;
-  res = (char *)malloc(str.size());
+  size_t len = strlen(str.c_str()) + 1;
+  res = (char *)malloc(len);
   if(res){
     strcpy(res, str.c_str());
   }
@@ -43,6 +46,7 @@ static std::string processPath(char *path)
     //printf("PATH: '%s'\n", mypath.c_str());
     return mypath;
 }
+
 
 char *prefsPath(void)
 {
@@ -96,7 +100,7 @@ char *findChecklist(void)
   }
   return NULL;
 }
-
+#endif //CHECKER
 
 static void xcDebugInt(const char *format, va_list va)
 {
