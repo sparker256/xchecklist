@@ -51,7 +51,11 @@ static std::string processPath(char *path)
 char *prefsPath(void)
 {
   char path[512];
+  bzero(path, sizeof(path));
   XPLMGetPrefsPath(path);
+  if(strlen(path) == 0){
+    return NULL;
+  }
   //To make sure I don't corrupt XPlane stuff
   std::string myPrefsPath = processPath(path);
   //Add xchecklist.prf to preferences path
@@ -63,7 +67,11 @@ char *prefsPath(void)
 char *pluginPath(const char *name)
 {
   char path[512];
+  bzero(path, sizeof(path));
   XPLMGetSystemPath(path);
+  if(strlen(path) == 0){
+    return NULL;
+  }
   //To make sure I don't corrupt XPlane stuff
   std::string myPrefsPath = processPath(path);
   //Add xchecklist.prf to preferences path
@@ -77,6 +85,8 @@ char *findChecklist(void)
 {
   char FileName[1024];
   char AircraftPath[1024];
+  bzero(FileName, sizeof(FileName));
+  bzero(AircraftPath, sizeof(AircraftPath));
   XPLMGetNthAircraftModel(0, FileName, AircraftPath);
   //To make sure I don't corrupt XPlane stuff
   if(strlen(AircraftPath) == 0){

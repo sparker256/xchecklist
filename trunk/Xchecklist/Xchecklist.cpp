@@ -181,7 +181,7 @@ PLUGIN_API int XPluginStart(
         set_sound(state[VOICE]);
         voice_state = (state[VOICE]);
         do_cleanup();
-	init_checklists();
+	//init_checklists();
 
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
@@ -271,8 +271,8 @@ bool init_checklists()
         char *clist = findChecklist();
         if(clist){
           res = start_checklists(clist, 0);
+          free(clist);
         }
-        free(clist);
         checklists_count = -1; // to make it rebuild menus...
         return res;
 }
