@@ -15,6 +15,10 @@ static size_t msgSize = 0;
 #ifndef CHECKER
 
 #if IBM
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#endif
+
+#if IBM
   static const std::string dirSep = "\\";
 #else
   static const std::string dirSep = "/";
