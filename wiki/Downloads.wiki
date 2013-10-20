@@ -4,7 +4,7 @@ Since I cannot add a download tab here this is how you can get the current versi
 
 After clicking on the zip click on File in the upper left of the page.
 
-Then Download.
+Then Download from the dropdown list.
 
 [https://docs.google.com/file/d/0B9TcbxCaWqMBbVZwUHlqNjlFZkU/edit?usp=sharing Xchecklist_0_76.zip]
 
