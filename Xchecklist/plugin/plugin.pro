@@ -18,11 +18,16 @@ DEFINES += XPLM200
 
 win32 {
     DEFINES += APL=0 IBM=1 LIN=0
-    SOURCES += speech_generic.c
+    # SOURCES += speech_generic.c
+    SOURCES += speech_sapi.cpp
     LIBS += -L../../SDK/Libraries/Win
     LIBS += -lXPLM -lXPWidgets
     TARGET = win.xpl
+    LIBS += "-LD:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Lib"
+    LIBS +=  "-lsapi"
+    LIBS +=  "-lole32"
     INCLUDEPATH += D:/gnu/include
+    INCLUDEPATH += "D:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Include"
     INCLUDEPATH += .
 }
 
