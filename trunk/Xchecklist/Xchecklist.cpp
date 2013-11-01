@@ -5,7 +5,7 @@
 //     Michal Navratil
 //     William Good
 //
-//     Ver 0.76 Working to 32/64bit multiplatform
+//     Ver 0.77 Working to 32/64bit multiplatform
 //     X-Plane.org
 //
 //     A plugin to display a clist.txt in widget window
@@ -134,10 +134,10 @@ PLUGIN_API int XPluginStart(
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
 
-         xcDebug("Xchecklist: ver 0.76\n");
+         xcDebug("Xchecklist: ver 0.77\n");
 
         /* First set up our plugin info. */
-        strcpy(outName, "Xchecklist ver 0.76");
+        strcpy(outName, "Xchecklist ver 0.77");
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
