@@ -16,7 +16,10 @@ typedef enum {XC_NOT, XC_EQ, XC_LE, XC_GE, XC_IN, XC_HYST} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
+
+#if __GNUC__ | __APPLE__
 extern "C" bool voice_state;
+#endif
 
 #if _WIN32
 extern char* chkltext;
