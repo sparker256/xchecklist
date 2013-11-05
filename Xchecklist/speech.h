@@ -15,6 +15,10 @@ void cleanup_speech();
 bool speech_active();
 bool spoken(float elapsed);
 
+#if _WIN32
+extern "C" bool voice_state;
+#endif
+
 #ifdef __cplusplus
 }
 #endif
