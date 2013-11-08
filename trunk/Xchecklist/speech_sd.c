@@ -154,7 +154,7 @@ bool init_speech()
 
 void say(const char *text)
 {
-  XPLMSpeakString(text);
+  //XPLMSpeakString(text);
   int res = wspd_say(connection, SPD_MESSAGE, text);
   if(res != 0){
     ++speaking;
