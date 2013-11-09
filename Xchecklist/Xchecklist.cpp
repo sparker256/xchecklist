@@ -646,16 +646,17 @@ bool create_checklist(unsigned int size, const char *title,
   float maxw_2 = 0;
   float tmp;
   for(i = 0; i < size; ++i){
-    tmp = XPLMMeasureString(xplmFont_Basic, items[i].text, strlen(items[i].text));
+    tmp = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
+    // xcDebug("Xchecklist: %s   tmp = %f\n", items[i].text, tmp);
     if(tmp > maxw_1){
       maxw_1 = tmp;
     }
-    tmp = XPLMMeasureString(xplmFont_Basic, items[i].suffix, strlen(items[i].suffix));
+    tmp = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
     if(tmp > maxw_2){
       maxw_2 = tmp;
     }
   }
-  w = maxw_1 + maxw_2 + 75;
+  w = maxw_1 + maxw_2 + 85;// original was 75
   if(width > w){
       w = width;
   }
@@ -735,8 +736,8 @@ bool create_checklist(unsigned int size, const char *title,
 
              }
 
-             // Create the action for a checklist item widget
-             xCheckListTextAWidget[i] = XPCreateWidget(x+maxw_1+40, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
+             // Create the action for a checklist item widget   **  original x+maxw_1+40
+             xCheckListTextAWidget[i] = XPCreateWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
                                         1,	// Visible
                                         items[i].suffix,// desc
                                         0,		// root
