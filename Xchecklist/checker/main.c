@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   }else if(argc > 1){
     start_checklists(argv[1], 0);
   }else{
-    printf("Usage: %s checklist_name", argv[0]);
+    printf("Usage: %s checklist_name\n", argv[0]);
   }
   stop_checklists();
   xcClose();
