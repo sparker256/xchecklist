@@ -5,7 +5,7 @@
 //     Michal Navratil
 //     William Good
 //
-//     Ver 1.00 Working to 32/64bit multiplatform
+//     Ver 1.01 Working to 32/64bit multiplatform
 //     X-Plane.org
 //
 //     A plugin to display a clist.txt in widget window
@@ -134,10 +134,10 @@ PLUGIN_API int XPluginStart(
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
 
-         xcDebug("Xchecklist: ver 1.00\n");
+         xcDebug("Xchecklist: ver 1.01\n");
 
         /* First set up our plugin info. */
-        strcpy(outName, "Xchecklist ver 1.00");
+        strcpy(outName, "Xchecklist ver 1.01");
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
@@ -622,44 +622,51 @@ bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show)
 {
-  //(void) width;
-  unsigned int i;
-  int x2;
-  int y2;
-  if(checklists_count == -1){
-    create_checklists_menu();
-  }
-  checkable = 0;
-                    if (xCheckListWidget != NULL) {
-
-                        //get current window dimensions
-                        XPGetWidgetGeometry(xCheckListWidget, &outLeft, &outTop, &outRight, &outBottom);
-                        x = outLeft;
-                        y = outTop;
-                        x2 = outRight;
-                        y2 = outBottom;
-
-                        XPDestroyWidget(xCheckListWidget, 1);
-
-                    }
-  float maxw_1 = 0;
-  float maxw_2 = 0;
-  float tmp;
-  for(i = 0; i < size; ++i){
-    tmp = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
-    // xcDebug("Xchecklist: %s   tmp = %f\n", items[i].text, tmp);
-    if(tmp > maxw_1){
-      maxw_1 = tmp;
+    unsigned int i;
+    int x2, y2;
+    int screen_w, screen_h;
+    if (checklists_count == -1) {
+        create_checklists_menu();
     }
-    tmp = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
-    if(tmp > maxw_2){
-      maxw_2 = tmp;
+    checkable = 0;
+    if (xCheckListWidget != NULL) {
+        //get current window dimensions
+        XPGetWidgetGeometry(xCheckListWidget, &outLeft, &outTop, &outRight, &outBottom);
+        x = outLeft;
+        y = outTop;
+        x2 = outRight;
+        y2 = outBottom;
+        XPDestroyWidget(xCheckListWidget, 1);
     }
-  }
-  w = maxw_1 + maxw_2 + 85;// original was 75
-  if(width > w){
-      w = width;
-  }
+    float maxw_1 = 0;
+    float maxw_2 = 0;
+    float tmp_text, tmp_suffix;
+    for (i = 0; i < size; ++i) {
+        tmp_text = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
+        xcDebug("Xchecklist: text  %s   tmp_text = %f\n", items[i].text, tmp_text);
+        if (tmp_text > maxw_1) {
+            maxw_1 = tmp_text;
+        }
+        tmp_suffix = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
+        xcDebug("Xchecklist: suffix  %s   tmp_suffix = %f\n", items[i].suffix, tmp_suffix);
+        if (tmp_suffix > maxw_2) {
+            maxw_2 = tmp_suffix;
+        }
+    }
+    xcDebug("Xchecklist: maxw_1 = %f   maxw_2 = %f\n", maxw_1, maxw_2);
+    xcDebug("Xchecklist: int(maxw_1) = %d  int(maxw_2) = %d\n", int(maxw_1), int(maxw_2));
+
+    w = int(maxw_1) + int(maxw_2) + 85;// original was 75
+    xcDebug("Xchecklist: width = %d w = %d\n", width, w);
+    //if (width > w) {
+    //    w = width;
+    //}
+    xcDebug("Xchecklist: w = %d\n", w);
+    XPLMGetScreenSize(&screen_w, &screen_h);
+    xcDebug("Xchecklist: screen_w = %d\n", screen_w);
+    if (w > (screen_w / 2)) {
+        w = screen_w / 2;
+    }
     x2 = x + w;
     y2 = y - h;
     //int Index;  //unused
