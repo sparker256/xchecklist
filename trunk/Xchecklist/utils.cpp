@@ -101,17 +101,17 @@ char *findChecklist(void)
   std::string myACFPath = processPath(AircraftPath);
 	    
   std::string name1 = myACFPath + dirSep + "clist.txt";
-  std::string name2 = myACFPath + dirSep + "plane.txt";
+  //std::string name2 = myACFPath + dirSep + "plane.txt";
   FILE *f;
   if((f = fopen(name1.c_str(), "r")) != NULL){
       fclose(f);
       return c_strFromString(name1);
   }
 
-  if((f = fopen(name2.c_str(), "r")) != NULL){
-      fclose(f);
-      return c_strFromString(name2);
-  }
+  //if((f = fopen(name2.c_str(), "r")) != NULL){
+  //    fclose(f);
+  //    return c_strFromString(name2);
+  //}
   return NULL;
 }
 #endif //CHECKER
