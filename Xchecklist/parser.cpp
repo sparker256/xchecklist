@@ -39,6 +39,7 @@ checklist::checklist(std::string display, std::string menu)
 {
   displaytext = display;
   menutext = menu;
+  width = 300;
   finished = false;
 }
 
