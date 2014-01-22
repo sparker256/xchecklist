@@ -643,29 +643,29 @@ bool create_checklist(unsigned int size, const char *title,
     float tmp_text, tmp_suffix;
     for (i = 0; i < size; ++i) {
         tmp_text = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
-        xcDebug("Xchecklist: text  %s   tmp_text = %f\n", items[i].text, tmp_text);
+        //xcDebug("Xchecklist: text  %s   tmp_text = %f\n", items[i].text, tmp_text);
         if (tmp_text > maxw_1) {
             maxw_1 = tmp_text;
         }
         tmp_suffix = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
-        xcDebug("Xchecklist: suffix  %s   tmp_suffix = %f\n", items[i].suffix, tmp_suffix);
+        //xcDebug("Xchecklist: suffix  %s   tmp_suffix = %f\n", items[i].suffix, tmp_suffix);
         if (tmp_suffix > maxw_2) {
             maxw_2 = tmp_suffix;
         }
     }
-    xcDebug("Xchecklist: maxw_1 = %f   maxw_2 = %f\n", maxw_1, maxw_2);
-    xcDebug("Xchecklist: int(maxw_1) = %d  int(maxw_2) = %d\n", int(maxw_1), int(maxw_2));
+    //xcDebug("Xchecklist: maxw_1 = %f   maxw_2 = %f\n", maxw_1, maxw_2);
+    //xcDebug("Xchecklist: int(maxw_1) = %d  int(maxw_2) = %d\n", int(maxw_1), int(maxw_2));
 
     w = int(maxw_1) + int(maxw_2) + 85;// original was 75
-    xcDebug("Xchecklist: width = %d w = %d\n", width, w);
+    //xcDebug("Xchecklist: width = %d w = %d\n", width, w);
     //if (width > w) {
     //    w = width;
     //}
-    xcDebug("Xchecklist: w = %d\n", w);
+    //xcDebug("Xchecklist: w = %d\n", w);
     XPLMGetScreenSize(&screen_w, &screen_h);
-    xcDebug("Xchecklist: screen_w = %d\n", screen_w);
-    if (w > (screen_w / 2)) {
-        w = screen_w / 2;
+    //xcDebug("Xchecklist: screen_w = %d\n", screen_w);
+    if (w > screen_w/2) {
+        w = screen_w/2;
     }
     x2 = x + w;
     y2 = y - h;
