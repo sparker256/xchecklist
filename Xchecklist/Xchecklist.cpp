@@ -79,12 +79,14 @@ XPWidgetID	setupWidget = NULL;
 
 //XPWidgetID xCheckListCopilotInfoWidget;
 
+const int maxChecklistItems = 50;
+
 XPWidgetID      xChecklistPreviousButton = NULL;
 XPWidgetID      xChecklistNextButton = NULL;
-XPWidgetID	xCheckListCopilotWidget[50] = {NULL};
-XPWidgetID	xCheckListCheckWidget[50] = {NULL};
-XPWidgetID	xCheckListTextWidget[50] = {NULL};
-XPWidgetID	xCheckListTextAWidget[50] = {NULL};
+XPWidgetID	xCheckListCopilotWidget[maxChecklistItems] = {NULL};
+XPWidgetID	xCheckListCheckWidget[maxChecklistItems] = {NULL};
+XPWidgetID	xCheckListTextWidget[maxChecklistItems] = {NULL};
+XPWidgetID	xCheckListTextAWidget[maxChecklistItems] = {NULL};
 
 XPWidgetID	setupCheckWidget[10] = {NULL};
 XPWidgetID	setupTextWidget[10] = {NULL};
@@ -625,6 +627,11 @@ bool create_checklist(unsigned int size, const char *title,
     unsigned int i;
     int x2, y2;
     int screen_w, screen_h;
+    
+    if(size > maxChecklistItems - 1){
+      size = maxChecklistItems;
+    }
+    
     if (checklists_count == -1) {
         create_checklists_menu();
     }
