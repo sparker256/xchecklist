@@ -16,9 +16,9 @@
 %option warn
 %option yylineno
 
-%x ERR NUM DREF VOID
+%x NUM DREF VOID
 
-EOL                     (\r|\n|\n\r)
+EOL                     (\r|\n|\n\r|\r\n)
 STRING			        [^\n\r:|]+
 VOIDSTRING		        [^\n\r]+
 DATAREF			        [^\n\r:|\[\]]+
@@ -63,8 +63,7 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 <DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
 <DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
 <INITIAL,NUM,DREF,VOID>#.*			{}
-<ERR>[^\r\n]*           {return(TOKEN_ERR);}
-<INITIAL,ERR,NUM,DREF,VOID>{EOL}	{
+<INITIAL,NUM,DREF,VOID>{EOL}	{
                           BEGIN(INITIAL);
                           isVoid = false;
                           //fprintf(stderr, ">>>>>>>>>>Initial!\n");
@@ -90,12 +89,6 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
                                   chkltext, chkllineno);
                              }
 %%
-
-void start_error_recovery()
-{
-  //printf("Starting error recovery!!!\n");
-  BEGIN(ERR);
-}
 
 void expect_number()
 {
