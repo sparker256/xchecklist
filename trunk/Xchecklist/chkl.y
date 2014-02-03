@@ -87,18 +87,21 @@ line:		checklist{
                     current_checklist->set_width(*$1);
                     delete($1);
                   }
-		| problem TOKEN_ERR;
+		| error {
+		    yyclearin;
+		    yyerrok;
+		  }
 ;
-
-problem:        error {start_error_recovery();};
 
 checklist:	TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3);
+                    printf("New checklist def '%s'!\n", $3);
                     free($3);
                   }
 		| TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING 
 		    TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3, $5);
+                    printf("New checklist def1 '%s'!\n", $3);
                     free($3);
                     free($5);
                   }
