@@ -86,8 +86,8 @@ class checklist_binder{
     bool next_checklist();
     bool item_checked(int item);
     bool do_processing(bool visible, bool copilotOn);
-    bool get_checklist_names(int *size, constname_t *names[]);
-    bool free_checklist_names(int size, constname_t *names[]);
+    bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);
+    bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
     bool checklist_finished();
   private:
     std::vector<checklist*> checklists;

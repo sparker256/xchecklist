@@ -74,16 +74,17 @@ bool do_processing(bool visible, bool copilotOn);
 //
 //Usage example:
 //  constname_t *names = NULL;
+//  int *indexes = NULL;
 //  int names_size;
-//  get_checklist_names(&names_size, &names);
+//  get_checklist_names(&names_size, &names, &indexes);
 //  for(int i = 0; i < names_size; ++i){
-//    printf("Checklist : %s\n", names[i]);
+//    printf("Checklist : %d: %s\n", indexes[i], names[i]);
 //  }
-//  free_checklist_names(names_size, &names);
+//  free_checklist_names(names_size, &names, &indexes);
 typedef const char *constname_t;
 
-bool get_checklist_names(int *size, constname_t *names[]);
-bool free_checklist_names(int size, constname_t *names[]);
+bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);
+bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
 bool checklist_finished();
 
 /*******************************************************************************

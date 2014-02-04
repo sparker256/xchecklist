@@ -253,14 +253,16 @@ bool do_cleanup()
 bool create_checklists_menu(void)
 {
   int size;
+  int size_all;
   constname_t *names;
+  int *indexes;
   XPLMClearAllMenuItems(checklistsMenu);
-  if(get_checklist_names(&size, &names)){
-    checklists_count = size;
+  if(get_checklist_names(&size_all, &size, &names, &indexes)){
+    checklists_count = size_all;
     for(intptr_t i = 0; i < size; ++i){
-      XPLMAppendMenuItem(checklistsMenu, names[i], (void *) i, 1);
+      XPLMAppendMenuItem(checklistsMenu, names[i], (void *)((intptr_t) indexes[i]), 1);
     }
-    free_checklist_names(size, &names);
+    free_checklist_names(size_all, size, &names, &indexes);
     return true;
   }
   return false;
@@ -368,7 +370,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
   (void) inMenuRef;
   unsigned int pageSize = 0;
   const char *pageTitle = "Default Title";
-  checklist_item_desc_t pageItems[50];
+  checklist_item_desc_t pageItems[maxChecklistItems];
 
   if((intptr_t)inMenuRef == 0){
     if (!strcmp((char *) inItemRef, "checklist")){

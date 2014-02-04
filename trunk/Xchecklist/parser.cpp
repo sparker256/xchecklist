@@ -46,7 +46,7 @@ checklist::checklist(std::string display, std::string menu)
 checklist::checklist(std::string display)
 {
   displaytext = display;
-  menutext = display;
+  menutext = "";
   width = 300;
   finished = false;
 }
@@ -697,21 +697,32 @@ const std::string& checklist::get_name()const
   return menutext;
 }
 
-bool checklist_binder::get_checklist_names(int *size, constname_t *names[])
+bool checklist_binder::get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[])
 {
-  *size = checklists.size();
-  *names = new constname_t[*size];
-  for(int i = 0; i < *size; ++i){
-    (*names)[i] = (constname_t)checklists[i]->get_name().c_str();
+  int sizeOfAll = checklists.size();
+  *names = new constname_t[sizeOfAll];
+  *indexes = new int[sizeOfAll];
+  int j = 0;
+  for(int i = 0; i < sizeOfAll; ++i){
+    if(!checklists[i]->get_name().empty()){
+      (*names)[j] = (constname_t)checklists[i]->get_name().c_str();
+      (*indexes)[j] = i;
+      ++j;
+    }
   }
+  *menu_size = j;
+  *all_checklists = sizeOfAll;
   return true;
 }
 
-bool checklist_binder::free_checklist_names(int size, constname_t *names[])
+bool checklist_binder::free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[])
 {
-  (void) size;
+  (void) all_checklists;
+  (void) menu_size;
   delete [] *names;
+  delete [] *indexes;
   *names = NULL;
+  *indexes = NULL;
   return true;
 }
 

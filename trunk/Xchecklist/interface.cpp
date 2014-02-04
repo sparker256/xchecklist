@@ -71,20 +71,20 @@ bool do_processing(bool visible, bool copilotOn)
   return binder->do_processing(visible, copilotOn);
 }
 
-bool get_checklist_names(int *size, constname_t *names[])
+bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[])
 {
   if(binder == NULL){
     return false;
   }
-  return binder->get_checklist_names(size, names);
+  return binder->get_checklist_names(all_checklists, menu_size, names, indexes);
 }
 
-bool free_checklist_names(int size, constname_t *names[])
+bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[])
 {
   if(binder == NULL){
     return false;
   }
-  return binder->free_checklist_names(size, names);
+  return binder->free_checklist_names(all_checklists, menu_size, names, indexes);
 }
 
 bool checklist_finished()
