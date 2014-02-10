@@ -1,6 +1,4 @@
 TEMPLATE = subdirs
-SUBDIRS += checker plugin
+SUBDIRS += checker plugin simon
 
-macx {
-  SUBDIRS += simon
-}
+

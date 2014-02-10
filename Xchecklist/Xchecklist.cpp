@@ -79,14 +79,12 @@ XPWidgetID	setupWidget = NULL;
 
 //XPWidgetID xCheckListCopilotInfoWidget;
 
-const int maxChecklistItems = 50;
-
 XPWidgetID      xChecklistPreviousButton = NULL;
 XPWidgetID      xChecklistNextButton = NULL;
-XPWidgetID	xCheckListCopilotWidget[maxChecklistItems] = {NULL};
-XPWidgetID	xCheckListCheckWidget[maxChecklistItems] = {NULL};
-XPWidgetID	xCheckListTextWidget[maxChecklistItems] = {NULL};
-XPWidgetID	xCheckListTextAWidget[maxChecklistItems] = {NULL};
+std::vector<XPWidgetID>	xCheckListCopilotWidget;
+std::vector<XPWidgetID>	xCheckListCheckWidget;
+std::vector<XPWidgetID>	xCheckListTextWidget;
+std::vector<XPWidgetID>	xCheckListTextAWidget;
 
 XPWidgetID	setupCheckWidget[10] = {NULL};
 XPWidgetID	setupTextWidget[10] = {NULL};
@@ -370,7 +368,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
   (void) inMenuRef;
   unsigned int pageSize = 0;
   const char *pageTitle = "Default Title";
-  checklist_item_desc_t pageItems[maxChecklistItems];
+  checklist_item_desc_t pageItems[1];
 
   if((intptr_t)inMenuRef == 0){
     if (!strcmp((char *) inItemRef, "checklist")){
@@ -630,13 +628,22 @@ bool create_checklist(unsigned int size, const char *title,
     int x2, y2;
     int screen_w, screen_h;
     
-    if(size > maxChecklistItems - 1){
-      size = maxChecklistItems;
-    }
-    
     if (checklists_count == -1) {
         create_checklists_menu();
     }
+    
+    for(i = 0; i < xCheckListCopilotWidget.size(); ++i){
+      XPDestroyWidget(xCheckListCopilotWidget[i], 1);
+      XPDestroyWidget(xCheckListCheckWidget[i], 1);
+      XPDestroyWidget(xCheckListTextWidget[i], 1);
+      XPDestroyWidget(xCheckListTextAWidget[i], 1);
+    }
+    
+    xCheckListCopilotWidget.clear();
+    xCheckListCheckWidget.clear();
+    xCheckListTextWidget.clear();
+    xCheckListTextAWidget.clear();
+
     checkable = 0;
     if (xCheckListWidget != NULL) {
         //get current window dimensions
@@ -705,6 +712,11 @@ bool create_checklist(unsigned int size, const char *title,
     }
 
 // Print each line of the checklist in widget window
+     
+     xCheckListCopilotWidget.resize(size);
+     xCheckListCheckWidget.resize(size);
+     xCheckListTextWidget.resize(size);
+     xCheckListTextAWidget.resize(size);
 
      for(i = 0; i < size; ++i){
 

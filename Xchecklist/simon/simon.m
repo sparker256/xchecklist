@@ -103,6 +103,12 @@ int main(int argc, char *argv[])
     write(STDOUT_FILENO, cant_alloc_msg, sizeof(cant_alloc_msg));
     return 1;
   }
+  
+  res = write(STDOUT_FILENO, "\0", 1);
+  if(res < 0){
+    //would write problem message, but we can't send anyway
+    return 1;
+  }
 
   while(1){
     if(!read_message(STDIN_FILENO, msg)){
