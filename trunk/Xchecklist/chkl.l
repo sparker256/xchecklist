@@ -18,7 +18,8 @@
 
 %x NUM DREF VOID
 
-EOL                     (\r|\n|\n\r|\r\n)
+EOL                     (\r|\n)
+EOL2                     (\n\r|\r\n)
 STRING			        [^\n\r:|]+
 VOIDSTRING		        [^\n\r]+
 DATAREF			        [^\n\r:|\[\]]+
@@ -63,11 +64,17 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 <DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
 <DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
 <INITIAL,NUM,DREF,VOID>#.*			{}
+<INITIAL,NUM,DREF,VOID>{EOL2}	{
+                          BEGIN(INITIAL);
+                          isVoid = false;
+                          //fprintf(stderr, ">>>>>>>>>>Initial!\n");
+                        }
 <INITIAL,NUM,DREF,VOID>{EOL}	{
                           BEGIN(INITIAL);
                           isVoid = false;
                           //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                         }
+<INITIAL,NUM,DREF,VOID>[[:blank:]]      /*eat whitespaces*/          
 {STRING}	{
 			  chkllval.str=strdup(yytext);
 			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);

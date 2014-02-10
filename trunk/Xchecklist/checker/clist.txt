@@ -7,9 +7,11 @@ sw_item:Simple item|really
 sw_item:Simple item with strange chars <>/![]=|some more <>/![]=
 sw_item:Item with dataref|check:sim/cockpit/electrical/strobe_lights_on:0
 sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:!1.0
-sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:<1.0e-3
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:<1.0e-3 
 sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:.1e-1|.5e0
 sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:0:1
+sw_item:Landing Light Right|ON:sim/custom/xap/extlight/landr_sw:2 
+
 
 sw_checklist:Checklist name with strange chars like <>/![]=:menutext with strange chars like <>/![]=
 sw_itemvoid:Simplest item
