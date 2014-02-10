@@ -774,11 +774,12 @@ bool parse_clist(const std::string &fname, int debug)
   if((chklin=fopen(fname.c_str(), "r")) != NULL){
     parsed_file = strdup(fname.c_str());
     chkldebug=debug;
+    
     int res = chklparse();
     fclose(chklin);
     free(parsed_file);
     parsed_file = NULL;
-    
+    chkllineno = 1;
     if(res == 0){
         xcDebug("Xchecklist: Preferences read OK!\n");
         return(true);
