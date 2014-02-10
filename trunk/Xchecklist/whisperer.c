@@ -8,6 +8,8 @@
 #include <poll.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "messages.h"
 #include "whisperer.h"
 
@@ -41,8 +43,11 @@ static void whisperer_cleanup(void)
   }
 }
 
+static bool whisperer_wait(void);
+
 bool whisperer_init(const char *prog)
 {
+  ssize_t res;
   //Alloc new message
   if(!new_message(&message)){
     return false;
@@ -89,7 +94,8 @@ bool whisperer_init(const char *prog)
       
       execv(argv[0], argv);
       //fallthrough in case execv fails.
-      write(STDERR_FILENO, exec_fail, sizeof(exec_fail));
+      res = write(STDERR_FILENO, exec_fail, sizeof(exec_fail));
+      (void) res; //can't do much about it...
       exit(0);
       break;
     default:
@@ -98,6 +104,19 @@ bool whisperer_init(const char *prog)
       to_child = pipefd_to_child[1];
       from_child = pipefd_to_parent[0];
       break;
+  }
+  printf("Child process pid: %d\n", pid);
+  //wait for the child to acknowledge its start.
+  if(!whisperer_wait()){
+    close(pipefd_to_child[0]);
+    close(pipefd_to_child[1]);
+    int status;
+    pid_t wres = waitpid(pid, &status, 0);
+    if(wres < 0){
+      perror("waitpid");
+    }
+    printf("Child not responding! %d \n", wres);
+    return false;
   }
   //Start the communicator thread
   request = NOP;
@@ -111,6 +130,7 @@ static bool whisperer_wait(void)
   char buf[1024];
   struct pollfd pipe_poll;
   int fds;
+  ssize_t res;
   
   bzero(buf, sizeof(buf));
   pipe_poll.fd = from_child;
@@ -120,6 +140,7 @@ static bool whisperer_wait(void)
     //check if we shouldn't close
     pthread_mutex_lock(&whisper_mutex);
     if(request == STOP){
+      pthread_mutex_unlock(&whisper_mutex);
       break;
     }
     pthread_mutex_unlock(&whisper_mutex);
@@ -132,7 +153,11 @@ static bool whisperer_wait(void)
         return false;
       }else{
         printf("Reading...\n");
-        read(from_child, buf, sizeof(buf)-1);
+        res = read(from_child, buf, sizeof(buf)-1);
+        if(res < 0){
+          perror("read@whisperer_wait");
+          continue;
+        }
         if(buf[0] != '\0'){
           printf("%s", buf);
         }

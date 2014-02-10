@@ -6,14 +6,28 @@
 
 static bool active = false;
 
-bool init_speech()
+static bool init_simon(char *name)
 {
-  char *simon = pluginPath("simon");
-  active = false;
+  char *simon = pluginPath(name);
   if(simon){
     active = whisperer_init(simon);
   }
-  free(simon);
+  free((void*)simon);
+  return active;
+}
+
+bool init_speech()
+{
+  active = false;
+#if APL
+  return init_simon("simon_mac");
+#elif LIN
+  bool res;
+  res = init_simon("simon_lin32");
+  if(!res){
+    return init_simon("simon_lin64");
+  }
+#endif
   return active;
 }
 
