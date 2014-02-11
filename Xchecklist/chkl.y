@@ -38,6 +38,8 @@
 %token TOKEN_COLON
 %token TOKEN_PIPE
 %token TOKEN_NE
+%token TOKEN_LT
+%token TOKEN_GT
 %token TOKEN_LE
 %token TOKEN_GE
 %token TOKEN_COMMENT
@@ -110,6 +112,9 @@ checklist:	TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
 item:		TOKEN_ITEM TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, true);
                   }
+		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
+                    $$ = new chk_item($3, NULL, true);
+                  }
 		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref{
                     $$ = new chk_item($3, $5, true);
                   }
@@ -125,6 +130,9 @@ item_void:      TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING{
                     $$ = new void_item($3);
                     free($3);
                   }
+                | TOKEN_ITEMVOID TOKEN_COLON{
+                    $$ = new void_item("");
+                  }
 ;
 show:		TOKEN_SHOW TOKEN_COLON dataref{
                     $$ = new show_item($3);
@@ -136,6 +144,11 @@ colsize:	TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
                   }
 ;
 spec_string:    TOKEN_STRING{
+                    $$ = new item_label($1);
+                    free($1);
+                    expect_dataref();
+                  }
+		| TOKEN_STRING TOKEN_PIPE{
                     $$ = new item_label($1);
                     free($1);
                     expect_dataref();
@@ -176,8 +189,11 @@ dataref_name:   TOKEN_STRING {
 ;
 
 operation:      TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
+                | TOKEN_LT {$$ = (int *)new operation_t(XC_LT);}
+                | TOKEN_GT {$$ = (int *)new operation_t(XC_GT);}
                 | TOKEN_LE {$$ = (int *)new operation_t(XC_LE);}
                 | TOKEN_GE {$$ = (int *)new operation_t(XC_GE);}
+                | TOKEN_EQ {$$ = (int *)new operation_t(XC_EQ);}
 ;
 
 number:         TOKEN_NUMBER 

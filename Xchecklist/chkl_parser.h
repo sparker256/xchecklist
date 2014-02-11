@@ -12,7 +12,7 @@
 #endif
 
 
-typedef enum {XC_NOT, XC_EQ, XC_LE, XC_GE, XC_IN, XC_HYST} operation_t;
+typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
@@ -112,6 +112,8 @@ class number{
  public:
   number(std::string i, std::string d, std::string e);
   float get_value();
+  bool lt(float &val1);
+  bool gt(float &val1);
   bool le(float &val1);
   bool ge(float &val1);
   bool eq(float &val1);

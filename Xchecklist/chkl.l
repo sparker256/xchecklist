@@ -27,8 +27,8 @@ RBRACKET                \[
 LBRACKET                \]
 NEQ                     !
 EQ                      =
-LE                      <
-GE                      >
+LT                      <
+GT                      >
 PIPE                    \|
 DOT                     \.
 NUMBER                  [+-]?[0-9]+
@@ -44,9 +44,11 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 <INITIAL,NUM,DREF>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
+<NUM>{LT}{EQ}                {return(TOKEN_LE);}
+<NUM>{GT}{EQ}                {return(TOKEN_GE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
-<NUM>{LE}                    {return(TOKEN_LE);}
-<NUM>{GE}                    {return(TOKEN_GE);}
+<NUM>{LT}                    {return(TOKEN_LT);}
+<NUM>{GT}                    {return(TOKEN_GT);}
 <INITIAL,NUM>{PIPE}                   {return(TOKEN_PIPE);}
 <NUM>{NUMBER}                {
 			  chkllval.str=strdup(yytext);
