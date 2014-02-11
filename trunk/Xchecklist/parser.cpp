@@ -161,11 +161,17 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
     case XC_EQ:
       output<<" == "<<*(d.val1);
       break;
-    case XC_LE:
+    case XC_LT:
       output<<" < "<<*(d.val1);
       break;
-    case XC_GE:
+    case XC_GT:
       output<<" > "<<*(d.val1);
+      break;
+    case XC_LE:
+      output<<" <= "<<*(d.val1);
+      break;
+    case XC_GE:
+      output<<" >= "<<*(d.val1);
       break;
     case XC_IN:
       output<<" BELONGS TO ("<< *(d.val1) <<" : "<<*(d.val2)<<")";
@@ -318,6 +324,16 @@ bool number::ge(float &val1)
   return val1 >= value;
 }
 
+bool number::lt(float &val1)
+{
+  return val1 < value;
+}
+
+bool number::gt(float &val1)
+{
+  return val1 > value;
+}
+
 bool number::eq(float &val1)
 {
   float tmp = precision * roundf(val1 / precision);
@@ -332,6 +348,16 @@ bool operator<=(float &val1, number val2)
 bool operator>=(float &val1, number val2)
 {
   return val2.ge(val1);
+}
+
+bool operator<(float &val1, number val2)
+{
+  return val2.lt(val1);
+}
+
+bool operator>(float &val1, number val2)
+{
+  return val2.gt(val1);
 }
 
 bool operator==(float &val1, number val2)
@@ -405,6 +431,12 @@ bool dataref_dsc::trigered()
       break;
     case XC_EQ:
       res = (val == *val1) ? true : false;
+      break;
+    case XC_LT:
+      res = (val < *val1) ? true : false;
+      break;
+    case XC_GT:
+      res = (val > *val1)? true : false;
       break;
     case XC_LE:
       res = (val <= *val1) ? true : false;
