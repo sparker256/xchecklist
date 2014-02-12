@@ -14,7 +14,6 @@
 %option noinput
 %option nodefault
 %option warn
-%option yylineno
 
 %x NUM DREF VOID
 
@@ -64,10 +63,11 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
                         }
 <DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
 <DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
-<INITIAL,NUM,DREF,VOID>#.*			{}
+<INITIAL,NUM,DREF,VOID>#[^\r\n]*			{}
 <INITIAL,NUM,DREF,VOID>{EOL}	{
                           BEGIN(INITIAL);
                           isVoid = false;
+                          ++chkllineno;
                           //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                         }
 <INITIAL,NUM,DREF,VOID>[[:blank:]]      /*eat whitespaces*/          
