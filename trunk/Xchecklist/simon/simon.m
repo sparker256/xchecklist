@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
 {
   (void) argc;
   (void) argv;
+  ssize_t res;
+
   s = [[synt alloc] init];
   if(!new_message(&msg)){
     write(STDOUT_FILENO, cant_alloc_msg, sizeof(cant_alloc_msg));
