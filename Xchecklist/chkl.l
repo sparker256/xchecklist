@@ -5,10 +5,7 @@
   //#include <stdbool.h>
   #include "chkl_yacc.h"
   #include "utils.h"
-
-  #if _WIN32
   #include "chkl_parser.h"
-  #endif
   
   static bool isVoid = false;
 

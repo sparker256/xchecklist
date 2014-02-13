@@ -15,7 +15,7 @@ void cleanup_speech();
 bool speech_active();
 bool spoken(float elapsed);
 
-#if _WIN32
+#if IBM
 extern bool voice_state;
 #endif
 

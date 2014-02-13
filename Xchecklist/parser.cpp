@@ -20,18 +20,6 @@ float roundf(float x)
 
 int chklparse(void);
 
-#if _WIN32
-//FILE* chklin;
-//int chkldebug;
-//char* chkltext;
-int chkllineno;
-#else
-extern FILE* chklin;
-extern int chkldebug;
-extern char* chkltext;
-extern int chkllineno;
-#endif
-
 extern checklist *current_checklist;
 char *parsed_file;
 
