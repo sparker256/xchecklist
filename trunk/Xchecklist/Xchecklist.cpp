@@ -40,8 +40,8 @@
 #include <windows.h>
 #endif
 
-// need to use _WIN32 to get VS2012 to be happy
-#if _WIN32
+// to get VS2012 to be happy
+#if IBM
 #define strcasecmp( s1, s2 ) strcmpi( s1, s2 )
 #define strncasecmp( s1, s2, n ) strnicmp( s1, s2, n )
 #define snprintf sprintf_s

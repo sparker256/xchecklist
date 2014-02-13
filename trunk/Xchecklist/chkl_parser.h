@@ -5,28 +5,21 @@
 #include <vector>
 #include <iostream>
 
-#if _WIN32
 #include "interface.h"
-#else
-#include <interface.h>
-#endif
-
 
 typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
 
-#if __GNUC__ | __APPLE__
+#if LIN | APL
 extern "C" bool voice_state;
 #endif
 
-#if _WIN32
 extern char* chkltext;
 extern int chkllineno;
 extern int chkldebug;
 extern FILE* chklin;
-#endif
 
 class checklist_item{
   friend std::ostream& operator<<(std::ostream &output, const checklist_item& s);
