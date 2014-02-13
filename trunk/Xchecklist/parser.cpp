@@ -20,11 +20,11 @@ float roundf(float x)
 
 int chklparse(void);
 
-#if IBM
+#if _WIN32
 //FILE* chklin;
 //int chkldebug;
 //char* chkltext;
-//int chkllineno;
+int chkllineno;
 #else
 extern FILE* chklin;
 extern int chkldebug;
