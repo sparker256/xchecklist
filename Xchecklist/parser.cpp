@@ -20,9 +20,9 @@ float roundf(float x)
 
 int chklparse(void);
 
-#if IBM
-int chkllineno;
-#endif
+//#if IBM
+//  int chkllineno;
+//#endif
 
 extern checklist *current_checklist;
 char *parsed_file;
