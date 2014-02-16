@@ -25,8 +25,7 @@ win32{
     LIBS += -L../../SDK/Libraries/Win
     TARGET = win.xpl
     INCLUDEPATH += .
-    LIBS +=  "-lsapi"
-    LIBS +=  "-lole32"
+    LIBS +=  "-lole32" "-luuid" "-lsapi"
 }
 
 win32:isEmpty(CROSS_COMPILE){
@@ -44,19 +43,19 @@ win32:!isEmpty(CROSS_COMPILE){
     QMAKE_YACC_HEADER       = $base.tab.h
     QMAKE_YACC_SOURCE       = $base.tab.c
     QMAKE_DEL_FILE          = rm -f
-    INCLUDEPATH += "../../Microsoft Speech SDK 5.1/Include"
+    INCLUDEPATH += "../../WinSDK/Include"
     LIBS += -static-libstdc++ -static-libgcc
 }
 
 win32:contains(CROSS_COMPILE, x86_64-w64-mingw32-){
     message(win32cross64)
-    LIBS += -L"../../Microsoft Speech SDK 5.1/Lib/i386/x64"
+    LIBS += -L"../../WinSDK/Lib/x64"
     LIBS += -lXPLM_64 -lXPWidgets_64
 }
 
 win32:contains(CROSS_COMPILE, i686-w64-mingw32-){
     message(win32cross32)
-    LIBS += -L"../../Microsoft Speech SDK 5.1/Lib/i386"
+    LIBS += -L"../../WinSDK/Lib"
     LIBS += -lXPLM -lXPWidgets
     DEFINES += __MIDL_user_allocate_free_DEFINED__
 }
