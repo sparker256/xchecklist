@@ -7,28 +7,58 @@ CONFIG -= thread exceptions qt rtti release
 
 VERSION = 1.0.0
 
-INCLUDEPATH += ../../SDK/CHeaders/XPLM
-INCLUDEPATH += ../../SDK/CHeaders/Wrappers
-INCLUDEPATH += ../../SDK/CHeaders/Widgets
+INCLUDEPATH += ../../../SDK/CHeaders/XPLM
+INCLUDEPATH += ../../../SDK/CHeaders/Wrappers
+INCLUDEPATH += ../../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 VPATH = ..
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
 DEFINES += XPLM200
 
-win32 {
+win32{
+    message(win32)
+    CONFIG += dll
     DEFINES += APL=0 IBM=1 LIN=0
     # SOURCES += speech_generic.c
     SOURCES += speech_sapi.cpp
     LIBS += -L../../SDK/Libraries/Win
-    LIBS += -lXPLM -lXPWidgets
     TARGET = win.xpl
-    LIBS += "-LD:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Lib"
+    INCLUDEPATH += .
     LIBS +=  "-lsapi"
     LIBS +=  "-lole32"
+}
+
+win32:isEmpty(CROSS_COMPILE){
+    message(win32nocross)
+    LIBS += -lXPLM -lXPWidgets
+    LIBS += "-LD:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Lib"
     INCLUDEPATH += D:/gnu/include
     INCLUDEPATH += "D:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Include"
-    INCLUDEPATH += .
+}
+
+win32:!isEmpty(CROSS_COMPILE){
+    message(win32cross)
+    QMAKE_YACC = yacc
+    QMAKE_YACCFLAGS_MANGLE  += -p $base -b $base
+    QMAKE_YACC_HEADER       = $base.tab.h
+    QMAKE_YACC_SOURCE       = $base.tab.c
+    QMAKE_DEL_FILE          = rm -f
+    INCLUDEPATH += "../../Microsoft Speech SDK 5.1/Include"
+    LIBS += -static-libstdc++ -static-libgcc
+}
+
+win32:contains(CROSS_COMPILE, x86_64-w64-mingw32-){
+    message(win32cross64)
+    LIBS += -L"../../Microsoft Speech SDK 5.1/Lib/i386/x64"
+    LIBS += -lXPLM_64 -lXPWidgets_64
+}
+
+win32:contains(CROSS_COMPILE, i686-w64-mingw32-){
+    message(win32cross32)
+    LIBS += -L"../../Microsoft Speech SDK 5.1/Lib/i386"
+    LIBS += -lXPLM -lXPWidgets
+    DEFINES += __MIDL_user_allocate_free_DEFINED__
 }
 
 unix:!macx {

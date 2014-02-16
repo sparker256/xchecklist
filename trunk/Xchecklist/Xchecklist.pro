@@ -1,4 +1,6 @@
 TEMPLATE = subdirs
-SUBDIRS += checker plugin simon
-
+SUBDIRS += checker plugin
+unix{
+  SUBDIRS +=  simon
+}
 
