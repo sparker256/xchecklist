@@ -1,5 +1,5 @@
+#summary This page summarizes steps to compile Xchecklist for Windows on Linux.
 #labels Phase-Implementation
-#This page summarizes steps to compile Xchecklist for Windows on Linux.
 
 = Introduction =
 
@@ -30,13 +30,7 @@ Now in Linux navigate to your Wine prefix (~/.wine by default) and in drive_c/Pr
 WinSDK/
 ├── Include
 │   ├── sapi51.h
-│   ├── sapi53.h
-│   ├── sapiaut.idl
-│   ├── sapiddk51.h
-│   ├── sapiddk.h
-│   ├── sapiddk.idl
 │   ├── sapi.h
-│   └── sapi.idl
 └── Lib
     ├── sapi.lib
     └── x64
