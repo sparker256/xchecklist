@@ -33,11 +33,6 @@ float get_float_dataref(dataref_p dref)
   return 0.0f;
 }
 
-void XPLMDebugString(const char *msg)
-{
-  printf("%s\n", msg);
-}
-
 bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show)

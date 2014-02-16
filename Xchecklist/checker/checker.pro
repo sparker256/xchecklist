@@ -8,9 +8,9 @@ CONFIG -= thread exceptions qt rtti release
 
 VERSION = 1.0.0
 
-INCLUDEPATH += ../../SDK/CHeaders/XPLM
-INCLUDEPATH += ../../SDK/CHeaders/Wrappers
-INCLUDEPATH += ../../SDK/CHeaders/Widgets
+INCLUDEPATH += ../../../SDK/CHeaders/XPLM
+INCLUDEPATH += ../../../SDK/CHeaders/Wrappers
+INCLUDEPATH += ../../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
@@ -20,10 +20,22 @@ win32 {
     DEFINES += APL=0 IBM=1 LIN=0
     LIBS += -L../../SDK/Libraries/Win
     # LIBS += -lXPLM -lXPWidgets
-    LIBS += -LD:/Qt/Qt5.1.0_32/5.1.0/msvc2010_opengl/lib
-    LIBS += -lqtmain
-    INCLUDEPATH += D:/gnuwin32/include
     CONFIG += console
+}
+
+win32:isEmpty(CROSS_COMPILE){
+    LIBS += -LD:/Qt/Qt5.1.0_32/5.1.0/msvc2010_opengl/lib
+    INCLUDEPATH += D:/gnuwin32/include
+#    LIBS += -lqtmain
+}
+
+win32:!isEmpty(CROSS_COMPILE){
+    QMAKE_YACC = yacc
+    QMAKE_YACCFLAGS_MANGLE  += -p $base -b $base
+    QMAKE_YACC_HEADER       = $base.tab.h
+    QMAKE_YACC_SOURCE       = $base.tab.c
+    QMAKE_DEL_FILE          = rm -f
+    LIBS += -static-libstdc++ -static-libgcc
 }
 
 unix:!macx {

@@ -1,18 +1,21 @@
 #include <string>
-#include "XPLMUtilities.h"
-#include "XPLMPlanes.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <string.h>
+
+
 static char *msg = NULL;
 static size_t msgSize = 0;
 
 /*NOT THREAD SAFE!!!*/
 
 #ifndef CHECKER
+
+#include "XPLMUtilities.h"
+#include "XPLMPlanes.h"
 
 #if IBM
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
@@ -125,7 +128,11 @@ static void xcDebugInt(const char *format, va_list va)
     msg = (char *)malloc(msgSize);
   }
   if(msg == NULL){
+#ifndef CHECKER    
     XPLMDebugString("Xchecklist: Couldn't allocate buffer for messages!\n");
+#else
+    printf("Xchecklist: Couldn't allocate buffer for messages!\n");
+#endif
     return;
   }
   while(1){ /*looping once, in case of string too big*/
@@ -139,7 +146,11 @@ static void xcDebugInt(const char *format, va_list va)
     va_end(vc);
     
     if((res > -1) && ((size_t)res < msgSize)){
+#ifndef CHECKER    
       XPLMDebugString(msg);
+#else
+      printf("%s", msg);
+#endif
       return;
     }else{
       void *tmp;
@@ -150,7 +161,12 @@ static void xcDebugInt(const char *format, va_list va)
       msg = (char *)tmp;
     }
   }
+  
+#ifndef CHECKER
   XPLMDebugString("Xchecklist: Problem with debug message formatting!\n");
+#else
+  printf("Xchecklist: Problem with debug message formatting!\n");
+#endif
   msg = NULL;
   msgSize = 0;
   return;

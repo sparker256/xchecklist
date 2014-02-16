@@ -8,7 +8,7 @@
 #include "chkl_parser.h"
 #include "speech.h"
 #include "utils.h"
-#include "XPLMUtilities.h"
+#include <XPLMUtilities.h>
 
 
 #if IBM
