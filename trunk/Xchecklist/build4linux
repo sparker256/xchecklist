@@ -23,6 +23,7 @@ make distclean >/dev/null
 qmake -spec linux-g++-64 && make &&
 cp plugin/liblin.xpl.so release/Xchecklist/64/lin.xpl &&
 cp checker/checker release/Xchecklist/lin_checker_64bit
+cp simon/simon_lin release/Xchecklist/simon_lin64
 if [ $? != 0 ] ; then
   exit
 fi
@@ -32,6 +33,7 @@ make distclean >/dev/null
 qmake -spec linux-g++-32 && make &&
 cp plugin/liblin.xpl.so release/Xchecklist/lin.xpl &&
 cp checker/checker release/Xchecklist/lin_checker_32bit
+cp simon/simon_lin release/Xchecklist/simon_lin32
 if [ $? != 0 ] ; then
   exit
 fi
