@@ -33,6 +33,7 @@ checklist::checklist(std::string display, std::string menu)
   menutext = menu;
   width = 300;
   finished = false;
+  trigger_block = false;
 }
 
 checklist::checklist(std::string display)
@@ -41,6 +42,7 @@ checklist::checklist(std::string display)
   menutext = "";
   width = 300;
   finished = false;
+  trigger_block = false;
 }
 
 checklist::~checklist()
@@ -543,6 +545,7 @@ bool show_item::show(bool &val)
     val = dataref->trigered();
     return true;
   }
+  val = false;
   return false;
 }
 
@@ -557,18 +560,25 @@ bool checklist::triggered()
 {
   bool res = true;
   bool found_trig = false;
+  bool trigger = true;
   
   for(unsigned int i = 0; i < items.size(); ++i){
     found_trig |= items[i]->show(res);
+    trigger &= res;
   }
   
-  if(found_trig){
-    if(res){
+  if(found_trig){ //there is at least one trigger
+    if(trigger_block){
+      trigger_block = trigger;
+      return false;
+    }
+    if(trigger){ //trigger(s) are active
+      trigger_block = true; 
       for(unsigned int i = 0; i < items.size(); ++i){
         items[i]->reset();
       }
     }
-    return res;
+    return trigger;
   }else{
     return false;
   }
