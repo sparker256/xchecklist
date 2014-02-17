@@ -65,6 +65,7 @@ class checklist{
   int width;
   int current_item;
   bool finished;
+  bool trigger_block;
 };
 
 //Collection of checklists
