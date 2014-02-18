@@ -12,6 +12,9 @@
 //
 // *********************************************************
 
+#define VERSION_NUMBER "1.07"
+
+
 #include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
 #include "XPLMGraphics.h"
@@ -139,10 +142,10 @@ PLUGIN_API int XPluginStart(
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
 
-         xcDebug("Xchecklist: ver 1.06\n");
+         xcDebug("Xchecklist: ver " VERSION_NUMBER "\n");
 
         /* First set up our plugin info. */
-        strcpy(outName, "Xchecklist ver 1.06");
+        strcpy(outName, "Xchecklist ver " VERSION_NUMBER);
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
