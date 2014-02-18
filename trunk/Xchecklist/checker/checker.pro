@@ -8,9 +8,9 @@ CONFIG -= thread exceptions qt rtti release
 
 VERSION = 1.0.0
 
-INCLUDEPATH += ../../../SDK/CHeaders/XPLM
-INCLUDEPATH += ../../../SDK/CHeaders/Wrappers
-INCLUDEPATH += ../../../SDK/CHeaders/Widgets
+INCLUDEPATH += ../../SDK/CHeaders/XPLM
+INCLUDEPATH += ../../SDK/CHeaders/Wrappers
+INCLUDEPATH += ../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
