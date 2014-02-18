@@ -102,6 +102,8 @@ XPLMCommandRef cmdcheckitem;
 XPLMCommandRef cmdnextchecklist;
 XPLMCommandRef cmdhidechecklist;
 
+static XPLMDataRef              ext_view = NULL;
+
 int checklists_count = -1;
 
 void xCheckListMenuHandler(void *, void *);
@@ -114,7 +116,10 @@ static bool init_checklists();
 static bool init_setup();
 static bool do_cleanup();
 static bool set_sound(bool enable);
+static int prev_external_view = false;
+static bool restore_on_internal = false;
 bool voice_state;
+
 
 const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist exist", \
                                  "Turn Copilot On", "Voice Prompt", "Auto Hide"};
@@ -141,6 +146,8 @@ PLUGIN_API int XPluginStart(
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
+
+  ext_view = XPLMFindDataRef("sim/graphics/view/view_is_external");
 
 // Create our menu
         PluginSubMenuItem = XPLMAppendMenuItem(
@@ -344,10 +351,31 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   (void) cntr;
   (void) ref;
   static int hide_cntr;
+  
+  int visible = XPIsWidgetVisible(xCheckListWidget);
+  int external = XPLMGetDatai(ext_view);
+  
+  //hide the widget only when changing the view to external
+  if(external && (!prev_external_view)){
+    if(visible){
+      XPHideWidget(xCheckListWidget);
+      visible = 0;
+      restore_on_internal = true;
+    }
+  }
+  //show only when back in internal views and we remember to (restore_on_internal).
+  if((!external) && prev_external_view){
+    if((!visible) && restore_on_internal){
+      XPShowWidget(xCheckListWidget);
+      visible = 1;
+      restore_on_internal = false;
+    }
+  }
+  
+  prev_external_view = external;
+  do_processing(visible, state[COPILOT_ON]);
 
-  do_processing(XPIsWidgetVisible(xCheckListWidget), state[COPILOT_ON]);
-
-  if((XPIsWidgetVisible(xCheckListWidget)) && (state[AUTO_HIDE])){
+  if((visible) && (state[AUTO_HIDE])){
       if(checklist_finished()){
           ++hide_cntr;
           if(hide_cntr > 30){
@@ -628,6 +656,7 @@ bool create_checklist(unsigned int size, const char *title,
     int x2, y2;
     int screen_w, screen_h;
     
+    restore_on_internal = false;
     if (checklists_count == -1) {
         create_checklists_menu();
     }
