@@ -4,6 +4,7 @@ make distclean >/dev/null
 rm -rf lipo_temp
 rm -rf release
 mkdir -p lipo_temp &&
+mkdir -p release/Checker &&
 mkdir -p release/Xchecklist/64 &&
 make distclean >/dev/null
 qmake -spec macx-clang-32 && make &&
@@ -25,7 +26,7 @@ if [ $? != 0 ] ; then
   exit
 fi
 
-lipo -create lipo_temp/mac_checker_32bit lipo_temp/mac_checker_64bit -output release/Xchecklist/mac_checker
+lipo -create lipo_temp/mac_checker_32bit lipo_temp/mac_checker_64bit -output release/Checker/mac_checker
 
 lipo -create lipo_temp/mac32.xpl lipo_temp/mac64.xpl -output release/Xchecklist/mac.xpl
 
