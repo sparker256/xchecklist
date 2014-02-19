@@ -5,14 +5,15 @@
 //     Michal Navratil
 //     William Good
 //
-//     Ver 1.06 Working to 32/64bit multiplatform
-//     X-Plane.org
-//
 //     A plugin to display a clist.txt in widget window
+//     Also use speach to prompt user
+//
+//     Supporting X-Plane 10.25+ 32/64bit
+//     Also suporting X-Plane 9.70
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.07"
+#define VERSION_NUMBER "1.06"
 
 
 #include "XPLMPlugin.h"
