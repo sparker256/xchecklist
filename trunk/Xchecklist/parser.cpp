@@ -27,6 +27,15 @@ int chklparse(void);
 extern checklist *current_checklist;
 char *parsed_file;
 
+bool checklist_item::check()
+{
+  if(state == PROCESSING){
+    checked = true;
+    return true;
+  }
+  return false;
+}
+
 checklist::checklist(std::string display, std::string menu)
 {
   displaytext = display;
@@ -84,7 +93,7 @@ float number::get_precision(std::string &i, std::string &d, std::string &e)
   float bnd = pow(0.1, sig);
   if(!e.empty()){
     std::ostringstream str;
-    str<<bnd<<e;
+    str<<bnd<<e.c_str();
     bnd = fromString<float>(str.str());
   }
   //std::cout<<i<<d<<e<<" => precision "<<bnd<<std::endl;
@@ -118,7 +127,7 @@ std::ostream& operator<<(std::ostream &output, const number& n)
 
 std::ostream& operator<<(std::ostream &output, const checklist& dsc)
 {
-  output<<"CHECKLIST: "<<dsc.displaytext<<", Menu: "<<dsc.menutext<<std::endl;
+  output<<"CHECKLIST: "<<dsc.displaytext.c_str()<<", Menu: "<<dsc.menutext.c_str()<<std::endl;
   std::vector<checklist_item*>::const_iterator i;
   for(i = dsc.items.begin(); i != dsc.items.end(); ++i){
     output<<**i;
@@ -138,7 +147,7 @@ std::ostream& operator<<(std::ostream &output, const checklist_binder& b)
 
 std::ostream& operator<<(std::ostream &output, const dataref_name& dn)
 {
-  output<<"Dataref: "<<dn.name;
+  output<<"Dataref: "<<dn.name.c_str();
   if(dn.index != -1){
     output<<"["<<dn.index<<"]";
   }
@@ -179,9 +188,9 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
   
 std::ostream& operator<<(std::ostream &output, const item_label& l)
 {
-  output<<l.label;
+  output<<l.label.c_str();
   if(!l.suffix.empty()){
-    output<<"    "<<l.suffix;
+    output<<"    "<<l.suffix.c_str();
   }
   return output;
 }
@@ -199,7 +208,7 @@ void show_item::print(std::ostream &output)const
 
 void void_item::print(std::ostream &output)const
 {
-  output<<"SW_VOID: "<<text<<std::endl;
+  output<<"SW_VOID: "<<text.c_str()<<std::endl;
 }
 
 void chk_item::print(std::ostream &output)const
@@ -656,7 +665,6 @@ bool chk_item::do_processing(bool copilotOn)
         break;
     case SAY_SUFFIX:
         elapsed += 0.1f; // interval the flight loop is set to
-        printf("Saying suffix!\n");
         if(spoken(elapsed)){
             state = NEXT;
         }
@@ -672,6 +680,14 @@ bool chk_item::do_processing(bool copilotOn)
   return true;
 }
 
+bool chk_item::check()
+{
+  if(checkable && (state == PROCESSING)){
+    checked = true;
+    return true;
+  }
+  return false;
+}
 
 //Might be usefull for speech stuff...
 bool checklist::item_checked(int item)
@@ -679,9 +695,9 @@ bool checklist::item_checked(int item)
   (void) item;
   //Current item is checked, find the next checkable/activatable item
   if(current_item > -1){
-    items[current_item]->check();
+    return items[current_item]->check();
   }
-  return true;
+  return false;
 }
 
 bool checklist::activate_next_item(bool init)
