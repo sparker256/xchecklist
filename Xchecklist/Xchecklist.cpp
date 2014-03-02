@@ -607,49 +607,39 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2)
 {
   (void) inParam2;
-        if (inMessage == xpMessage_CloseButtonPushed)
-        {
+  if(inMessage == xpMessage_CloseButtonPushed){
+    if(inWidget == xCheckListWidget){
+      XPHideWidget(xCheckListWidget);
+      return 1;
+    }
+  }
 
-              if (inWidget == xCheckListWidget)
-              {
-                        XPHideWidget(xCheckListWidget);
-                        return 1;
-               }
-        }
+  if(inMessage == xpMsg_PushButtonPressed){
+    printf("Button pushed...\n");
+    if(inParam1 == (intptr_t)xChecklistPreviousButton){
+      prev_checklist();
+      return 1;
+    }
+    if(inParam1 == (intptr_t)xChecklistNextButton){
+      next_checklist();
+      return 1;
+    }
+  }
 
-
-        if (inMessage == xpMsg_PushButtonPressed)
-        {
-	  printf("Button pushed...\n");
-                if (inParam1 == (intptr_t)xChecklistPreviousButton)
-                {
-                        prev_checklist();
-                        return 1;
-                }
-
-                if (inParam1 == (intptr_t)xChecklistNextButton)
-                {
-                        next_checklist();
-                        return 1;
-                }
-        }
-        if(inMessage == xpMsg_ButtonStateChanged)
-	{
-                for(int i = 0; i < max_items; ++i){
-                  if(inParam1 == (intptr_t)xCheckListCheckWidget[i]){
-		    if(i == checkable){
-		      item_checked(i);
-		      return 1;
-		    }else{
-                      XPSetWidgetProperty(xCheckListCheckWidget[i],
-					  xpProperty_ButtonState, (i < checkable) ? 1 : 0);
-            }
-		  }
-		}
+  if(inMessage == xpMsg_ButtonStateChanged){
+    for(int i = 0; i < max_items; ++i){
+      if(inParam1 == (intptr_t)xCheckListCheckWidget[i]){
+	    if(i == checkable){
+	      if(item_checked(i)){
+	        return 1;
+	      }
+	    }
+        XPSetWidgetProperty(xCheckListCheckWidget[i],
+        xpProperty_ButtonState, (i < checkable) ? 1 : 0);
+	  }
 	}
-
-
-        return 0;
+  }
+  return 0;
 }
 
 bool create_checklist(unsigned int size, const char *title,

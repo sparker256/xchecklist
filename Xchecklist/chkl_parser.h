@@ -34,7 +34,7 @@ class checklist_item{
   virtual void reset(){};
   void setIndex(int i){index = i;};
   bool item_done(){return (state == NEXT);};
-  void check(){if(state == PROCESSING) checked = true;};
+  virtual bool check();
  protected:
   int index;
   item_state_t state;
@@ -184,6 +184,7 @@ class chk_item:public checklist_item{
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
     virtual bool do_processing(bool copilotOn);
+    virtual bool check();
   private:
     item_label *label;
     dataref_dsc *dataref;
