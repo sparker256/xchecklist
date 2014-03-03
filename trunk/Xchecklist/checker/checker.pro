@@ -51,10 +51,11 @@ macx {
     DEFINES += APL=1 IBM=0 LIN=0
 
     QMAKE_CXXFLAGS += -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 -fpermissive
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     QMAKE_CFLAGS += -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     QMAKE_LFLAGS += -flat_namespace -undefined suppress
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
     CONFIG -= app_bundle
 
     CONFIG += x86_64 x86

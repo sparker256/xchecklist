@@ -39,6 +39,7 @@ macx {
     QMAKE_CFLAGS += -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     QMAKE_LFLAGS += -flat_namespace -undefined suppress
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
     OBJECTIVE_SOURCES += simon.m
     # Build for multiple architectures.
     # The following line is only needed to build universal on PPC architectures.
