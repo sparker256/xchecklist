@@ -41,7 +41,7 @@ sw_itemvoid             {isVoid = true; return(TOKEN_ITEMVOID);}
 sw_show                 {isVoid = false; return(TOKEN_SHOW);}
 sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 
-<INITIAL,NUM,DREF>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
+<*>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
 <NUM>{LT}{EQ}                {return(TOKEN_LE);}
@@ -49,7 +49,7 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
 <NUM>{LT}                    {return(TOKEN_LT);}
 <NUM>{GT}                    {return(TOKEN_GT);}
-<INITIAL,NUM>{PIPE}                   {return(TOKEN_PIPE);}
+<INITIAL,NUM>{PIPE}          {return(TOKEN_PIPE);}
 <NUM>{NUMBER}                {
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_NUMBER);
@@ -64,14 +64,15 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
                         }
 <DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
 <DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
-<INITIAL,NUM,DREF,VOID>#[^\r\n]*			{}
-<INITIAL,NUM,DREF,VOID>{EOL}	{
+<*>^[[:blank:]]+#[^\r\n]*	{}
+<*>#[^\r\n]*			{}
+<*>{EOL}	{
                           BEGIN(INITIAL);
                           isVoid = false;
                           ++chkllineno;
                           //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                         }
-<INITIAL,NUM,DREF,VOID>[[:blank:]]      /*eat whitespaces*/          
+<*>[[:blank:]]+      /*eat whitespaces*/
 {STRING}	{
 			  chkllval.str=strdup(yytext);
 			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
@@ -88,7 +89,7 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
                         }
-<INITIAL,NUM,DREF,VOID>. {
+<*>. {
                                 xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", 
                                   chkltext, chkllineno);
                              }
