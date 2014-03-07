@@ -374,44 +374,30 @@ bool dataref_dsc::checkTrig(float val)
   if(val1->get_value() < val2->get_value()){
     switch(state){
       case NONE:
-	if(val <= *val1){
-	  state = INIT;
-	}
-	break;
-      case INIT:
-	if(val >= *val2){
-	  state = TRIG;
-	}
-	break;
       case TRIG:
-	if(val <= *val2){
-	  state = NONE;
-	}
-	if(val <= *val1){
-	  state = INIT;
-	}
-	break;
+        if(val <= *val1){
+          state = INIT;
+        }
+        break;
+      case INIT:
+        if(val >= *val2){
+          state = TRIG;
+        }
+        break;
     }
   }else{
     switch(state){
       case NONE:
-	if(val >= *val1){
-	  state = INIT;
-	}
-	break;
-      case INIT:
-	if(val <= *val2){
-	  state = TRIG;
-	}
-	break;
       case TRIG:
-	if(val >= *val2){
-	  state = NONE;
-	}
-	if(val >= *val1){
-	  state = INIT;
-	}
-	break;
+      	if(val >= *val1){
+          state = INIT;
+        }
+        break;
+      case INIT:
+        if(val <= *val2){
+          state = TRIG;
+        }
+        break;
     }
   }
   if(state == TRIG){
@@ -581,12 +567,6 @@ bool checklist::triggered()
       trigger_block = trigger;
       return false;
     }
-    if(trigger){ //trigger(s) are active
-      trigger_block = true; 
-      for(unsigned int i = 0; i < items.size(); ++i){
-        items[i]->reset();
-      }
-    }
     return trigger;
   }else{
     return false;
@@ -595,16 +575,25 @@ bool checklist::triggered()
 
 bool checklist_binder::do_processing(bool visible, bool copilotOn)
 {
+  int triggered = -1;
+  for(unsigned int i = 0; i < checklists.size(); ++i){
+    if(checklists[i]->triggered()){
+      //We'll take the first one that triggers
+      if(triggered == -1){
+        triggered = i;
+        printf("Checklist No. %d triggers!\n", i);
+      }
+    }
+  }
+  
   if(visible){
     return checklists[current]->do_processing(copilotOn);
   }else{
-    for(unsigned int i = 0; i < checklists.size(); ++i){
-      if(checklists[i]->triggered()){
-	select_checklist(i, true);
-      }
+    if(triggered >= 0){
+      select_checklist(triggered, true);
     }
-    return true;
   }
+  return true;
 }
 
 bool checklist::do_processing(bool copilotOn)
@@ -724,6 +713,13 @@ bool checklist::activate_next_item(bool init)
 
 bool checklist::activate(int index, bool force)
 {
+  if(triggered()){
+    trigger_block = true; 
+    for(unsigned int i = 0; i < items.size(); ++i){
+      items[i]->reset();
+    }
+  }
+  
   checklist_item_desc_t* desc = NULL;
   desc = new checklist_item_desc_t[items.size()];
   int j = 0;
