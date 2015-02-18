@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.09"
+#define VERSION_NUMBER "1.10"
 
 
 #include "XPLMPlugin.h"
