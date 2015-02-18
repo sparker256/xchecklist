@@ -968,12 +968,13 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
         switch((intptr_t)inRefcon){
         case CHECK_ITEM_COMMAND:
             printf ("trying to make check_item to work \n");
-            if (XPIsWidgetVisible(xCheckListWidget))
+            if (XPIsWidgetVisible(xCheckListWidget)){
                 if(item_checked(checkable)){
                   check_item(checkable);
                 }
-            else
+	    }else{
                 XPShowWidget(xCheckListWidget);
+	    }
             break;
         case NEXT_CHECKLIST_COMMAND:
             if (XPIsWidgetVisible(xCheckListWidget))
