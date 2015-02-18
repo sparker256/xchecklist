@@ -7,12 +7,23 @@
   void yyerror (char const *);
 
   class checklist;
+  class checklist_binder;
   checklist *current_checklist = NULL;
   extern void start_error_recovery();
   extern void expect_number();
   extern void expect_dataref();
   extern void expect_nothing();
-
+  
+  checklist *empty_checklist(class checklist_binder **cb)
+  {
+    if(*cb == NULL){
+      *cb = new checklist_binder;
+    }
+    class checklist *cl = new class checklist("(NO NAME)");
+    (*cb)->add_checklist(cl);
+    return cl;
+  }
+  
 %}
 
 %debug
@@ -74,18 +85,33 @@ line:		checklist{
                     binder->add_checklist(current_checklist);
                   }
 		| item{
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
                     current_checklist->add_item($1);
                   }
 		| item_info{
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
                     current_checklist->add_item($1);
                   }
 		| item_void {
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
                     current_checklist->add_item($1);
                   }
 		| show {
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
                     current_checklist->add_item($1);
                   }
 		| colsize {
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
                     current_checklist->set_width(*$1);
                     delete($1);
                   }
