@@ -44,7 +44,7 @@ win32:!isEmpty(CROSS_COMPILE){
     QMAKE_YACC_SOURCE       = $base.tab.c
     QMAKE_DEL_FILE          = rm -f
     INCLUDEPATH += "../../WinSDK/Include"
-    LIBS += -static-libstdc++ -static-libgcc
+    LIBS += -static-libstdc++ -static-libgcc -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 }
 
 win32:contains(CROSS_COMPILE, x86_64-w64-mingw32-){
