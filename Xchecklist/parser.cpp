@@ -154,6 +154,22 @@ std::ostream& operator<<(std::ostream &output, const dataref_name& dn)
   return output;
 }
 
+std::ostream& operator<<(std::ostream &output, const dataref_t& d)
+{
+  (void) d;
+  output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
+  return output;
+}
+
+std::ostream& operator<<(std::ostream &output, const dataref_op& d)
+{
+  output<<" ("<<*(d.dref1);
+  if(d.op == XC_AND) output<<" & ";
+  if(d.op == XC_OR)  output<<" | ";
+  output<<*(d.dref2)<<") ";
+  return output;
+}
+
 std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
 {
   output<<*(d.data_ref);
@@ -182,6 +198,9 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
     case XC_HYST:
       output<<" HYST ("<< *(d.val1) <<" : "<<*(d.val2)<<")";
       break;
+    default:
+      output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
+      break;
   }
   return output;
 }
@@ -209,6 +228,11 @@ void show_item::print(std::ostream &output)const
 void void_item::print(std::ostream &output)const
 {
   output<<"SW_VOID: "<<text.c_str()<<std::endl;
+}
+
+void remark_item::print(std::ostream &output)const
+{
+  output<<"SW_REMARK: "<<text.c_str()<<std::endl;
 }
 
 void chk_item::print(std::ostream &output)const
@@ -439,6 +463,9 @@ bool dataref_dsc::trigered()
     case XC_HYST:
       res = checkTrig(val);
       break;
+    default:
+      res = false;
+      break;
   }
   return res;
 }
@@ -476,7 +503,12 @@ void_item::void_item(std::string s)
   text = s;
 }
 
-chk_item::chk_item(item_label *l, dataref_dsc *d, bool ch)
+remark_item::remark_item(std::string s)
+{
+  text = s;
+}
+
+chk_item::chk_item(item_label *l, dataref_t *d, bool ch)
 {
   label = l;
   dataref = d;
@@ -527,7 +559,7 @@ bool checklist_binder::item_checked(int item)
   return checklists[current]->item_checked(item);
 }
 
-show_item::show_item(dataref_dsc *d):dataref(d)
+show_item::show_item(dataref_t *d):dataref(d)
 {
   if(dataref != NULL){
     dataref->registerDsc();
@@ -613,6 +645,12 @@ bool chk_item::activate()
   return true;
 }
 
+bool remark_item::activate()
+{
+  state = INACTIVE;
+  return true;
+}
+
 bool chk_item::do_processing(bool copilotOn)
 {
     static float elapsed = 0.0f;
@@ -653,6 +691,40 @@ bool chk_item::do_processing(bool copilotOn)
         }
         break;
     case SAY_SUFFIX:
+        elapsed += 0.1f; // interval the flight loop is set to
+        if(spoken(elapsed)){
+            state = NEXT;
+        }
+        break;
+    case NEXT:
+        elapsed = 0;
+        break;
+    default:
+        elapsed = 0;
+        state = INACTIVE; //defensive
+        break;
+    }
+  return true;
+}
+
+bool remark_item::do_processing(bool copilotOn)
+{
+    (void) copilotOn;
+    static float elapsed = 0.0f;
+    //printf("State: %d\n", state);
+    switch(state){
+    case INACTIVE:
+        elapsed = 0.0f;
+        if(speech_active()){
+            if(voice_state) {
+              say(text.c_str());
+            }
+            state = SAY_LABEL;
+        }else{
+            state = NEXT;
+        }
+        break;
+    case SAY_LABEL:
         elapsed += 0.1f; // interval the flight loop is set to
         if(spoken(elapsed)){
             state = NEXT;
@@ -784,6 +856,16 @@ bool void_item::getDesc(checklist_item_desc_t &desc)
   return true;
 }
 
+bool remark_item::getDesc(checklist_item_desc_t &desc)
+{
+  desc.text = text.c_str();
+  desc.suffix = (char *)"";
+  desc.info_only = true;
+  desc.item_void = true;
+  desc.copilot_controlled = false;
+  return true;
+}
+
 bool item_label::getDesc(checklist_item_desc_t &desc)
 {
   desc.text = label.c_str();
@@ -857,3 +939,40 @@ bool checklist::checklist_finished()
     return finished;
 }
 
+dataref_op::dataref_op(dataref_t *dr1, operation_t o, dataref_t *dr2) : dref1(dr1), dref2(dr2), op(o)
+{
+  dref1->registerDsc();
+  dref2->registerDsc();
+}
+
+dataref_op::~dataref_op()
+{
+  if(dref1 != NULL){
+    delete dref1;
+  }
+  if(dref2 != NULL){
+    delete dref2;
+  }
+}
+
+bool dataref_op::registerDsc()
+{
+  return true;
+}
+
+void dataref_op::reset_trig()
+{
+  dref1->reset_trig();
+  dref2->reset_trig();
+}
+
+bool dataref_op::trigered()
+{
+  if(op == XC_AND){
+    return(dref1->trigered() && dref2->trigered());
+  }
+  if(op == XC_OR){
+    return(dref1->trigered() || dref2->trigered());
+  }
+  return false;
+}

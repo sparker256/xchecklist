@@ -7,7 +7,7 @@
 
 #include "interface.h"
 
-typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST} operation_t;
+typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST, XC_AND, XC_OR} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
@@ -117,16 +117,40 @@ class number{
   float precision;
 };
 
-class dataref_dsc{
+class dataref_t{
+  friend std::ostream& operator<<(std::ostream &output, const dataref_t& d);
+ public:
+  virtual ~dataref_t(){};
+  virtual bool registerDsc() = 0;
+  virtual void reset_trig() = 0;
+  virtual bool trigered() = 0;
+};
+
+class dataref_op : public dataref_t {
+  friend std::ostream& operator<<(std::ostream &output, const dataref_op& d);
+ public:
+  dataref_op(dataref_t *dr1, operation_t o, dataref_t *dr2);
+  virtual ~dataref_op();
+  virtual bool registerDsc();
+  virtual void reset_trig();
+  virtual bool trigered();
+ private:
+  dataref_t *dref1;
+  dataref_t *dref2;
+  operation_t op;
+};
+
+
+class dataref_dsc : public dataref_t{
   friend std::ostream& operator<<(std::ostream &output, const dataref_dsc& d);
  public:
   dataref_dsc(dataref_name *dr, number *val);
   dataref_dsc(dataref_name *dr, operation_t *o, number *val);
   dataref_dsc(dataref_name *dr, number *v1, number *v2, bool plain_in = true);
-  ~dataref_dsc();
-  bool registerDsc();
-  void reset_trig(){state = NONE;};
-  bool trigered();
+  virtual ~dataref_dsc();
+  virtual bool registerDsc();
+  virtual void reset_trig(){state = NONE;};
+  virtual bool trigered();
  private:
   bool checkTrig(float val);
   dataref_name *data_ref;
@@ -152,7 +176,7 @@ class item_label{
 
 class show_item: public checklist_item{
  public:
-  show_item(dataref_dsc *d);
+  show_item(dataref_t *d);
   virtual ~show_item(){delete dataref;};
   virtual void print(std::ostream &output)const;
   virtual bool getDesc(checklist_item_desc_t &desc);
@@ -161,7 +185,7 @@ class show_item: public checklist_item{
   virtual bool show(bool &val);
   virtual void reset();
  private:
-  dataref_dsc *dataref;
+  dataref_t *dataref;
 };
 
 class void_item:public checklist_item{
@@ -176,9 +200,21 @@ class void_item:public checklist_item{
     std::string text;
 };
 
+class remark_item:public checklist_item{
+  public:
+    remark_item(std::string s);
+    virtual ~remark_item(){};
+    virtual void print(std::ostream &output)const;
+    virtual bool getDesc(checklist_item_desc_t &desc);
+    virtual bool activate();
+    virtual bool do_processing(bool copilotOn);
+  private:
+    std::string text;
+};
+
 class chk_item:public checklist_item{
   public:
-    chk_item(item_label *l, dataref_dsc *d, bool ch);
+    chk_item(item_label *l, dataref_t *d, bool ch);
     virtual ~chk_item();
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
@@ -187,7 +223,7 @@ class chk_item:public checklist_item{
     virtual bool check();
   private:
     item_label *label;
-    dataref_dsc *dataref;
+    dataref_t *dataref;
     bool checkable;
     bool check_state;
 };

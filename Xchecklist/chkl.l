@@ -21,25 +21,30 @@
 EOL                     (\r|\n|\n\r|\r\n)
 STRING			        [^\n\r:|]+
 VOIDSTRING		        [^\n\r]+
-DATAREF			        [^\n\r:|\[\]]+
+DATAREF			        [^\n\r:|\[\]\(\)&]+
 COLON                   :
-RBRACKET                \[
-LBRACKET                \]
+LBRACKET                \[
+RBRACKET                \]
+LPAREN                  \(
+RPAREN                  \)
 NEQ                     !
 EQ                      =
 LT                      <
 GT                      >
 PIPE                    \|
+OR                      \|\|
 DOT                     \.
+AND                     &&
 NUMBER                  [+-]?[0-9]+
 
 %%
 sw_checklist            {isVoid = false; return(TOKEN_CHECKLIST);}
 sw_item                 {isVoid = false; return(TOKEN_ITEM);}
 sw_iteminfo             {isVoid = false; return(TOKEN_ITEMINFO);}
-sw_itemvoid             {isVoid = true; return(TOKEN_ITEMVOID);}
+sw_itemvoid             {isVoid = true;  return(TOKEN_ITEMVOID);}
 sw_show                 {isVoid = false; return(TOKEN_SHOW);}
 sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
+sw_remark               {isVoid = false; return(TOKEN_REMARK);}
 
 <*>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
@@ -49,7 +54,9 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
 <NUM>{LT}                    {return(TOKEN_LT);}
 <NUM>{GT}                    {return(TOKEN_GT);}
-<INITIAL,NUM>{PIPE}          {return(TOKEN_PIPE);}
+<INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
+<DREF>{OR}                   {return(TOKEN_OR);}
+<DREF>{AND}                  {return(TOKEN_AND);}
 <NUM>{NUMBER}                {
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_NUMBER);
@@ -62,8 +69,10 @@ sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_EXPONENT);
                         }
-<DREF>{RBRACKET}              {return(TOKEN_LEFT_BRACKET);}  
-<DREF>{LBRACKET}              {return(TOKEN_RIGHT_BRACKET);}  
+<DREF>{LBRACKET}                {return(TOKEN_LEFT_BRACKET);}  
+<DREF>{RBRACKET}                {return(TOKEN_RIGHT_BRACKET);}  
+<DREF>{LPAREN}                  {return(TOKEN_LEFT_PARENTHESIS);}  
+<DREF,NUM>{RPAREN}                  {return(TOKEN_RIGHT_PARENTHESIS);}  
 <*>^[[:blank:]]+#[^\r\n]*	{}
 <*>#[^\r\n]*			{}
 <*>{EOL}	{
