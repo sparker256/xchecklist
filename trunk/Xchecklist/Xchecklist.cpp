@@ -868,7 +868,7 @@ bool activate_item(int itemNo)
   return true;
 }
 
-struct dataref_t{
+struct dataref_struct_t{
   XPLMDataRef dref;
   XPLMDataTypeID dref_type;
   int index;
@@ -881,7 +881,7 @@ bool find_dataref(const char *name, dataref_p *dref)
     *dref= NULL;
     return false;
   }
-  *dref = new struct dataref_t;
+  *dref = new struct dataref_struct_t;
   (*dref)->dref = tmp;
   (*dref)->dref_type = XPLMGetDataRefTypes(tmp);
   (*dref)->index = -1;
@@ -896,7 +896,7 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref)
     *dref= NULL;
     return false;
   }
-  *dref = new struct dataref_t;
+  *dref = new struct dataref_struct_t;
   (*dref)->dref = tmp;
   (*dref)->dref_type = XPLMGetDataRefTypes(tmp);
   (*dref)->index = index;

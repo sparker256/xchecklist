@@ -115,8 +115,8 @@ bool check_item(int item);
 bool activate_item(int item);
 
 
-struct dataref_t;
-typedef struct dataref_t* dataref_p;
+struct dataref_struct_t;
+typedef struct dataref_struct_t* dataref_p;
 
 bool find_dataref(const char *name, dataref_p *dref);
 bool find_array_dataref(const char *name, int index, dataref_p *dref);

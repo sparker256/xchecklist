@@ -33,7 +33,7 @@
   char *str;
   class checklist *chkl;
   class dataref_name *dref_name;
-  class dataref_dsc *dref;
+  class dataref_t *dref;
   class item_label *lbl;
   class checklist_item *item;
   class number *num;
@@ -56,18 +56,23 @@
 %token TOKEN_COMMENT
 %token TOKEN_LEFT_BRACKET
 %token TOKEN_RIGHT_BRACKET
+%token TOKEN_LEFT_PARENTHESIS
+%token TOKEN_RIGHT_PARENTHESIS
+%token TOKEN_AND
+%token TOKEN_OR
 %token TOKEN_EQ
 %token TOKEN_EOF
 %token <str> TOKEN_STRING TOKEN_FRAC TOKEN_EXPONENT TOKEN_NUMBER
+%token TOKEN_REMARK
 %token TOKEN_ERR
 
 %type <chkl> checklist;
 %type <dref_name> dataref_name;
-%type <dref> dataref;
+%type <dref> dataref dataref_expr dataref_term dataref_prim;
 %type <op> operation;
 %type <lbl> spec_string;
 %type <op> colsize;
-%type <item> show item_void item_info item; 
+%type <item> show item_void item_info item item_remark; 
 %type <num> number;
 
 %%
@@ -97,6 +102,12 @@ line:		checklist{
                     current_checklist->add_item($1);
                   }
 		| item_void {
+		    if(current_checklist == NULL){
+		      current_checklist = empty_checklist(&binder);
+		    }
+                    current_checklist->add_item($1);
+                  }
+		| item_remark {
 		    if(current_checklist == NULL){
 		      current_checklist = empty_checklist(&binder);
 		    }
@@ -141,14 +152,14 @@ item:		TOKEN_ITEM TOKEN_COLON spec_string {
 		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
                     $$ = new chk_item($3, NULL, true);
                   }
-		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref{
+		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
                     $$ = new chk_item($3, $5, true);
                   }
 ;
 item_info:	TOKEN_ITEMINFO TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, false);
                   }
-		| TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref{
+		| TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
                     $$ = new chk_item($3, $5, false);
                   }
 ;
@@ -160,7 +171,12 @@ item_void:      TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING{
                     $$ = new void_item("");
                   }
 ;
-show:		TOKEN_SHOW TOKEN_COLON dataref{
+item_remark:    TOKEN_REMARK TOKEN_COLON TOKEN_STRING{
+                    $$ = new remark_item($3);
+                    free($3);
+                  }
+;
+show:		TOKEN_SHOW TOKEN_COLON dataref_expr{
                     $$ = new show_item($3);
                   }
 ;
@@ -186,19 +202,33 @@ spec_string:    TOKEN_STRING{
                     expect_dataref();
                   }
 ;
-
+dataref_expr:   dataref_expr TOKEN_OR dataref_term {
+                  $$ = new dataref_op($1, XC_OR, $3);
+                }
+                | dataref_term
+;
+dataref_term:   dataref_term TOKEN_AND dataref_prim {
+                  $$ = new dataref_op($1, XC_AND, $3);
+                }
+                | dataref_prim
+;
+dataref_prim:   dataref
+                | TOKEN_LEFT_PARENTHESIS dataref_expr TOKEN_RIGHT_PARENTHESIS {
+                    $$ = $2;
+                }
+;
 dataref:	dataref_name TOKEN_COLON operation number {
                     $$ = new dataref_dsc($1, (operation_t*)$3, $4);
-                    delete $3;
+                    delete $3;expect_dataref();
                   }
 		| dataref_name TOKEN_COLON number {
-                    $$ = new dataref_dsc($1, $3);
+                    $$ = new dataref_dsc($1, $3);expect_dataref();
                   }
                 | dataref_name TOKEN_COLON number TOKEN_PIPE number {
-                    $$ = new dataref_dsc($1, $3, $5);
+                    $$ = new dataref_dsc($1, $3, $5);expect_dataref();
                   }
                 | dataref_name TOKEN_COLON number TOKEN_COLON number {
-                    $$ = new dataref_dsc($1, $3, $5, false);
+                    $$ = new dataref_dsc($1, $3, $5, false);expect_dataref();
                   }
 ;
 dataref_name:   TOKEN_STRING {
