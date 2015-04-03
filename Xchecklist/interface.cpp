@@ -87,11 +87,12 @@ bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[
   return binder->free_checklist_names(all_checklists, menu_size, names, indexes);
 }
 
-bool checklist_finished()
+bool checklist_finished(bool *switchNext)
 {
+    *switchNext = false;
     if(binder == NULL){
       return false;
     }
-    return binder->checklist_finished();
+    return binder->checklist_finished(switchNext);
 }
 

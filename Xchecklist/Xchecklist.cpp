@@ -380,10 +380,13 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   do_processing(visible, state[COPILOT_ON]);
 
   if((visible) && (state[AUTO_HIDE])){
-      if(checklist_finished()){
+      bool switchNext = false;
+      if(checklist_finished(&switchNext)){
           ++hide_cntr;
-          if(hide_cntr > 30){
-              XPHideWidget(xCheckListWidget);
+	  if(switchNext){
+            next_checklist();
+	  }else if(hide_cntr > 30){
+            XPHideWidget(xCheckListWidget);
           }
       }else{
           hide_cntr = 0;
@@ -649,6 +652,8 @@ bool create_checklist(unsigned int size, const char *title,
     unsigned int i;
     int x2, y2;
     int screen_w, screen_h;
+    
+    h = (5+18+(size*20)) + 50;
     
     restore_on_internal = false;
     if (checklists_count == -1) {

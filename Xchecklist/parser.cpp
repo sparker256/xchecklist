@@ -43,6 +43,7 @@ checklist::checklist(std::string display, std::string menu)
   width = 300;
   finished = false;
   trigger_block = false;
+  continueFlag = false;
 }
 
 checklist::checklist(std::string display)
@@ -52,6 +53,7 @@ checklist::checklist(std::string display)
   width = 300;
   finished = false;
   trigger_block = false;
+  continueFlag = false;
 }
 
 checklist::~checklist()
@@ -924,18 +926,19 @@ void chklerror(char const *s)
 }
 
 
-bool checklist_binder::checklist_finished()
+bool checklist_binder::checklist_finished(bool *switchNext)
 {
     if((current < 0) || (current > ((int)checklists.size() - 1))){
         return false;
     }else{
-        return checklists[current]->checklist_finished();
+        return checklists[current]->checklist_finished(switchNext);
     }
     return false;
 }
 
-bool checklist::checklist_finished()
+bool checklist::checklist_finished(bool *switchNext)
 {
+    *switchNext = continueFlag;
     return finished;
 }
 
