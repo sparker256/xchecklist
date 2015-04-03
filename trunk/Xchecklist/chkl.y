@@ -64,6 +64,7 @@
 %token TOKEN_EOF
 %token <str> TOKEN_STRING TOKEN_FRAC TOKEN_EXPONENT TOKEN_NUMBER
 %token TOKEN_REMARK
+%token TOKEN_CONTINUE
 %token TOKEN_ERR
 
 %type <chkl> checklist;
@@ -126,6 +127,9 @@ line:		checklist{
                     current_checklist->set_width(*$1);
                     delete($1);
                   }
+		| TOKEN_CONTINUE {
+		    current_checklist->setContinueFlag();
+		  }
 		| error {
 		    yyclearin;
 		    yyerrok;

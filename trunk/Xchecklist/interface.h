@@ -85,7 +85,7 @@ typedef const char *constname_t;
 
 bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);
 bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
-bool checklist_finished();
+bool checklist_finished(bool *switchNext);
 
 /*******************************************************************************
   Functions provided by the frontend (GUI)

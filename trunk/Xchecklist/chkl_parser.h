@@ -57,7 +57,8 @@ class checklist{
   bool activate_next_item(bool init = false);
   const std::string& get_name()const;
   bool triggered();
-  bool checklist_finished();
+  bool checklist_finished(bool *switchNext);
+  void setContinueFlag(){continueFlag = true;};
  private:
   std::string displaytext;
   std::string menutext;
@@ -66,6 +67,7 @@ class checklist{
   int current_item;
   bool finished;
   bool trigger_block;
+  bool continueFlag;
 };
 
 //Collection of checklists
@@ -82,7 +84,7 @@ class checklist_binder{
     bool do_processing(bool visible, bool copilotOn);
     bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);
     bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
-    bool checklist_finished();
+    bool checklist_finished(bool *switchNext);
   private:
     std::vector<checklist*> checklists;
     int current;
