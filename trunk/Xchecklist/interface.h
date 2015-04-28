@@ -39,6 +39,7 @@ extern "C" {
 //  Returns true if no problems were encountered
 bool start_checklists(const char *fname, int debug);
 bool stop_checklists();
+bool discard_checklist();
 
 //Call by the plugin, go back to the previous checklist
 //

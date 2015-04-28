@@ -19,15 +19,21 @@ bool start_checklists(const char *fname, int debug)
   return false;
 }
 
-bool stop_checklists()
+bool discard_checklist()
 {
-  close_speech();
-  cleanup_speech();
   if(binder != NULL){
     delete binder;
     binder = NULL;
   }
   return true;
+}
+
+
+bool stop_checklists()
+{
+  close_speech();
+  cleanup_speech();
+  return discard_checklist();
 }
 
 bool prev_checklist()
