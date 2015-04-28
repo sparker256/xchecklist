@@ -285,6 +285,8 @@ bool init_checklists()
         if(clist){
           res = start_checklists(clist, 0);
           free(clist);
+        }else{
+          discard_checklist();
         }
         checklists_count = -1; // to make it rebuild menus...
         return res;
