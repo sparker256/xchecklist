@@ -11,6 +11,8 @@ typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST, XC_AND,
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
+class checklist;
+extern checklist *current_checklist;
 
 #if LIN | APL
 extern "C" bool voice_state;
