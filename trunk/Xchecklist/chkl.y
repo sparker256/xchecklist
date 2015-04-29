@@ -8,7 +8,6 @@
 
   class checklist;
   class checklist_binder;
-  checklist *current_checklist = NULL;
   extern void start_error_recovery();
   extern void expect_number();
   extern void expect_dataref();

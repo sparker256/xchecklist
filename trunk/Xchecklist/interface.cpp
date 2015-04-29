@@ -21,6 +21,9 @@ bool start_checklists(const char *fname, int debug)
 
 bool discard_checklist()
 {
+  if(current_checklist != NULL){
+    current_checklist = NULL;
+  }
   if(binder != NULL){
     delete binder;
     binder = NULL;

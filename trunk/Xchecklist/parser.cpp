@@ -24,7 +24,7 @@ int chklparse(void);
 //  int chkllineno;
 //#endif
 
-extern checklist *current_checklist;
+checklist *current_checklist;
 char *parsed_file;
 
 bool checklist_item::check()
@@ -905,6 +905,8 @@ bool parse_clist(const std::string &fname, int debug)
     parsed_file = strdup(fname.c_str());
     chkldebug=debug;
     
+    current_checklist = NULL;
+    binder = NULL;
     int res = chklparse();
     fclose(chklin);
     free(parsed_file);
