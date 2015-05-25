@@ -324,12 +324,16 @@ dataref_p dataref_name::getDataref()
     if(find_dataref(name.c_str(), &dataref_struct)){
       return dataref_struct;
     }else{
+      xcDebug("Dataref %s not found!\n", name.c_str());
+      printf("Dataref %s not found!\n", name.c_str());
       return NULL;
     }
   }else{
     if(find_array_dataref(name.c_str(), index, &dataref_struct)){
       return dataref_struct;
     }else{
+      xcDebug("Array dataref %s[%d] not found!\n", name.c_str(), index);
+      printf("Array dataref %s[%d] not found!\n", name.c_str(), index);
       return NULL;
     }
   }
@@ -440,6 +444,7 @@ bool dataref_dsc::trigered()
     return res;
   }
   float val = get_float_dataref(dataref_struct);
+  //std::cout<<"Cond: '"<<*this<<"'  Current value: "<<val<<std::endl;
   switch(op){
     case XC_NOT:
       res = (val == *val1) ? false : true;
