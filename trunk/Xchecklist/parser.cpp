@@ -951,8 +951,6 @@ bool checklist::checklist_finished(bool *switchNext)
 
 dataref_op::dataref_op(dataref_t *dr1, operation_t o, dataref_t *dr2) : dref1(dr1), dref2(dr2), op(o)
 {
-  dref1->registerDsc();
-  dref2->registerDsc();
 }
 
 dataref_op::~dataref_op()
@@ -967,6 +965,8 @@ dataref_op::~dataref_op()
 
 bool dataref_op::registerDsc()
 {
+  dref1->registerDsc();
+  dref2->registerDsc();
   return true;
 }
 
