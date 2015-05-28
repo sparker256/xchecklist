@@ -170,7 +170,7 @@ PLUGIN_API int XPluginStart(
 
         XPLMAppendMenuItem(PluginMenu, "Open CheckList", (void *) "checklist", 1);
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
-	
+
         ChecklistsSubMenuItem = XPLMAppendMenuItem(
                     PluginMenu,
                     "CheckLists",
@@ -186,7 +186,7 @@ PLUGIN_API int XPluginStart(
 
         XPLMAppendMenuItem(checklistsMenu, "CheckList1", (void *) 0, 1);
         XPLMAppendMenuItem(checklistsMenu, "CheckList2", (void *) 1, 1);
-        
+
         XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
         XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
 
@@ -301,7 +301,7 @@ static void readBoolean(std::fstream &str, bool &res)
     return;
   }
   std::string tmp;
-  str>>tmp; 
+  str>>tmp;
   std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
   if(tmp.find("true", 0) != std::string::npos){
     res = true;
@@ -323,7 +323,7 @@ bool init_setup()
     state[VOICE] = true;
     voice_state = true;
     state[AUTO_HIDE] = true;
-    
+
     std::fstream fin;
     fin.open(prefs, std::ios::in);
     if(fin.is_open()){
@@ -346,9 +346,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
 {
   (void) inFrom; // To get rid of warnings on unused variables
   if((inMsg == XPLM_MSG_PLANE_LOADED) && (inParam == 0)){
-    //user plane loaded / reloaded
-    do_cleanup();
-    init_checklists();
+    //user plane loaded / reloaded, initiate deferred start to avoid
+    //  race condition with plane's plugin creating custom datarefs
     XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
   }
 }
@@ -374,10 +373,10 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   (void) cntr;
   (void) ref;
   static int hide_cntr;
-  
+
   int visible = XPIsWidgetVisible(xCheckListWidget);
   int external = XPLMGetDatai(ext_view);
-  
+
   //hide the widget only when changing the view to external
   if(external && (!prev_external_view)){
     if(visible){
@@ -394,24 +393,20 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
       restore_on_internal = false;
     }
   }
-  
+
   prev_external_view = external;
   do_processing(visible, state[COPILOT_ON]);
 
-  if((visible) && (state[AUTO_HIDE])){
-      bool switchNext = false;
-      if(checklist_finished(&switchNext)){
-          ++hide_cntr;
-	  if(switchNext){
-            next_checklist();
-	  }else if(hide_cntr > 30){
-            XPHideWidget(xCheckListWidget);
-          }
-      }else{
-          hide_cntr = 0;
-      }
+  bool switchNext = false;
+  if(visible && checklist_finished(&switchNext)){
+    hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
+    if(switchNext){
+      next_checklist();
+    }else if(hide_cntr > 30){
+      XPHideWidget(xCheckListWidget);
+    }
   }else{
-      hide_cntr = 0;
+    hide_cntr = 0;
   }
 
   return 0.1f;
@@ -568,7 +563,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                 if(state[TRANSLUCENT]){
 
                   XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
-                  
+
 		  for(int iii = 0; iii < 16; ++iii){
                     XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 1);
                     XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 1);
@@ -671,21 +666,21 @@ bool create_checklist(unsigned int size, const char *title,
     unsigned int i;
     int x2, y2;
     int screen_w, screen_h;
-    
+
     h = (5+18+(size*20)) + 50;
-    
+
     restore_on_internal = false;
     if (checklists_count == -1) {
         create_checklists_menu();
     }
-    
+
     for(i = 0; i < xCheckListCopilotWidget.size(); ++i){
       XPDestroyWidget(xCheckListCopilotWidget[i], 1);
       XPDestroyWidget(xCheckListCheckWidget[i], 1);
       XPDestroyWidget(xCheckListTextWidget[i], 1);
       XPDestroyWidget(xCheckListTextAWidget[i], 1);
     }
-    
+
     xCheckListCopilotWidget.clear();
     xCheckListCheckWidget.clear();
     xCheckListTextWidget.clear();
@@ -738,8 +733,8 @@ bool create_checklist(unsigned int size, const char *title,
     //bool flip, cop;
 
     max_items = size;
-    
-    
+
+
     // Create the Main Widget window.
 
     xCheckListWidget = XPCreateWidget(x, y, x2, y2,
@@ -759,7 +754,7 @@ bool create_checklist(unsigned int size, const char *title,
     }
 
 // Print each line of the checklist in widget window
-     
+
      xCheckListCopilotWidget.resize(size);
      xCheckListCheckWidget.resize(size);
      xCheckListTextWidget.resize(size);
@@ -938,7 +933,7 @@ float get_float_dataref(dataref_p dref)
     return 0.0f;
   }
   if((type & xplmType_FloatArray) != 0){
-    int index = (dref->index) < 0 ? 0 : dref->index; 
+    int index = (dref->index) < 0 ? 0 : dref->index;
     float val = 0;
     if(XPLMGetDatavf(dref->dref, &val, index, 1) != 1){
       return 0.0f;
@@ -947,7 +942,7 @@ float get_float_dataref(dataref_p dref)
     }
   }
   if((type & xplmType_IntArray) != 0){
-    int index = (dref->index) < 0 ? 0 : dref->index; 
+    int index = (dref->index) < 0 ? 0 : dref->index;
     int val = 0;
     if(XPLMGetDatavi(dref->dref, &val, index, 1) != 1){
       return 0.0f;
