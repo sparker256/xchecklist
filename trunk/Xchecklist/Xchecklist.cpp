@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.11"
+#define VERSION_NUMBER "1.12"
 
 
 #include "XPLMPlugin.h"
@@ -116,6 +116,7 @@ static void CreateSetupWidget(int xx1, int yy1, int ww, int hh);
 static int xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2);
 static int xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2);
 static float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void *ref);
+static float xCheckListDeferredInitNewAircraftFLCB(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void * inRefcon);
 static bool init_checklists();
 static bool init_setup();
 static bool do_cleanup();
@@ -187,6 +188,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(checklistsMenu, "CheckList2", (void *) 1, 1);
         
         XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+        XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
 
         init_setup();
         set_sound(state[VOICE]);
@@ -347,7 +349,22 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
     //user plane loaded / reloaded
     do_cleanup();
     init_checklists();
+    XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
   }
+}
+
+// ************************* Aircraft Loaded Deferred Init Callback  *************************
+float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCheckListelapsedSim, int xCheckListcounter, void * xCheckListrefcon)
+{
+    (void) xCheckListelapsedMe; // To get rid of warnings on unused variables
+    (void) xCheckListelapsedSim; // To get rid of warnings on unused variables
+    (void) xCheckListcounter; // To get rid of warnings on unused variables
+    (void) xCheckListrefcon; // To get rid of warnings on unused variables
+
+    do_cleanup();
+    init_checklists();
+
+    return 0; // Returning 0 stops DeferredInitFLCB from being looped again.
 }
 
 float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void *ref)
