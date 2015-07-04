@@ -1,0 +1,1 @@
+Multi Platform Talking Checklist Program for X-Plane supporting Linux, Mac and Windows. Supports both X-Plane 10.22+ 32/64 and X-Plane 9.70
