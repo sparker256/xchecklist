@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+make distclean >/dev/null
+rm -rf release
+mkdir -p release/Checker &&
+mkdir -p release/Xchecklist/64 &&
+qmake -spec win32-g++ && qmake -set CROSS_COMPILE x86_64-w64-mingw32- && make &&
+cp plugin/release/win.xpl1.dll release/Xchecklist/64/win.xpl &&
+cp checker/release/checker.exe release/Checker/win_checker_64bit.exe
+if [ $? != 0 ] ; then
+  exit
+fi
+
+make distclean >/dev/null
+qmake -spec win32-g++ && qmake -set CROSS_COMPILE i686-w64-mingw32- && make &&
+cp plugin/release/win.xpl1.dll release/Xchecklist/win.xpl &&
+cp checker/release/checker.exe release/Checker/win_checker_32bit.exe
+if [ $? != 0 ] ; then
+  exit
+fi
+
+
+make distclean >/dev/null
+qmake -spec linux-g++-4.8-64 && make &&
+cp plugin/liblin.xpl.so release/Xchecklist/64/lin.xpl &&
+cp checker/checker release/Checker/lin_checker_64bit &&
+cp simon/simon_lin release/Xchecklist/simon_lin64
+if [ $? != 0 ] ; then
+  exit
+fi
+
+
+make distclean >/dev/null
+qmake -spec linux-g++-4.8-32 && make &&
+cp plugin/liblin.xpl.so release/Xchecklist/lin.xpl &&
+cp checker/checker release/Checker/lin_checker_32bit &&
+cp simon/simon_lin release/Xchecklist/simon_lin32
+if [ $? != 0 ] ; then
+  exit
+fi
+make distclean >/dev/null
+
+
+
+#
+
