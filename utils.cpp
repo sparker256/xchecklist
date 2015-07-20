@@ -38,22 +38,35 @@ static char *c_strFromString(const std::string str)
   return res;
 }
 
-static std::string processPath(char *path)
+static void fixDirSeparator(std::string &mypath)
 {
-    std::string mypath(path);
+    //Linux and Win are OK, just Mac needs special treatment...
+    (void) mypath;
 #if APL
     //On apple a core foundation "link" is used; this is a crude but
     //  effective way to get a path of it...
     std::replace(mypath.begin(), mypath.end(), ':', '/');
     mypath.insert(0, "/Volumes/");
 #endif
-    //equivalent of dirname(mypath)
-    mypath.erase(mypath.rfind(dirSep));
-    
-    //printf("PATH: '%s'\n", mypath.c_str());
-    return mypath;
 }
 
+static std::string processPath(char *path, std::string *acf_path = NULL)
+{
+    std::string mypath(path);
+    fixDirSeparator(mypath);
+    
+    
+    if(acf_path){
+      size_t start = mypath.rfind(dirSep) + 1;
+      *acf_path = mypath.substr(start, mypath.rfind('.') - start);
+    }
+    
+    //equivalent of dirname(mypath)
+    mypath.erase(mypath.rfind(dirSep));
+    //printf("PATH: '%s'\n", mypath.c_str());
+
+    return mypath;
+}
 
 char *prefsPath(void)
 {
@@ -101,20 +114,23 @@ char *findChecklist(void)
   }
   //Aircraft path contains path to the *.acf file
   //  but we need only the directory name
-  std::string myACFPath = processPath(AircraftPath);
-	    
+  std::string myACF("");
+  std::string myACFPath = processPath(AircraftPath, &myACF);
+  
+  //First try aircraft specific checklist
+  std::string name0 = myACFPath + dirSep + myACF + "_clist.txt";
   std::string name1 = myACFPath + dirSep + "clist.txt";
   //std::string name2 = myACFPath + dirSep + "plane.txt";
   FILE *f;
+  if((f = fopen(name0.c_str(), "r")) != NULL){
+      fclose(f);
+      return c_strFromString(name0);
+  }
+
   if((f = fopen(name1.c_str(), "r")) != NULL){
       fclose(f);
       return c_strFromString(name1);
   }
-
-  //if((f = fopen(name2.c_str(), "r")) != NULL){
-  //    fclose(f);
-  //    return c_strFromString(name2);
-  //}
   return NULL;
 }
 #endif //CHECKER
