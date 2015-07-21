@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+
+scp release/Checker/mac_checker bill@billsim-64-1404.local:X-Plane_Github_Plugins/xchecklist/release/Checker/mac_checker
+
+scp release/Xchecklist/mac.xpl bill@billsim-64-1404.local:X-Plane_Github_Plugins/xchecklist/release/Xchecklist/mac.xpl
+
+scp release/Xchecklist/simon_mac bill@billsim-64-1404.local:X-Plane_Github_Plugins/xchecklist/release/Xchecklist/simon_mac
+
+
+#
+

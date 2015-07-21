@@ -2,7 +2,7 @@
 #import <AppKit/NSSpeechSynthesizer.h>
 #import <stdio.h>
 #import <unistd.h>
-#include "messages.h"
+#include "../src/messages.h"
 
 
 const char cant_alloc_msg[] = "Can't alloc new message!\n";

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
-#include "messages.h"
-#include "speech.h"
+#include "../src/messages.h"
+#include "../src/speech.h"
 
 
 const char cant_alloc_msg[] = "Can't alloc new message!\n";

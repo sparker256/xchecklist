@@ -32,5 +32,7 @@ lipo -create lipo_temp/mac32.xpl lipo_temp/mac64.xpl -output release/Xchecklist/
 
 lipo -create lipo_temp/simon_mac32 lipo_temp/simon_mac64 -output release/Xchecklist/simon_mac
 
+./copy_Xchecklist
+
 #
 

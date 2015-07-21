@@ -13,8 +13,8 @@ INCLUDEPATH += ../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 VPATH += ..
     
-SOURCES += messages.c
-HEADERS += messages.h
+SOURCES += ../src/messages.c
+HEADERS += ../src/messages.h
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
 DEFINES += XPLM200
@@ -27,8 +27,8 @@ unix:!macx {
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     QMAKE_CFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
-    SOURCES += simon.c speech_sd.c
-    HEADERS += speech.h
+    SOURCES += simon.c ../src/speech_sd.c
+    HEADERS += ../src/speech.h
     LIBS += -ldl -pthread
     TARGET = simon_lin
 }

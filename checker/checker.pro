@@ -62,18 +62,18 @@ macx {
 
 }
 
-HEADERS += ../interface.h \
-           ../chkl_parser.h \
-           ../speech.h \
-    ../stdbool.h \
-    ../utils.h
+HEADERS += ../src/interface.h \
+           ../src/chkl_parser.h \
+           ../src/speech.h \
+           ../src/stdbool.h \
+          ../src/utils.h
 
 
 SOURCES += main.c \
-           ../interface.cpp \
-           ../parser.cpp \
-           ../utils.cpp
+           ../src/interface.cpp \
+           ../src/parser.cpp \
+           ../src/utils.cpp
 
-LEXSOURCES += ../chkl.l
-YACCSOURCES += ../chkl.y
+LEXSOURCES += ../src/chkl.l
+YACCSOURCES += ../src/chkl.y
 

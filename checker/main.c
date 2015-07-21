@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "interface.h"
-#include "speech.h"
-#include "utils.h"
+#include "../src/interface.h"
+#include "../src/speech.h"
+#include "../src/utils.h"
 
 bool voice_state = false;
 
