@@ -124,11 +124,13 @@ char *findChecklist(void)
   FILE *f;
   if((f = fopen(name0.c_str(), "r")) != NULL){
       fclose(f);
+      xcDebug("Xchecklist: found %s \n", name0.c_str());
       return c_strFromString(name0);
   }
 
   if((f = fopen(name1.c_str(), "r")) != NULL){
       fclose(f);
+      xcDebug("Xchecklist: found %s \n", name1.c_str());
       return c_strFromString(name1);
   }
   return NULL;
