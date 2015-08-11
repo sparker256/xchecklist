@@ -195,6 +195,7 @@ class show_item: public checklist_item{
 class void_item:public checklist_item{
   public:
     void_item(std::string s);
+    void_item(std::string s, std::string s1);
     virtual ~void_item(){};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
@@ -202,6 +203,7 @@ class void_item:public checklist_item{
     virtual bool do_processing(bool copilotOn){(void) copilotOn; return false;};
   private:
     std::string text;
+    std::string text1;
 };
 
 class remark_item:public checklist_item{

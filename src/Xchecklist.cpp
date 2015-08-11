@@ -124,7 +124,10 @@ static bool set_sound(bool enable);
 static int prev_external_view = false;
 static bool restore_on_internal = false;
 bool voice_state;
-
+int win_pos_x1 = -1;
+int win_pos_x2 = -1;
+int win_pos_y1 = -1;
+int win_pos_y2 = -1;
 
 const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist exist", \
                                  "Turn Copilot On", "Voice Prompt", "Auto Hide"};
@@ -310,37 +313,98 @@ static void readBoolean(std::fstream &str, bool &res)
   }
 }
 
+bool try_open(char *name, std::fstream &fin)
+{
+  if(name == NULL){
+    return false;
+  }
+  fin.open(name, std::ios::in);
+  if(fin.is_open()){
+    return true;
+  }
+  return false;
+}
+
+bool save_prefs()
+{
+  char *prefs;
+  prefs = pluginPath("Xchecklist.prf");
+  if(!prefs){
+    xcDebug("Can't save prefs (NULL plugin path received).\n");
+    return false;
+  }
+  
+  std::fstream fout;
+  fout.open(prefs, std::ios::out);
+  if(fout.is_open()){
+    //Store prefs version first
+    fout<<"1"<<std::endl;
+    fout<<win_pos_x1<<" "<<win_pos_x2<<" "<<win_pos_y1<<" "<<win_pos_y2<<std::endl;
+    fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
+        <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
+    fout.close();
+  }else{
+    xcDebug("Can't open prefs for writing.\n");
+    free(prefs);
+    return false;
+  }
+  free(prefs);
+  return true;
+}
+
 
 bool init_setup()
 {
-    char *prefs = prefsPath();
-    if(!prefs){
-      return false;
+  char *prefs = NULL;
+  std::fstream fin;
+  state[TRANSLUCENT] = true;
+  state[SHOW_CHECKLIST] = true;
+  state[COPILOT_ON] = true;
+  state[VOICE] = true;
+  voice_state = true;
+  state[AUTO_HIDE] = true;
+  prefs = pluginPath("Xchecklist.prf");
+  if(try_open(prefs, fin)){
+    //read new prefs from the fin
+    int version = -1;
+    fin>>version;
+    switch(version){
+      case 1:
+	//Read the window position
+	fin>>win_pos_x1>>win_pos_x2>>win_pos_y1>>win_pos_y2;
+	//Read the rest of setup
+        fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
+	break;
+      default:
+	xcDebug("Unknown preferences version, using defaults.\n");
+	break;
     }
-    state[TRANSLUCENT] = true;
-    state[SHOW_CHECKLIST] = true;
-    state[COPILOT_ON] = true;
-    state[VOICE] = true;
-    voice_state = true;
-    state[AUTO_HIDE] = true;
-
-    std::fstream fin;
-    fin.open(prefs, std::ios::in);
-    if(fin.is_open()){
+  }else{
+    free(prefs);
+    prefs = prefsPath();
+    if(try_open(prefs, fin)){
+      //read old prefs from the fin
       for(size_t i = 0; i < SETUP_TEXT_ITEMS; ++i){
         readBoolean(fin, state[i]);
       }
       fin.close();
+      //resave the prefs in the new format
+      save_prefs();
+    }else{
+      //Just using defaults, no problem (maybe just log it)
+      xcDebug("No prefs found, using defaults.\n");
     }
-    free(prefs);
-    voice_state = (state[VOICE]);
-    printf("\nTRANSLUCENT: %d \n", state[TRANSLUCENT]);
-    printf("SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
-    printf("COPILOT_ON: %d\n", state[COPILOT_ON]);
-    printf("VOICE: %d\n", state[VOICE]);
-    printf("AUTO_HIDE: %d\n", state[AUTO_HIDE]);
-    return 1;
+  }
+  free(prefs);
+  voice_state = (state[VOICE]);
+  printf("\nTRANSLUCENT: %d \n", state[TRANSLUCENT]);
+  printf("SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
+  printf("COPILOT_ON: %d\n", state[COPILOT_ON]);
+  printf("VOICE: %d\n", state[VOICE]);
+  printf("AUTO_HIDE: %d\n", state[AUTO_HIDE]);
+  return true;
 }
+
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inParam)
 {
@@ -591,26 +655,8 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
         {
                 if (inParam1 == (intptr_t)setupSaveSettingsButton)
                 {
-                        char *prefs;
-                        // ToDo Need to add saving settings to a file
-                        XPHideWidget(setupWidget);
-                        printf("Save settings pressed \n");
-
-                        //Prefs Path  /home/bill/X-Plane_9.61/Output/preferences/Set X-Plane.prf
-                        prefs = prefsPath();
-                        if(!prefs){
-                          return 1;
-                        }
-                        my_stream = fopen (prefs, "w");
-
-                        for(size_t i = 0; i < SETUP_TEXT_ITEMS; ++i){
-                            fprintf(my_stream, "%s ", ((state[i])?"true":"false"));
-                            xcDebug("%s ", ((state[i])?"true":"false"));
-                        }
-
-                        fclose (my_stream);
-                        free(prefs);
-                        return 1;
+		  save_prefs();
+                  XPHideWidget(setupWidget);
                 }
 
 

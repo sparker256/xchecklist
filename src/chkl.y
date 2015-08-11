@@ -166,7 +166,16 @@ item_info:	TOKEN_ITEMINFO TOKEN_COLON spec_string {
                     $$ = new chk_item($3, $5, false);
                   }
 ;
-item_void:      TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING{
+item_void:      TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
+                    $$ = new void_item($3, $5);
+                    free($3);
+                    free($5);
+                  }
+                | TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING TOKEN_PIPE{
+                    $$ = new void_item($3);
+                    free($3);
+                  }
+                | TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING{
                     $$ = new void_item($3);
                     free($3);
                   }

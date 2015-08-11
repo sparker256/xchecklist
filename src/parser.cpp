@@ -229,7 +229,7 @@ void show_item::print(std::ostream &output)const
 
 void void_item::print(std::ostream &output)const
 {
-  output<<"SW_VOID: "<<text.c_str()<<std::endl;
+  output<<"SW_VOID: "<<text.c_str()<<" "<<text1.c_str()<<std::endl;
 }
 
 void remark_item::print(std::ostream &output)const
@@ -508,6 +508,13 @@ void item_label::say_suffix()
 void_item::void_item(std::string s)
 {
   text = s;
+  text1 = "";
+}
+
+void_item::void_item(std::string s, std::string s1)
+{
+  text = s;
+  text1 = s1;
 }
 
 remark_item::remark_item(std::string s)
@@ -856,7 +863,7 @@ bool checklist_binder::free_checklist_names(int all_checklists, int menu_size, c
 bool void_item::getDesc(checklist_item_desc_t &desc)
 {
   desc.text = text.c_str();
-  desc.suffix = (char *)"";
+  desc.suffix = text1.c_str();
   desc.info_only = true;
   desc.item_void = true;
   desc.copilot_controlled = false;

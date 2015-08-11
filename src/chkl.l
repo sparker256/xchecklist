@@ -16,11 +16,12 @@
 %option nodefault
 %option warn
 
-%x NUM DREF VOID
+%x NUM DREF VOID VOID1
 
 EOL                     (\r|\n|\n\r|\r\n)
 STRING			        [^\n\r:|]+
-VOIDSTRING		        [^\n\r]+
+VOIDSTRING		        [^\n\r|]+
+VOIDSTRING1		        [^\n\r]+
 DATAREF			        [^\n\r:|\[\]\(\)&]+
 COLON                   :
 LBRACKET                \[
@@ -95,6 +96,15 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 			  return(TOKEN_STRING);
 			}
 <VOID>{VOIDSTRING}      {
+			  chkllval.str=strdup(yytext);
+			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+			  return(TOKEN_STRING);
+                        }
+<VOID>{PIPE}            {
+			  BEGIN(VOID1);
+                          return(TOKEN_PIPE);
+                        }
+<VOID1>{VOIDSTRING1}    {//ugly cludge
 			  chkllval.str=strdup(yytext);
 			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
 			  return(TOKEN_STRING);
