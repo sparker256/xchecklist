@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.13"
+#define VERSION_NUMBER "1.14"
 
 
 #include "XPLMPlugin.h"
@@ -339,6 +339,7 @@ bool save_prefs()
   if(fout.is_open()){
     //Store prefs version first
     fout<<"1"<<std::endl;
+    XPGetWidgetGeometry(xCheckListWidget, &win_pos_x1, &win_pos_x2, &win_pos_y1, &win_pos_y2);
     fout<<win_pos_x1<<" "<<win_pos_x2<<" "<<win_pos_y1<<" "<<win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
@@ -379,6 +380,10 @@ bool init_setup()
 	xcDebug("Unknown preferences version, using defaults.\n");
 	break;
     }
+    // Set the upper left corner from the prefs file
+    // Not sure if this is the corect place but it is working
+    x = win_pos_x1;
+    y = win_pos_x2;
   }else{
     free(prefs);
     prefs = prefsPath();
@@ -426,6 +431,7 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
 
     do_cleanup();
     init_checklists();
+    save_prefs();
 
     return 0; // Returning 0 stops DeferredInitFLCB from being looped again.
 }
