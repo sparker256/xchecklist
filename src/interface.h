@@ -40,6 +40,8 @@ extern "C" {
 bool start_checklists(const char *fname, int debug);
 bool stop_checklists();
 bool discard_checklist();
+bool save_prefs();
+
 
 //Call by the plugin, go back to the previous checklist
 //
@@ -67,6 +69,7 @@ bool item_checked(int item);
 //
 //  Returns true if no problems were encountered.
 bool do_processing(bool visible, bool copilotOn);
+
 
 //Returns/disposes of list of all checklist names
 //

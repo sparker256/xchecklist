@@ -226,12 +226,13 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
+        save_prefs();
         stop_checklists();
         do_cleanup();
         XPLMUnregisterFlightLoopCallback(dataProcessingCallback, NULL);
-	XPLMDestroyMenu(checklistsMenu);
-	XPLMDestroyMenu(PluginMenu);
-	xcClose();
+        XPLMDestroyMenu(checklistsMenu);
+        XPLMDestroyMenu(PluginMenu);
+        xcClose();
 }
 
 PLUGIN_API int XPluginEnable(void)
