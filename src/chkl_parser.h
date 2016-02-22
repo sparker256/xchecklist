@@ -58,6 +58,7 @@ class checklist{
   bool restart_checklist();
   bool activate_next_item(bool init = false);
   const std::string& get_name()const;
+  const std::string& get_display_text()const;
   bool triggered();
   bool checklist_finished(bool *switchNext);
   void setContinueFlag(std::string label = ""){continueFlag = true; continueLabel = label;};
