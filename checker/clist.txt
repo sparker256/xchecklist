@@ -10,7 +10,7 @@ sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:<1.0e-3
 sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:.1e-1|.5e0
 sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:0:1
 sw_item:Landing Light Right|ON:sim/custom/xap/extlight/landr_sw:2
-sw_continue:blabla(menutext)
+sw_continue:bla(name)
 
 
 sw_checklist:Checklist name with strange chars like <>/![]=:menutext with strange chars like <>/![]=
