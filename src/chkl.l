@@ -6,7 +6,7 @@
   #include "chkl_yacc.h"
   #include "src/utils.h"
   #include "src/chkl_parser.h"
-  
+
   static bool isVoid = false;
 
 %}
@@ -46,7 +46,7 @@ sw_itemvoid             {isVoid = true;  return(TOKEN_ITEMVOID);}
 sw_show                 {isVoid = false; BEGIN(DREF); return(TOKEN_SHOW);}
 sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 sw_remark               {isVoid = false; return(TOKEN_REMARK);}
-sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
+sw_continue             {isVoid = false; return(TOKEN_CONTINUE);}
 
 <*>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
@@ -71,10 +71,10 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 			  chkllval.str=strdup(yytext);
                           return(TOKEN_EXPONENT);
                         }
-<DREF>{LBRACKET}                {return(TOKEN_LEFT_BRACKET);}  
-<DREF>{RBRACKET}                {return(TOKEN_RIGHT_BRACKET);}  
-<DREF>{LPAREN}                  {return(TOKEN_LEFT_PARENTHESIS);}  
-<DREF,NUM>{RPAREN}                  {return(TOKEN_RIGHT_PARENTHESIS);}  
+<DREF>{LBRACKET}                {return(TOKEN_LEFT_BRACKET);}
+<DREF>{RBRACKET}                {return(TOKEN_RIGHT_BRACKET);}
+<DREF>{LPAREN}                  {return(TOKEN_LEFT_PARENTHESIS);}
+<DREF,NUM>{RPAREN}                  {return(TOKEN_RIGHT_PARENTHESIS);}
 <*>^[[:blank:]]+#[^\r\n]*	{}
 <*>#[^\r\n]*			{}
 <*>{EOL}	{
@@ -110,7 +110,7 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 			  return(TOKEN_STRING);
                         }
 <*>. {
-                                xcDebug("XChecklist: Unmatched character '%s' at line %d!\n", 
+                                xcDebug("XChecklist: Unmatched character '%s' at line %d!\n",
                                   chkltext, chkllineno);
                              }
 %%

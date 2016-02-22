@@ -334,7 +334,7 @@ bool save_prefs()
     xcDebug("Can't save prefs (NULL plugin path received).\n");
     return false;
   }
-  
+
   std::fstream fout;
   fout.open(prefs, std::ios::out);
   if(fout.is_open()){

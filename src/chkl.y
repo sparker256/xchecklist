@@ -12,7 +12,7 @@
   extern void expect_number();
   extern void expect_dataref();
   extern void expect_nothing();
-  
+
   checklist *empty_checklist(class checklist_binder **cb)
   {
     if(*cb == NULL){
@@ -22,7 +22,7 @@
     (*cb)->add_checklist(cl);
     return cl;
   }
-  
+
 %}
 
 %debug
@@ -72,7 +72,7 @@
 %type <op> operation;
 %type <lbl> spec_string;
 %type <op> colsize;
-%type <item> show item_void item_info item item_remark; 
+%type <item> show item_void item_info item item_remark;
 %type <num> number;
 
 %%
@@ -126,9 +126,7 @@ line:		checklist{
                     current_checklist->set_width(*$1);
                     delete($1);
                   }
-		| TOKEN_CONTINUE {
-		    current_checklist->setContinueFlag();
-		  }
+		| continue
 		| error {
 		    yyclearin;
 		    yyerrok;
@@ -140,7 +138,7 @@ checklist:	TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     printf("New checklist def '%s'!\n", $3);
                     free($3);
                   }
-		| TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING 
+		| TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING
 		    TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3, $5);
                     printf("New checklist def1 '%s'!\n", $3);
@@ -190,6 +188,13 @@ item_remark:    TOKEN_REMARK TOKEN_COLON TOKEN_STRING{
 ;
 show:		TOKEN_SHOW TOKEN_COLON dataref_expr{
                     $$ = new show_item($3);
+                  }
+;
+continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING{
+                    current_checklist->setContinueFlag($3);
+                  }
+                | TOKEN_CONTINUE {
+                    current_checklist->setContinueFlag();
                   }
 ;
 colsize:	TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
@@ -264,7 +269,7 @@ operation:      TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
                 | TOKEN_EQ {$$ = (int *)new operation_t(XC_EQ);}
 ;
 
-number:         TOKEN_NUMBER 
+number:         TOKEN_NUMBER
                   {$$ = new number($1, "", ""); free($1);}
                 | TOKEN_NUMBER TOKEN_FRAC
                   {$$ = new number($1, $2, ""); free($1); free($2);}

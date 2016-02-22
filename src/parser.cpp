@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <ostream>
+#include <map>
 #include "chkl_parser.h"
 #include "speech.h"
 #include "utils.h"
@@ -38,12 +39,14 @@ bool checklist_item::check()
 
 checklist::checklist(std::string display, std::string menu)
 {
-  displaytext = display;
   menutext = menu;
+  displaytext = display;
   width = 300;
   finished = false;
   trigger_block = false;
   continueFlag = false;
+  continueLabel = "";
+  nextIndex = -1;
 }
 
 checklist::checklist(std::string display)
@@ -54,6 +57,8 @@ checklist::checklist(std::string display)
   finished = false;
   trigger_block = false;
   continueFlag = false;
+  continueLabel = "";
+  nextIndex = -1;
 }
 
 checklist::~checklist()
@@ -113,7 +118,7 @@ number::number(std::string i, std::string d, std::string e)
   }else{
     decimals = 0;
   }
-  frexpf(value, &exp); // get exponent... 
+  frexpf(value, &exp); // get exponent...
 */
 };
 
@@ -206,7 +211,7 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
   }
   return output;
 }
-  
+
 std::ostream& operator<<(std::ostream &output, const item_label& l)
 {
   output<<l.label.c_str();
@@ -439,7 +444,7 @@ bool dataref_dsc::checkTrig(float val)
 
 bool dataref_dsc::trigered()
 {
-  bool res = false; 
+  bool res = false;
   if(dataref_struct == NULL){
     return res;
   }
@@ -554,7 +559,7 @@ bool checklist_binder::select_checklist(unsigned int index, bool force)
   //Unsigned must be >= 0...
   if(index >= checklists.size()) return false;
   current = index;
-  
+
   return checklists[current]->activate(current, force);
 }
 
@@ -565,7 +570,12 @@ bool checklist_binder::prev_checklist()
 
 bool checklist_binder::next_checklist()
 {
-  return select_checklist(current + 1);
+
+  if(checklists[current]->get_next_index() != -1){
+    return select_checklist(checklists[current]->get_next_index());
+  }else{
+    return select_checklist(current + 1);
+  }
 }
 
 bool checklist_binder::item_checked(int item)
@@ -602,12 +612,12 @@ bool checklist::triggered()
   bool res = true;
   bool found_trig = false;
   bool trigger = true;
-  
+
   for(unsigned int i = 0; i < items.size(); ++i){
     found_trig |= items[i]->show(res);
     trigger &= res;
   }
-  
+
   if(found_trig){ //there is at least one trigger
     if(trigger_block){
       trigger_block = trigger;
@@ -631,7 +641,7 @@ bool checklist_binder::do_processing(bool visible, bool copilotOn)
       }
     }
   }
-  
+
   if(visible){
     return checklists[current]->do_processing(copilotOn);
   }else{
@@ -693,7 +703,7 @@ bool chk_item::do_processing(bool copilotOn)
         break;
     case PROCESSING:
         elapsed = 0;
-        if(checked || 
+        if(checked ||
            (copilotOn && (dataref != NULL) && dataref->trigered())){
           if(speech_active()){
             label->say_suffix();
@@ -800,12 +810,12 @@ bool checklist::activate_next_item(bool init)
 bool checklist::activate(int index, bool force)
 {
   if(triggered()){
-    trigger_block = true; 
+    trigger_block = true;
     for(unsigned int i = 0; i < items.size(); ++i){
       items[i]->reset();
     }
   }
-  
+
   checklist_item_desc_t* desc = NULL;
   desc = new checklist_item_desc_t[items.size()];
   int j = 0;
@@ -817,7 +827,7 @@ bool checklist::activate(int index, bool force)
       items[i]->setIndex(-1);
     }
   }
-  
+
   bool res = create_checklist(j, displaytext.c_str(), desc, width, index, force);
   delete [] desc;
   activate_next_item(true);
@@ -827,6 +837,37 @@ bool checklist::activate(int index, bool force)
 const std::string& checklist::get_name()const
 {
   return menutext;
+}
+
+bool checklist_binder::resolve_references()
+{
+  int sizeOfAll = checklists.size();
+  std::map<std::string, int> names;
+  int i = 0;
+  //first pass to gather names
+  for(i = 0; i < sizeOfAll; ++i){
+    if(!checklists[i]->get_name().empty()){
+      printf("Inserting %s\n", checklists[i]->get_name().c_str());
+      names.insert(std::pair<std::string, int>(checklists[i]->get_name(), i));
+    }
+  }
+  std::string nextLabel;
+  std::map<std::string, int>::const_iterator ref;
+  for(i = 0; i < sizeOfAll; ++i){
+    if(checklists[i]->get_next(nextLabel)){
+      if(!nextLabel.empty()){
+        ref = names.find(nextLabel);
+        if(ref != names.end()){
+          checklists[i]->set_next_index(ref->second);
+        }else{
+          xcDebug("Checklist number %d contains nonexistent reference '%s'.", i, nextLabel.c_str());
+        }
+      }else{
+        checklists[i]->set_next_index(i+1);
+      }
+    }
+  }
+  return true;
 }
 
 bool checklist_binder::get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[])
@@ -916,7 +957,7 @@ bool parse_clist(const std::string &fname, int debug)
   if((chklin=fopen(fname.c_str(), "r")) != NULL){
     parsed_file = strdup(fname.c_str());
     chkldebug=debug;
-    
+
     current_checklist = NULL;
     binder = NULL;
     int res = chklparse();
