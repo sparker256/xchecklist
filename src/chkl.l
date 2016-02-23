@@ -46,7 +46,7 @@ sw_itemvoid             {isVoid = true;  return(TOKEN_ITEMVOID);}
 sw_show                 {isVoid = false; BEGIN(DREF); return(TOKEN_SHOW);}
 sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
 sw_remark               {isVoid = false; return(TOKEN_REMARK);}
-sw_continue             {isVoid = false; return(TOKEN_CONTINUE);}
+sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 
 <*>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 

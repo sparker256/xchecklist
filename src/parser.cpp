@@ -839,6 +839,11 @@ const std::string& checklist::get_name()const
   return menutext;
 }
 
+const std::string& checklist::get_display_text()const
+{
+  return displaytext;
+}
+
 bool checklist_binder::resolve_references()
 {
   int sizeOfAll = checklists.size();
@@ -846,9 +851,9 @@ bool checklist_binder::resolve_references()
   int i = 0;
   //first pass to gather names
   for(i = 0; i < sizeOfAll; ++i){
-    if(!checklists[i]->get_name().empty()){
-      printf("Inserting %s\n", checklists[i]->get_name().c_str());
-      names.insert(std::pair<std::string, int>(checklists[i]->get_name(), i));
+    if(!checklists[i]->get_display_text().empty()){
+      printf("Inserting %s\n", checklists[i]->get_display_text().c_str());
+      names.insert(std::pair<std::string, int>(checklists[i]->get_display_text(), i));
     }
   }
   std::string nextLabel;
@@ -860,7 +865,7 @@ bool checklist_binder::resolve_references()
         if(ref != names.end()){
           checklists[i]->set_next_index(ref->second);
         }else{
-          xcDebug("Checklist number %d contains nonexistent reference '%s'.", i, nextLabel.c_str());
+          xcDebug("Checklist number %d contains nonexistent reference '%s'.\n", i, nextLabel.c_str());
         }
       }else{
         checklists[i]->set_next_index(i+1);
