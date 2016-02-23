@@ -568,10 +568,10 @@ bool checklist_binder::prev_checklist()
   return select_checklist(current - 1);
 }
 
-bool checklist_binder::next_checklist()
+bool checklist_binder::next_checklist(bool followSwCont)
 {
 
-  if(checklists[current]->get_next_index() != -1){
+  if((checklists[current]->get_next_index() != -1) && followSwCont){
     return select_checklist(checklists[current]->get_next_index());
   }else{
     return select_checklist(current + 1);

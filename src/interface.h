@@ -51,7 +51,7 @@ bool prev_checklist();
 //Call by the plugin, advance to the next checklist
 //
 // Returns true if on problems were encountered
-bool next_checklist();
+bool next_checklist(bool follow_sw_cont);
 
 //Call by the plugin, open checklist number number
 //
@@ -60,7 +60,7 @@ bool open_checklist(int number);
 
 //Frontend informs us, that user has checked an item
 //  item is the index of checked item (provided by checklist_item_desc_t.index)
-//  
+//
 //  Return true if no problems were encountered.
 bool item_checked(int item);
 
@@ -100,8 +100,8 @@ bool checklist_finished(bool *switchNext);
 //  title specifies the name of the checklist
 //  items is array of checklist item descriptions
 //
-//  Return true if no problems were encountered, false otherwise. 
-bool create_checklist(unsigned int size, const char *title, 
+//  Return true if no problems were encountered, false otherwise.
+bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show);
 

@@ -86,7 +86,7 @@ class checklist_binder{
     void add_checklist(checklist *c);
     bool select_checklist(unsigned int index, bool force = false);
     bool prev_checklist();
-    bool next_checklist();
+    bool next_checklist(bool followSwCont);
     bool item_checked(int item);
     bool do_processing(bool visible, bool copilotOn);
     bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);

@@ -472,7 +472,7 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   if(visible && checklist_finished(&switchNext)){
     hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
     if(switchNext){
-      next_checklist();
+      next_checklist(true);
     }else if(hide_cntr > 30){
       XPHideWidget(xCheckListWidget);
     }
@@ -691,7 +691,7 @@ int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t
       return 1;
     }
     if(inParam1 == (intptr_t)xChecklistNextButton){
-      next_checklist();
+      next_checklist(false);
       return 1;
     }
   }
@@ -1050,7 +1050,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             break;
         case NEXT_CHECKLIST_COMMAND:
             if (XPIsWidgetVisible(xCheckListWidget))
-                next_checklist();
+                next_checklist(false);
             else
                 XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                 XPShowWidget(xCheckListWidget);

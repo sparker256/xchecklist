@@ -48,12 +48,12 @@ bool prev_checklist()
   return binder->prev_checklist();
 }
 
-bool next_checklist()
+bool next_checklist(bool follow_sw_cont)
 {
   if(binder == NULL){
     return false;
   }
-  return binder->next_checklist();
+  return binder->next_checklist(follow_sw_cont);
 }
 
 bool open_checklist(int number)
