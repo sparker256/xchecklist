@@ -635,7 +635,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 
                   XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
 
-		  for(int iii = 0; iii < 16; ++iii){
+		  for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii){
                     XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 1);
                     XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 1);
                     XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 1);
@@ -647,7 +647,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 	        }else{
                   XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_MainWindow);
 
-		  for(int iii = 0; iii < 16; ++iii){
+		  for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii){
                     XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 0);
                     XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 0);
                     XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 0);
@@ -716,7 +716,7 @@ bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show)
 {
-    unsigned int i;
+    size_t i;
     int x2, y2;
     int screen_w, screen_h;
 
