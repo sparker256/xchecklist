@@ -35,7 +35,8 @@ win32:!isEmpty(CROSS_COMPILE){
     QMAKE_YACC_HEADER       = $base.tab.h
     QMAKE_YACC_SOURCE       = $base.tab.c
     QMAKE_DEL_FILE          = rm -f
-    LIBS += -static-libstdc++ -static-libgcc
+#    LIBS += -static-libstdc++ -static-libgcc
+    LIBS += -static-libstdc++ -static-libgcc -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 }
 
 unix:!macx {
