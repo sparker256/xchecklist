@@ -24,7 +24,8 @@ static pthread_t whisperer_thread_id;
 static pthread_mutex_t whisper_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t whisper_cond = PTHREAD_COND_INITIALIZER;
 static bool done;
-static char *target = NULL; 
+static char *target = NULL;
+static bool initialized = false; 
 
 static void *whisperer_thread(void *param);
 
@@ -121,6 +122,7 @@ bool whisperer_init(const char *prog)
   //Start the communicator thread
   request = NOP;
   pthread_create(&whisperer_thread_id, NULL, whisperer_thread, NULL);
+  initialized = true;
   return true;
 }
 
@@ -203,6 +205,9 @@ static void *whisperer_thread(void *param)
 
 void whisperer_close(void)
 {
+  if(!initialized){
+    return;
+  } 
   pthread_mutex_lock(&whisper_mutex);
   request = STOP;
   pthread_cond_broadcast(&whisper_cond);
