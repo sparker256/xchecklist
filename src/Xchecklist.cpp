@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.17 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.18 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
