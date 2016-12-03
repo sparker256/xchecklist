@@ -326,20 +326,41 @@ bool try_open(char *name, std::fstream &fin)
   return false;
 }
 
-void safe_window_defaults(void)
+static int limit_coord(int min, int coord, int max)
 {
-  if(win_pos_x1 < 0){
-    win_pos_x1 = 10;
+  if(coord < min){
+    return min;
   }
-  if(win_pos_x2 < 0){
-    win_pos_x2 = 310;
+  if(coord > max){
+    return max;
   }
-  if(win_pos_y1){
-    win_pos_y1 = 550;
+  return coord;
+}
+
+static void fit_interval(int min, int max, int *l, int *r, int wdt)
+{
+  //printf("Fitting %d, %d to %d, %d (w = %d)\n", *l, *r, min, max, wdt);
+  int l1 = limit_coord(min, *l, max);
+  int r1 = limit_coord(min, *r, max);
+
+  if(r1 - l1 < wdt){
+    r1 = limit_coord(min, l1 + wdt, max);
   }
-  if(win_pos_y2){
-    win_pos_y2 = 150;
+  if(r1 - l1 < wdt){
+    l1 = r1 - wdt;
   }
+  *l = l1;
+  *r = r1;
+  printf("%d - %d\n", l1, r1);
+}
+
+static void safe_window_defaults(void)
+{
+  int screen_w, screen_h;
+  XPLMGetScreenSize(&screen_w, &screen_h);
+  // Make sure the coords are on screen
+  fit_interval(0, screen_w, &win_pos_x1, &win_pos_y1, 300);
+  fit_interval(0, screen_h, &win_pos_y2, &win_pos_x2, 200);
 }
 
 
