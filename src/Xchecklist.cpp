@@ -326,6 +326,23 @@ bool try_open(char *name, std::fstream &fin)
   return false;
 }
 
+void safe_window_defaults(void)
+{
+  if(win_pos_x1 < 0){
+    win_pos_x1 = 10;
+  }
+  if(win_pos_x2 < 0){
+    win_pos_x2 = 310;
+  }
+  if(win_pos_y1){
+    win_pos_y1 = 550;
+  }
+  if(win_pos_y2){
+    win_pos_y2 = 150;
+  }
+}
+
+
 bool save_prefs()
 {
   char *prefs;
@@ -334,7 +351,7 @@ bool save_prefs()
     xcDebug("Can't save prefs (NULL plugin path received).\n");
     return false;
   }
-
+  safe_window_defaults(); 
   std::fstream fout;
   fout.open(prefs, std::ios::out);
   if(fout.is_open()){
@@ -381,6 +398,7 @@ bool init_setup()
 	xcDebug("Unknown preferences version, using defaults.\n");
 	break;
     }
+    safe_window_defaults(); 
     // Set the upper left corner from the prefs file
     // Not sure if this is the corect place but it is working
     x = win_pos_x1;
