@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.18 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.19 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -68,7 +68,7 @@ int Item;
 //char FileName[256], AircraftPath[512];
 //char prefsPath[512];
 
-enum {NEXT_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, HIDE_CHECKLIST_COMMAND};
+enum {NEXT_CHECKLIST_COMMAND, PREV_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, HIDE_CHECKLIST_COMMAND};
 
 int MyCommandCallback(
                                    XPLMCommandRef       inCommand,
@@ -104,6 +104,7 @@ XPLMCommandRef nextchecklist = NULL;
 
 XPLMCommandRef cmdcheckitem;
 XPLMCommandRef cmdnextchecklist;
+XPLMCommandRef cmdprevchecklist;
 XPLMCommandRef cmdhidechecklist;
 
 static XPLMDataRef              ext_view = NULL;
@@ -201,6 +202,7 @@ PLUGIN_API int XPluginStart(
 
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
+        cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Next Checklist");
         cmdhidechecklist = XPLMCreateCommand("bgood/xchecklist/hide_checklist","Hide Checklist");
 
         XPLMRegisterCommandHandler(
@@ -214,6 +216,12 @@ PLUGIN_API int XPluginStart(
                     MyCommandCallback,
                     true,
                     (void *)NEXT_CHECKLIST_COMMAND);
+
+        XPLMRegisterCommandHandler(
+                    cmdprevchecklist,
+                    MyCommandCallback,
+                    true,
+                    (void *)PREV_CHECKLIST_COMMAND);
 
         XPLMRegisterCommandHandler(
                     cmdhidechecklist,
@@ -1090,6 +1098,13 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
         case NEXT_CHECKLIST_COMMAND:
             if (XPIsWidgetVisible(xCheckListWidget))
                 next_checklist(false);
+            else
+                XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
+                XPShowWidget(xCheckListWidget);
+            break;
+        case PREV_CHECKLIST_COMMAND:
+            if (XPIsWidgetVisible(xCheckListWidget))
+                prev_checklist();
             else
                 XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                 XPShowWidget(xCheckListWidget);
