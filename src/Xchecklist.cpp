@@ -529,7 +529,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
   const char *pageTitle = "Default Title";
   checklist_item_desc_t pageItems[1];
 
-  if((intptr_t)inMenuRef == 0){
+  if(((intptr_t)inMenuRef == 0) && ((intptr_t) inItemRef != 0)){
     if (!strcmp((char *) inItemRef, "checklist")){
       if (xCheckListWidget == NULL){
         create_checklist(pageSize, pageTitle, pageItems, 120, 0, 0);
