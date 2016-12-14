@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.19 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.20 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -194,7 +194,7 @@ PLUGIN_API int XPluginStart(
 
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
-        cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Next Checklist");
+        cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
         cmdhidechecklist = XPLMCreateCommand("bgood/xchecklist/hide_checklist","Hide Checklist");
 
         XPLMRegisterCommandHandler(
