@@ -456,13 +456,6 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
   if((inMsg == XPLM_MSG_PLANE_LOADED) && (inParam == 0)){
     //user plane loaded / reloaded, initiate deferred start to avoid
     //  race condition with plane's plugin creating custom datarefs
-    if(!init_done){
-      init_setup();
-      set_sound(state[VOICE]);
-      voice_state = (state[VOICE]);
-      init_done = true;
-      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
-    }
     XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
   }
 }
@@ -475,6 +468,14 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
     (void) xCheckListcounter; // To get rid of warnings on unused variables
     (void) xCheckListrefcon; // To get rid of warnings on unused variables
 
+    if(!init_done){
+      init_setup();
+      set_sound(state[VOICE]);
+      voice_state = (state[VOICE]);
+      init_done = true;
+      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+    }
+    
     do_cleanup();
     init_checklists();
     save_prefs();
