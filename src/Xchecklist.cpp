@@ -138,7 +138,7 @@ const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist ex
 enum {TRANSLUCENT, SHOW_CHECKLIST, COPILOT_ON, VOICE, AUTO_HIDE};
 bool state[SETUP_TEXT_ITEMS];
 
-
+bool init_done = false;
 
 PLUGIN_API int XPluginStart(
 						char *		outName,
@@ -191,14 +191,6 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(checklistsMenu, "CheckList1", (void *) 0, 1);
         XPLMAppendMenuItem(checklistsMenu, "CheckList2", (void *) 1, 1);
 
-        XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
-        XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
-
-        init_setup();
-        set_sound(state[VOICE]);
-        voice_state = (state[VOICE]);
-        do_cleanup();
-	//init_checklists();
 
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
@@ -380,7 +372,6 @@ bool save_prefs()
     xcDebug("Can't save prefs (NULL plugin path received).\n");
     return false;
   }
-  safe_window_defaults(); 
   std::fstream fout;
   fout.open(prefs, std::ios::out);
   if(fout.is_open()){
@@ -465,6 +456,13 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
   if((inMsg == XPLM_MSG_PLANE_LOADED) && (inParam == 0)){
     //user plane loaded / reloaded, initiate deferred start to avoid
     //  race condition with plane's plugin creating custom datarefs
+    if(!init_done){
+      init_setup();
+      set_sound(state[VOICE]);
+      voice_state = (state[VOICE]);
+      init_done = true;
+      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+    }
     XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
   }
 }
