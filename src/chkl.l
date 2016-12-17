@@ -34,6 +34,7 @@ LT                      <
 GT                      >
 PIPE                    \|
 OR                      \|\|
+POS_DIF                 \+==
 DOT                     \.
 AND                     &&
 NUMBER                  [+-]?[0-9]+
@@ -56,6 +57,7 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
 <NUM>{LT}                    {return(TOKEN_LT);}
 <NUM>{GT}                    {return(TOKEN_GT);}
+<NUM>{POS_DIF}               {return(TOKEN_POS_DIF);}
 <INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
 <DREF>{OR}                   {return(TOKEN_OR);}
 <DREF>{AND}                  {return(TOKEN_AND);}

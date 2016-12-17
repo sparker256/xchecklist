@@ -205,6 +205,8 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
     case XC_HYST:
       output<<" HYST ("<< *(d.val1) <<" : "<<*(d.val2)<<")";
       break;
+    case XC_POS_DIF:
+      output<<" DIFFERENCE BIGGER THAN "<<(d.val1);
     default:
       output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
       break;
@@ -352,53 +354,53 @@ bool dataref_dsc::registerDsc()
   return true;
 }
 
-bool number::le(float &val1)
+bool number::le(const float &val1)
 {
   return val1 <= value;
 }
 
-bool number::ge(float &val1)
+bool number::ge(const float &val1)
 {
   return val1 >= value;
 }
 
-bool number::lt(float &val1)
+bool number::lt(const float &val1)
 {
   return val1 < value;
 }
 
-bool number::gt(float &val1)
+bool number::gt(const float &val1)
 {
   return val1 > value;
 }
 
-bool number::eq(float &val1)
+bool number::eq(const float &val1)
 {
   float tmp = precision * roundf(val1 / precision);
   return fabsf(value - tmp) < (precision / 10.0f);
 }
 
-bool operator<=(float &val1, number val2)
+bool operator<=(const float &val1, number val2)
 {
   return val2.le(val1);
 }
 
-bool operator>=(float &val1, number val2)
+bool operator>=(const float &val1, number val2)
 {
   return val2.ge(val1);
 }
 
-bool operator<(float &val1, number val2)
+bool operator<(const float &val1, number val2)
 {
   return val2.lt(val1);
 }
 
-bool operator>(float &val1, number val2)
+bool operator>(const float &val1, number val2)
 {
   return val2.gt(val1);
 }
 
-bool operator==(float &val1, number val2)
+bool operator==(const float &val1, number val2)
 {
   return val2.eq(val1);
 }
@@ -474,6 +476,13 @@ bool dataref_dsc::trigered()
       break;
     case XC_HYST:
       res = checkTrig(val);
+      break;
+    case XC_POS_DIF:
+      if(state == NONE){
+        ref_val = val;
+        state = INIT;
+      }
+      res = ((val - ref_val) > *val1) ? true : false;
       break;
     default:
       res = false;

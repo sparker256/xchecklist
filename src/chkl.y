@@ -52,6 +52,7 @@
 %token TOKEN_GT
 %token TOKEN_LE
 %token TOKEN_GE
+%token TOKEN_POS_DIF
 %token TOKEN_COMMENT
 %token TOKEN_LEFT_BRACKET
 %token TOKEN_RIGHT_BRACKET
@@ -267,6 +268,7 @@ operation:      TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
                 | TOKEN_LE {$$ = (int *)new operation_t(XC_LE);}
                 | TOKEN_GE {$$ = (int *)new operation_t(XC_GE);}
                 | TOKEN_EQ {$$ = (int *)new operation_t(XC_EQ);}
+                | TOKEN_POS_DIF {$$ = (int *)new operation_t(XC_POS_DIF);}
 ;
 
 number:         TOKEN_NUMBER

@@ -7,7 +7,7 @@
 
 #include "interface.h"
 
-typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST, XC_AND, XC_OR} operation_t;
+typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST, XC_AND, XC_OR, XC_POS_DIF} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;
@@ -117,11 +117,11 @@ class number{
  public:
   number(std::string i, std::string d, std::string e);
   float get_value();
-  bool lt(float &val1);
-  bool gt(float &val1);
-  bool le(float &val1);
-  bool ge(float &val1);
-  bool eq(float &val1);
+  bool lt(const float &val1);
+  bool gt(const float &val1);
+  bool le(const float &val1);
+  bool ge(const float &val1);
+  bool eq(const float &val1);
  private:
   float get_precision(std::string &i, std::string &d, std::string &e);
   float value;
@@ -170,6 +170,7 @@ class dataref_dsc : public dataref_t{
   operation_t op;
   enum {NONE, INIT, TRIG} state;
   dataref_p dataref_struct;
+  float ref_val;
 };
 
 class item_label{
