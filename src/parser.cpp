@@ -206,7 +206,14 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
       output<<" HYST ("<< *(d.val1) <<" : "<<*(d.val2)<<")";
       break;
     case XC_POS_DIF:
+      output<<" VALUE GROWS MORE THAN "<<(d.val1);
+      break;
+    case XC_NEG_DIF:
+      output<<" VALUE DECREASES MORE THAN "<<(d.val1);
+      break;
+    case XC_ABS_DIF:
       output<<" DIFFERENCE BIGGER THAN "<<(d.val1);
+      break;
     default:
       output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
       break;
@@ -478,11 +485,28 @@ bool dataref_dsc::trigered()
       res = checkTrig(val);
       break;
     case XC_POS_DIF:
-      if(state == NONE){
+      if(state != INIT){
         ref_val = val;
         state = INIT;
+        std::cout<<"POS_DIF ref = "<<ref_val<<std::endl;
       }
       res = ((val - ref_val) > *val1) ? true : false;
+      break;
+    case XC_NEG_DIF:
+      if(state != INIT){
+        ref_val = val;
+        state = INIT;
+        std::cout<<"NEG_DIF ref = "<<ref_val<<std::endl;
+      }
+      res = ((ref_val - val) > *val1) ? true : false;
+      break;
+    case XC_ABS_DIF:
+      if(state != INIT){
+        ref_val = val;
+        state = INIT;
+        std::cout<<"ABS_DIF ref = "<<ref_val<<std::endl;
+      }
+      res = (fabsf(val - ref_val) > *val1) ? true : false;
       break;
     default:
       res = false;
@@ -675,6 +699,9 @@ bool checklist::do_processing(bool copilotOn)
 bool chk_item::activate()
 {
   state = INACTIVE;
+  if(dataref != NULL){
+    dataref->reset_trig();
+  }
   return true;
 }
 

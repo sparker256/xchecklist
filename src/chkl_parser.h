@@ -7,7 +7,8 @@
 
 #include "interface.h"
 
-typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST, XC_AND, XC_OR, XC_POS_DIF} operation_t;
+typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST,
+              XC_AND, XC_OR, XC_POS_DIF, XC_NEG_DIF, XC_ABS_DIF} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
 class checklist_binder;
 extern checklist_binder *binder;

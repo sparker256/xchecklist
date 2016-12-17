@@ -28,13 +28,15 @@ LBRACKET                \[
 RBRACKET                \]
 LPAREN                  \(
 RPAREN                  \)
+ABS_DIF                 ><
 NEQ                     !
 EQ                      =
 LT                      <
 GT                      >
 PIPE                    \|
 OR                      \|\|
-POS_DIF                 \+==
+POS_DIF                 \+>
+NEG_DIF                 -<
 DOT                     \.
 AND                     &&
 NUMBER                  [+-]?[0-9]+
@@ -58,6 +60,8 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>{LT}                    {return(TOKEN_LT);}
 <NUM>{GT}                    {return(TOKEN_GT);}
 <NUM>{POS_DIF}               {return(TOKEN_POS_DIF);}
+<NUM>{NEG_DIF}               {return(TOKEN_NEG_DIF);}
+<NUM>{ABS_DIF}               {return(TOKEN_ABS_DIF);}
 <INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
 <DREF>{OR}                   {return(TOKEN_OR);}
 <DREF>{AND}                  {return(TOKEN_AND);}
