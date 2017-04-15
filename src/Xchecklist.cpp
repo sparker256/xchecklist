@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.21 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.22 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -25,6 +25,7 @@
 #include "XPLMPlanes.h"
 #include "XPWidgets.h"
 #include "XPStandardWidgets.h"
+#include "XPWidgetUtils.h"
 #include "XPLMDataAccess.h"
 
 #include <vector>
@@ -95,7 +96,11 @@ XPWidgetID	setupTextWidget[10] = {NULL};
 
 XPWidgetID      setupCheckItemButton = NULL;
 XPWidgetID      setupNextChecklistButton = NULL;
+
+XPWidgetID      setupMoveChecklistWindowDownButton = NULL;
 XPWidgetID      setupSaveSettingsButton = NULL;
+
+
 
 XPLMMenuID      PluginMenu     = NULL;
 XPLMMenuID      checklistsMenu = NULL;
@@ -360,7 +365,7 @@ static void safe_window_defaults(void)
   XPLMGetScreenSize(&screen_w, &screen_h);
   // Make sure the coords are on screen
   fit_interval(0, screen_w, &win_pos_x1, &win_pos_y1, 300);
-  fit_interval(0, screen_h, &win_pos_y2, &win_pos_x2, 200);
+  fit_interval(0, screen_h-30, &win_pos_y2, &win_pos_x2, 200);
 }
 
 
@@ -547,7 +552,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
     }
     if (!strcmp((char *) inItemRef, "setup")){
       if (setupWidget == NULL){
-        CreateSetupWidget(400, 550, 215, 175);	//left, top, right, bottom.
+        CreateSetupWidget(400, 550, 215, 200);	//left, top, right, bottom.
       }else{
         if(!XPIsWidgetVisible(setupWidget))
           XPShowWidget(setupWidget);
@@ -607,6 +612,17 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
         }
 
         yOffset = (5+18+(5*25));
+
+        setupMoveChecklistWindowDownButton = XPCreateWidget(xx+10, yy-yOffset, xx+5+200, yy-yOffset-20,
+                                  1,
+                                  "Move Checklist Window Down",
+                                  0,
+                                  setupWidget,
+                                  xpWidgetClass_Button);
+
+        XPSetWidgetProperty(setupMoveChecklistWindowDownButton, xpProperty_ButtonType, xpPushButton);
+
+        yOffset = (6+18+(6*25));
 
         setupSaveSettingsButton = XPCreateWidget(xx+10, yy-yOffset, xx+5+200, yy-yOffset-20,
                                   1,
@@ -706,13 +722,20 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 
         if (inMessage == xpMsg_PushButtonPressed)
         {
-                if (inParam1 == (intptr_t)setupSaveSettingsButton)
+                if (inParam1 == (intptr_t)setupMoveChecklistWindowDownButton)
                 {
-		  save_prefs();
-                  XPHideWidget(setupWidget);
+                    XPUMoveWidgetBy(
+                                xCheckListWidget,
+                                0,
+                                -25);
+                    XPHideWidget(setupWidget);
                 }
 
-
+                if (inParam1 == (intptr_t)setupSaveSettingsButton)
+                {
+                    save_prefs();
+                    XPHideWidget(setupWidget);
+                }
         }
 
 
