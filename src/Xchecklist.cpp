@@ -179,6 +179,7 @@ PLUGIN_API int XPluginStart(
 
         XPLMAppendMenuItem(PluginMenu, "Open CheckList", (void *) "checklist", 1);
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
+        XPLMAppendMenuItem(PluginMenu, "Reload", (void *) "reload", 1);
 
         ChecklistsSubMenuItem = XPLMAppendMenuItem(
                     PluginMenu,
@@ -462,6 +463,9 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
     //user plane loaded / reloaded, initiate deferred start to avoid
     //  race condition with plane's plugin creating custom datarefs
     XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
+    if(!init_done){
+      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+    }
   }
 }
 
@@ -478,7 +482,8 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
       set_sound(state[VOICE]);
       voice_state = (state[VOICE]);
       init_done = true;
-      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+      // Causes XP9 to segfault!!!
+      //XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
     }
     
     do_cleanup();
@@ -495,6 +500,11 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
   (void) cntr;
   (void) ref;
   static int hide_cntr;
+
+  if(!init_done){
+    return 0.1f;
+  }
+
 
   int visible = XPIsWidgetVisible(xCheckListWidget);
   int external = XPLMGetDatai(ext_view);
@@ -557,6 +567,10 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
         if(!XPIsWidgetVisible(setupWidget))
           XPShowWidget(setupWidget);
       }
+    }
+    if (!strcmp((char *) inItemRef, "reload")){
+      do_cleanup();
+      init_checklists();
     }
   }else if((intptr_t)inMenuRef == 1){
     open_checklist((intptr_t)inItemRef);
