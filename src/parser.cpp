@@ -598,16 +598,16 @@ bool checklist_binder::select_checklist(unsigned int index, bool force)
 
 bool checklist_binder::prev_checklist()
 {
-  return select_checklist(current - 1);
+  return select_checklist(current - 1, true);
 }
 
 bool checklist_binder::next_checklist(bool followSwCont)
 {
 
   if((checklists[current]->get_next_index() != -1) && followSwCont){
-    return select_checklist(checklists[current]->get_next_index());
+    return select_checklist(checklists[current]->get_next_index(), true);
   }else{
-    return select_checklist(current + 1);
+    return select_checklist(current + 1, true);
   }
 }
 

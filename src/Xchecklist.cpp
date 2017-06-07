@@ -774,7 +774,7 @@ int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t
       return 1;
     }
     if(inParam1 == (intptr_t)xChecklistNextButton){
-      next_checklist(false);
+      next_checklist(true);
       return 1;
     }
   }
@@ -1133,7 +1133,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             break;
         case NEXT_CHECKLIST_COMMAND:
             if (XPIsWidgetVisible(xCheckListWidget))
-                next_checklist(false);
+                next_checklist(true);
             else
                 XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                 XPShowWidget(xCheckListWidget);
