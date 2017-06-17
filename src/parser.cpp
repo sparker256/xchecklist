@@ -1007,11 +1007,11 @@ bool parse_clist(const std::string &fname, int debug)
     parsed_file = NULL;
     chkllineno = 1;
     if(res == 0){
-        xcDebug("Xchecklist: Preferences read OK!\n");
+        xcDebug("Xchecklist: Checklist read OK!\n");
         return(true);
     }
   }
-  xcDebug("Xchecklist: Error encountered while reading preferences!\n");
+  xcDebug("Xchecklist: Error encountered while reading Checklist!\n");
   return(false);
 }
 

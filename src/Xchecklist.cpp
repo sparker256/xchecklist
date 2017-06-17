@@ -13,7 +13,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.23 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.24 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -375,7 +375,7 @@ bool save_prefs()
   char *prefs;
   prefs = pluginPath("Xchecklist.prf");
   if(!prefs){
-    xcDebug("Can't save prefs (NULL plugin path received).\n");
+    xcDebug("Xchecklist: Can't save prefs (NULL plugin path received).\n");
     return false;
   }
   std::fstream fout;
@@ -388,8 +388,14 @@ bool save_prefs()
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
     fout.close();
+    xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
+    xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
+    xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
+    xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
+    xcDebug("Xchecklist: VOICE: %d\n", state[VOICE]);
+    xcDebug("Xchecklist: AUTO_HIDE: %d\n", state[AUTO_HIDE]);
   }else{
-    xcDebug("Can't open prefs for writing.\n");
+    xcDebug("Xchecklist: Can't open prefs for writing.\n");
     free(prefs);
     return false;
   }
@@ -419,9 +425,15 @@ bool init_setup()
 	fin>>win_pos_x1>>win_pos_x2>>win_pos_y1>>win_pos_y2;
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
+        xcDebug("\nXchecklist: prefs found, using values found.\n");
+        xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
+        xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
+        xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
+        xcDebug("Xchecklist: VOICE: %d\n", state[VOICE]);
+        xcDebug("Xchecklist: AUTO_HIDE: %d\n", state[AUTO_HIDE]);
 	break;
       default:
-	xcDebug("Unknown preferences version, using defaults.\n");
+    xcDebug("Xchecklist: Unknown preferences version, using defaults.\n");
 	break;
     }
     safe_window_defaults(); 
@@ -442,7 +454,7 @@ bool init_setup()
       save_prefs();
     }else{
       //Just using defaults, no problem (maybe just log it)
-      xcDebug("No prefs found, using defaults.\n");
+      xcDebug("Xchecklist: No prefs found, using defaults.\n");
     }
   }
   free(prefs);
