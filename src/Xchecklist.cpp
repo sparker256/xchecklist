@@ -232,6 +232,7 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
+        xcDebug("\nXchecklist: Shutting down so trying to save prefs.\n");
         save_prefs();
         stop_checklists();
         do_cleanup();
@@ -425,7 +426,7 @@ bool init_setup()
 	fin>>win_pos_x1>>win_pos_x2>>win_pos_y1>>win_pos_y2;
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
-        xcDebug("\nXchecklist: prefs found, using values found.\n");
+        xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
         xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -433,7 +434,7 @@ bool init_setup()
         xcDebug("Xchecklist: AUTO_HIDE: %d\n", state[AUTO_HIDE]);
 	break;
       default:
-    xcDebug("Xchecklist: Unknown preferences version, using defaults.\n");
+    xcDebug("Xchecklist: During Startup unknown preferences version, using defaults.\n");
 	break;
     }
     safe_window_defaults(); 
@@ -454,7 +455,7 @@ bool init_setup()
       save_prefs();
     }else{
       //Just using defaults, no problem (maybe just log it)
-      xcDebug("Xchecklist: No prefs found, using defaults.\n");
+      xcDebug("Xchecklist: During Startup no prefs file found, using defaults.\n");
     }
   }
   free(prefs);
