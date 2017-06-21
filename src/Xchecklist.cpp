@@ -227,6 +227,8 @@ PLUGIN_API int XPluginStart(
                     true,
                     (void *)HIDE_CHECKLIST_COMMAND);
 
+        init_setup();
+
         return 1;
 }
 
@@ -374,6 +376,10 @@ static void safe_window_defaults(void)
 bool save_prefs()
 {
   char *prefs;
+
+  if(!init_done){
+    return true;
+  }
   prefs = pluginPath("Xchecklist.prf");
   if(!prefs){
     xcDebug("Xchecklist: Can't save prefs (NULL plugin path received).\n");
@@ -491,7 +497,6 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
     (void) xCheckListrefcon; // To get rid of warnings on unused variables
 
     if(!init_done){
-      init_setup();
       set_sound(state[VOICE]);
       voice_state = (state[VOICE]);
       init_done = true;
