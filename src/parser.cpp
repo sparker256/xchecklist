@@ -348,6 +348,17 @@ dataref_p dataref_name::getDataref()
     }else{
       xcDebug("Array dataref %s[%d] not found!\n", name.c_str(), index);
       printf("Array dataref %s[%d] not found!\n", name.c_str(), index);
+      //Lets try the Carenado style
+      std::ostringstream strstr;
+      strstr << name << "[" << index << "]";
+      std::string str = strstr.str();
+      if(find_dataref(str.c_str(), &dataref_struct)){
+        return dataref_struct;
+      }else{
+        xcDebug("Dataref %s not found!\n", str.c_str());
+        printf("Dataref %s not found!\n", str.c_str());
+        return NULL;
+      }
       return NULL;
     }
   }
