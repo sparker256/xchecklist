@@ -19,15 +19,20 @@
 %x NUM DREF VOID VOID1
 
 EOL                     (\r|\n|\n\r|\r\n)
-STRING			        [^\n\r:|]+
-VOIDSTRING		        [^\n\r|]+
-VOIDSTRING1		        [^\n\r]+
-DATAREF			        [^\n\r:|\[\]\(\)&]+
+STRING                                [^\n\r:|]+
+VOIDSTRING                        [^\n\r|]+
+VOIDSTRING1                        [^\n\r]+
+DATAREF                                [^\n\r:|\[\]\(\)&]+
 COLON                   :
 LBRACKET                \[
 RBRACKET                \]
 LPAREN                  \(
 RPAREN                  \)
+POW                     \*\*
+PLUS                    \+
+MINUS                   \-
+MUL                     \*
+DIV                     \/
 ABS_DIF                 ><
 NEQ                     !
 EQ                      =
@@ -39,19 +44,19 @@ POS_DIF                 \+>
 NEG_DIF                 -<
 DOT                     \.
 AND                     &&
-NUMBER                  [+-]?[0-9]+
+NUMBER                  [0-9]+
 
 %%
-sw_checklist            {isVoid = false; return(TOKEN_CHECKLIST);}
-sw_item                 {isVoid = false; return(TOKEN_ITEM);}
-sw_iteminfo             {isVoid = false; return(TOKEN_ITEMINFO);}
-sw_itemvoid             {isVoid = true;  return(TOKEN_ITEMVOID);}
-sw_show                 {isVoid = false; BEGIN(DREF); return(TOKEN_SHOW);}
-sw_rcolsize             {isVoid = false; return(TOKEN_RCOLSIZE);}
-sw_remark               {isVoid = false; return(TOKEN_REMARK);}
-sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
+sw_checklist                 {isVoid = false; return(TOKEN_CHECKLIST);}
+sw_item                      {isVoid = false; return(TOKEN_ITEM);}
+sw_iteminfo                  {isVoid = false; return(TOKEN_ITEMINFO);}
+sw_itemvoid                  {isVoid = true;  return(TOKEN_ITEMVOID);}
+sw_show                      {isVoid = false; BEGIN(DREF); return(TOKEN_SHOW);}
+sw_rcolsize                  {isVoid = false; return(TOKEN_RCOLSIZE);}
+sw_remark                    {isVoid = false; return(TOKEN_REMARK);}
+sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
 
-<*>{COLON}	{if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
+<*>{COLON}                   {if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
 <NUM>{LT}{EQ}                {return(TOKEN_LE);}
@@ -62,62 +67,74 @@ sw_continue[[:blank:]]* {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>{POS_DIF}               {return(TOKEN_POS_DIF);}
 <NUM>{NEG_DIF}               {return(TOKEN_NEG_DIF);}
 <NUM>{ABS_DIF}               {return(TOKEN_ABS_DIF);}
+
+<NUM>{PLUS}                  {return(TOKEN_PLUS);}
+<NUM>{MINUS}                 {return(TOKEN_MINUS);}
+<NUM>{MUL}                   {return(TOKEN_MUL);}
+<NUM>{DIV}                   {return(TOKEN_DIV);}
+<NUM>{POW}                   {return(TOKEN_POW);}
+<NUM>\{[^}\r\n]+\}           {
+                              //skip opening brace, don't include the closing one
+                              size_t len = strlen(yytext);
+                              chkllval.str=strndup(yytext+1, len - 2);
+                              return(TOKEN_DREF);
+                             }
 <INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
 <DREF>{OR}                   {return(TOKEN_OR);}
 <DREF>{AND}                  {return(TOKEN_AND);}
 <NUM>{NUMBER}                {
-			  chkllval.str=strdup(yytext);
-                          return(TOKEN_NUMBER);
-                        }
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
+                             }
 <NUM>{DOT}{NUMBER}           {
-			  chkllval.str=strdup(yytext);
-                          return(TOKEN_FRAC);
-                        }
-<NUM>[eE]{NUMBER}            {
-			  chkllval.str=strdup(yytext);
-                          return(TOKEN_EXPONENT);
-                        }
-<DREF>{LBRACKET}                {return(TOKEN_LEFT_BRACKET);}
-<DREF>{RBRACKET}                {return(TOKEN_RIGHT_BRACKET);}
-<DREF>{LPAREN}                  {return(TOKEN_LEFT_PARENTHESIS);}
-<DREF,NUM>{RPAREN}                  {return(TOKEN_RIGHT_PARENTHESIS);}
-<*>^[[:blank:]]+#[^\r\n]*	{}
-<*>#[^\r\n]*			{}
-<*>{EOL}	{
-                          BEGIN(INITIAL);
-                          isVoid = false;
-                          ++chkllineno;
-                          //fprintf(stderr, ">>>>>>>>>>Initial!\n");
-                        }
-<*>[[:blank:]]+      /*eat whitespaces*/
-{STRING}	{
-			  chkllval.str=strdup(yytext);
-			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
-			  return(TOKEN_STRING);
-			}
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_FRAC);
+                             }
+<NUM>[eE][+-]?{NUMBER}       {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_EXPONENT);
+                             }
+<DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
+<DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
+<DREF,NUM>{LPAREN}           {return(TOKEN_LEFT_PARENTHESIS);}
+<DREF,NUM>{RPAREN}           {return(TOKEN_RIGHT_PARENTHESIS);}
+<*>^[[:blank:]]+#[^\r\n]*    {}
+<*>#[^\r\n]*                 {}
+<*>{EOL}                     {
+                               BEGIN(INITIAL);
+                               isVoid = false;
+                               ++chkllineno;
+                               //fprintf(stderr, ">>>>>>>>>>Initial!\n");
+                             }
+<*>[[:blank:]]+              /*eat whitespaces*/
+{STRING}                     {
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+                               return(TOKEN_STRING);
+                             }
 
-<DREF>{DATAREF}	{
-			  chkllval.str=strdup(yytext);
-			  //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);
-			  return(TOKEN_STRING);
-			}
-<VOID>{VOIDSTRING}      {
-			  chkllval.str=strdup(yytext);
-			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
-			  return(TOKEN_STRING);
-                        }
-<VOID>{PIPE}            {
-			  BEGIN(VOID1);
-                          return(TOKEN_PIPE);
-                        }
-<VOID1>{VOIDSTRING1}    {//ugly cludge
-			  chkllval.str=strdup(yytext);
-			  //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
-			  return(TOKEN_STRING);
-                        }
-<*>. {
-                                xcDebug("XChecklist: Unmatched character '%s' at line %d!\n",
-                                  chkltext, chkllineno);
+<DREF>{DATAREF}              {
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);
+                               return(TOKEN_STRING);
+                             }
+<VOID>{VOIDSTRING}           {
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+                               return(TOKEN_STRING);
+                             }
+<VOID>{PIPE}                 {
+                               BEGIN(VOID1);
+                               return(TOKEN_PIPE);
+                             }
+<VOID1>{VOIDSTRING1}         {//ugly cludge
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+                               return(TOKEN_STRING);
+                             }
+<*>.                         {
+                               xcDebug("XChecklist: Unmatched character '%s' at line %d!\n",
+                                 chkltext, chkllineno);
                              }
 %%
 

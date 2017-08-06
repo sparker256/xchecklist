@@ -35,7 +35,7 @@
   class dataref_t *dref;
   class item_label *lbl;
   class checklist_item *item;
-  class number *num;
+  class value *val;
   int *op;
 }
 
@@ -60,6 +60,12 @@
 %token TOKEN_RIGHT_BRACKET
 %token TOKEN_LEFT_PARENTHESIS
 %token TOKEN_RIGHT_PARENTHESIS
+%token <str>TOKEN_DREF
+%token TOKEN_POW
+%token TOKEN_PLUS
+%token TOKEN_MINUS
+%token TOKEN_MUL
+%token TOKEN_DIV
 %token TOKEN_AND
 %token TOKEN_OR
 %token TOKEN_EQ
@@ -76,73 +82,73 @@
 %type <lbl> spec_string;
 %type <op> colsize;
 %type <item> show item_void item_info item item_remark;
-%type <num> number;
+%type <val> number primary p_term term expression;
 
 %%
-input:		/* empty */
-      		| input line{
-      		    expect_nothing();
-      		  }
+input:                /* empty */
+                      | input line{
+                          expect_nothing();
+                        }
 ;
 
-line:		checklist{
+line:                checklist{
                     if(binder == NULL){
                       binder = new checklist_binder;
                     }
                     current_checklist = $1;
                     binder->add_checklist(current_checklist);
                   }
-		| item{
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | item{
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->add_item($1);
                   }
-		| item_info{
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | item_info{
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->add_item($1);
                   }
-		| item_void {
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | item_void {
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->add_item($1);
                   }
-		| item_remark {
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | item_remark {
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->add_item($1);
                   }
-		| show {
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | show {
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->add_item($1);
                   }
-		| colsize {
-		    if(current_checklist == NULL){
-		      current_checklist = empty_checklist(&binder);
-		    }
+                | colsize {
+                    if(current_checklist == NULL){
+                      current_checklist = empty_checklist(&binder);
+                    }
                     current_checklist->set_width(*$1);
                     delete($1);
                   }
-		| continue
-		| error {
-		    yyclearin;
-		    yyerrok;
-		  }
+                | continue
+                | error {
+                    yyclearin;
+                    yyerrok;
+                  }
 ;
 
-checklist:	TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
+checklist:        TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3);
                     printf("New checklist def '%s'!\n", $3);
                     free($3);
                   }
-		| TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING
-		    TOKEN_COLON TOKEN_STRING {
+                | TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING
+                    TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3, $5);
                     printf("New checklist def1 '%s'!\n", $3);
                     free($3);
@@ -150,20 +156,20 @@ checklist:	TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                   }
 ;
 
-item:		TOKEN_ITEM TOKEN_COLON spec_string {
+item:                TOKEN_ITEM TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, true);
                   }
-		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
+                | TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
                     $$ = new chk_item($3, NULL, true);
                   }
-		| TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
+                | TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
                     $$ = new chk_item($3, $5, true);
                   }
 ;
-item_info:	TOKEN_ITEMINFO TOKEN_COLON spec_string {
+item_info:        TOKEN_ITEMINFO TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, false);
                   }
-		| TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
+                | TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
                     $$ = new chk_item($3, $5, false);
                   }
 ;
@@ -189,7 +195,7 @@ item_remark:    TOKEN_REMARK TOKEN_COLON TOKEN_STRING{
                     free($3);
                   }
 ;
-show:		TOKEN_SHOW TOKEN_COLON dataref_expr{
+show:                TOKEN_SHOW TOKEN_COLON dataref_expr{
                     $$ = new show_item($3);
                   }
 ;
@@ -200,7 +206,7 @@ continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING{
                     current_checklist->setContinueFlag();
                   }
 ;
-colsize:	TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
+colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
                     $$ = new int(atoi($3));
                     free($3);
                   }
@@ -210,12 +216,12 @@ spec_string:    TOKEN_STRING{
                     free($1);
                     expect_dataref();
                   }
-		| TOKEN_STRING TOKEN_PIPE{
+                | TOKEN_STRING TOKEN_PIPE{
                     $$ = new item_label($1);
                     free($1);
                     expect_dataref();
                   }
-		| TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
+                | TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
                     $$ = new item_label($1, $3);
                     free($1);
                     free($3);
@@ -237,17 +243,17 @@ dataref_prim:   dataref
                     $$ = $2;
                 }
 ;
-dataref:	dataref_name TOKEN_COLON operation number {
+dataref:        dataref_name TOKEN_COLON operation expression {
                     $$ = new dataref_dsc($1, (operation_t*)$3, $4);
                     delete $3;expect_dataref();
                   }
-		| dataref_name TOKEN_COLON number {
+                | dataref_name TOKEN_COLON expression {
                     $$ = new dataref_dsc($1, $3);expect_dataref();
                   }
-                | dataref_name TOKEN_COLON number TOKEN_PIPE number {
+                | dataref_name TOKEN_COLON expression TOKEN_PIPE expression {
                     $$ = new dataref_dsc($1, $3, $5);expect_dataref();
                   }
-                | dataref_name TOKEN_COLON number TOKEN_COLON number {
+                | dataref_name TOKEN_COLON expression TOKEN_COLON expression {
                     $$ = new dataref_dsc($1, $3, $5, false);expect_dataref();
                   }
 ;
@@ -256,7 +262,7 @@ dataref_name:   TOKEN_STRING {
                     free($1);
                     expect_number();
                   }
-		| TOKEN_STRING TOKEN_LEFT_BRACKET TOKEN_STRING TOKEN_RIGHT_BRACKET{
+                | TOKEN_STRING TOKEN_LEFT_BRACKET TOKEN_STRING TOKEN_RIGHT_BRACKET{
                     $$ = new dataref_name($1, $3);
                     free($1);
                     free($3);
@@ -274,6 +280,38 @@ operation:      TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
                 | TOKEN_NEG_DIF {$$ = (int *)new operation_t(XC_NEG_DIF);}
                 | TOKEN_ABS_DIF {$$ = (int *)new operation_t(XC_ABS_DIF);}
 ;
+
+expression:     expression TOKEN_PLUS term
+                  {$$ = new arith_op($1, '+', $3);}
+                | expression TOKEN_MINUS term
+                  {$$ = new arith_op($1, '-', $3);}
+                | term
+
+term:           term TOKEN_MUL p_term
+                  {$$ = new arith_op($1, '*', $3);}
+                | term TOKEN_DIV p_term
+                  {$$ = new arith_op($1, '/', $3);}
+                | p_term
+
+p_term:         p_term TOKEN_POW primary
+                  {$$ = new arith_op($1, '^', $3);}
+                | primary
+
+primary:        number
+                | TOKEN_PLUS number
+                  {$$ = $2;}
+                | TOKEN_MINUS number
+                  {
+                     value *m1 = new number("-1", "", "");
+                     $$ = new arith_op(m1, '*', $2);
+                  }
+                | TOKEN_DREF
+                  {
+                    $$ = new dataref_name($1);
+                    free($1);
+                  }
+                | TOKEN_LEFT_PARENTHESIS expression TOKEN_RIGHT_PARENTHESIS
+                  {$$ = $2;}
 
 number:         TOKEN_NUMBER
                   {$$ = new number($1, "", ""); free($1);}

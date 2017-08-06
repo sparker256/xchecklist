@@ -100,24 +100,54 @@ class checklist_binder{
     int current;
 };
 
-class dataref_name{
+class value{
+  friend std::ostream& operator<<(std::ostream &output, const value& v);
+ public:
+  virtual ~value(){};
+  virtual bool get_value(int &i) = 0;
+  virtual bool get_value(float &f) = 0;
+  virtual bool get_value(double &d) = 0;
+  virtual void print(std::ostream &output)const = 0;
+};
+
+class dataref_name:public value{
   friend std::ostream& operator<<(std::ostream &output, const dataref_name& dn);
  public:
   dataref_name(std::string n, std::string i);
   dataref_name(std::string n);
   ~dataref_name();
   dataref_p getDataref();
+  virtual bool get_value(int &i);
+  virtual bool get_value(float &f);
+  virtual bool get_value(double &d);
+  virtual void print(std::ostream &output)const;
  private:
   std::string name;
   int index;
   dataref_p dataref_struct;
 };
 
-class number{
+class arith_op : public value{
+  friend std::ostream& operator<<(std::ostream &output, const arith_op& n);
+ public:
+  arith_op(value *val1, char op, value *val2);
+  virtual bool get_value(int &i);
+  virtual bool get_value(float &f);
+  virtual bool get_value(double &d);
+  virtual void print(std::ostream &output)const;
+ private:
+  value *value1, *value2;
+  char operation;
+};
+
+class number : public value{
   friend std::ostream& operator<<(std::ostream &output, const number& n);
  public:
   number(std::string i, std::string d, std::string e);
-  float get_value();
+  virtual bool get_value(int &i);
+  virtual bool get_value(float &f);
+  virtual bool get_value(double &d);
+  virtual void print(std::ostream &output)const;
   bool lt(const float &val1);
   bool gt(const float &val1);
   bool le(const float &val1);
@@ -156,9 +186,9 @@ class dataref_op : public dataref_t {
 class dataref_dsc : public dataref_t{
   friend std::ostream& operator<<(std::ostream &output, const dataref_dsc& d);
  public:
-  dataref_dsc(dataref_name *dr, number *val);
-  dataref_dsc(dataref_name *dr, operation_t *o, number *val);
-  dataref_dsc(dataref_name *dr, number *v1, number *v2, bool plain_in = true);
+  dataref_dsc(dataref_name *dr, value *val);
+  dataref_dsc(dataref_name *dr, operation_t *o, value *val);
+  dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in = true);
   virtual ~dataref_dsc();
   virtual bool registerDsc();
   virtual void reset_trig(){state = NONE;};
@@ -166,8 +196,8 @@ class dataref_dsc : public dataref_t{
  private:
   bool checkTrig(float val);
   dataref_name *data_ref;
-  number *val1;
-  number *val2;
+  value *val1;
+  value *val2;
   operation_t op;
   enum {NONE, INIT, TRIG} state;
   dataref_p dataref_struct;
