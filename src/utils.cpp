@@ -110,7 +110,7 @@ char *findChecklist(void)
   XPLMGetNthAircraftModel(0, FileName, AircraftPath);
   //To make sure I don't corrupt XPlane stuff
   if(strlen(AircraftPath) == 0){
-    return false; 
+    return NULL; 
   }
   //Aircraft path contains path to the *.acf file
   //  but we need only the directory name
