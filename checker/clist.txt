@@ -23,4 +23,15 @@ sw_show:sim/cockpit/engine/ignition_on[0]:!1
 sw_continue
 
 sw_checklist:bla(name):blabla(menutext)
-
+#pokus
+sw_item:I1:(sim/cockpit/engine/ignition_on[0]:<1.0e-3)&&(sim/cockpit/electrical/strobe_lights_on:0)
+#pokus
+sw_item:Item with array dataref:sim/cockpit/engine/ignition_on[0]:.1e-1|.5e0
+sw_item:Expression test:clist/test/dataref:-2 + -3e-2
+sw_item:Priority test:clist/test/dataref:2 + 3 * 4 | 2 + (3 * 4) 
+sw_item:Power test:clist/test/dataref:2**3 | 3 ** 2 
+sw_item:Priority test:clist/test/dataref:2 * 3 ** 4 | 2 ** 3 * 4 
+sw_item:Priority test:clist/test/dataref:2 + 3 ** 4 | 2 ** 3 - 4 
+sw_item:Stupid test:clist/test/dataref:<-{clist/test/dataref} + 2 * ({clist/test/dataref})
+sw_item:Function test:clist/test/dataref:-round(0.63)|round(0.49)
+sw_item:Cast test:clist/test/dataref:(int)-(4)|-(double)(+round(7.4))

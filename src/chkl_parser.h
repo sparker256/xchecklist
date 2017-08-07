@@ -10,6 +10,7 @@
 typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST,
               XC_AND, XC_OR, XC_POS_DIF, XC_NEG_DIF, XC_ABS_DIF} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
+typedef enum {DOUBLE, FLOAT, INT} value_type_t;
 class checklist_binder;
 extern checklist_binder *binder;
 class checklist;
@@ -102,12 +103,31 @@ class checklist_binder{
 
 class value{
   friend std::ostream& operator<<(std::ostream &output, const value& v);
+  value_type_t value_type;
  public:
+  value():value_type(DOUBLE){};
   virtual ~value(){};
   virtual bool get_value(int &i) = 0;
   virtual bool get_value(float &f) = 0;
   virtual bool get_value(double &d) = 0;
   virtual void print(std::ostream &output)const = 0;
+  value_type_t get_type()const{return value_type;};
+  std::string get_type_str()const;
+  void set_type(value_type_t t){value_type = t;};
+};
+
+class procedure:public value{
+  friend std::ostream& operator<<(std::ostream &output, const procedure& v);
+ public:
+  procedure(std::string n, value *par):name(n), param(par){};
+  virtual ~procedure(){delete param;};
+  virtual bool get_value(int &i);
+  virtual bool get_value(float &f);
+  virtual bool get_value(double &d);
+  virtual void print(std::ostream &output)const;
+ private:
+  std::string name;
+  value *param;
 };
 
 class dataref_name:public value{
@@ -131,6 +151,7 @@ class arith_op : public value{
   friend std::ostream& operator<<(std::ostream &output, const arith_op& n);
  public:
   arith_op(value *val1, char op, value *val2);
+  ~arith_op(){delete value1; delete value2;};
   virtual bool get_value(int &i);
   virtual bool get_value(float &f);
   virtual bool get_value(double &d);
@@ -270,7 +291,7 @@ class chk_item:public checklist_item{
     item_label *label;
     dataref_t *dataref;
     bool checkable;
-    bool check_state;
+    //bool check_state;
 };
 
 

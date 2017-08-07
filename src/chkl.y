@@ -60,6 +60,9 @@
 %token TOKEN_RIGHT_BRACKET
 %token TOKEN_LEFT_PARENTHESIS
 %token TOKEN_RIGHT_PARENTHESIS
+%token TOKEN_TO_DOUBLE
+%token TOKEN_TO_FLOAT
+%token TOKEN_TO_INT
 %token <str>TOKEN_DREF
 %token TOKEN_POW
 %token TOKEN_PLUS
@@ -297,14 +300,8 @@ p_term:         p_term TOKEN_POW primary
                   {$$ = new arith_op($1, '^', $3);}
                 | primary
 
+
 primary:        number
-                | TOKEN_PLUS number
-                  {$$ = $2;}
-                | TOKEN_MINUS number
-                  {
-                     value *m1 = new number("-1", "", "");
-                     $$ = new arith_op(m1, '*', $2);
-                  }
                 | TOKEN_DREF
                   {
                     $$ = new dataref_name($1);
@@ -312,6 +309,24 @@ primary:        number
                   }
                 | TOKEN_LEFT_PARENTHESIS expression TOKEN_RIGHT_PARENTHESIS
                   {$$ = $2;}
+                | TOKEN_STRING TOKEN_LEFT_PARENTHESIS expression TOKEN_RIGHT_PARENTHESIS
+                  {
+                    $$ = new procedure($1, $3);
+                    free($1);
+                  }
+                | TOKEN_MINUS primary
+                  {
+                    $$ = new arith_op(new number("-1", "", ""), '*', $2);
+                  }
+                | TOKEN_PLUS primary
+                  {$$ = $2;}
+                | TOKEN_TO_DOUBLE primary
+                  {$2->set_type(DOUBLE); $$ = $2;}
+                | TOKEN_TO_FLOAT primary
+                  {$2->set_type(FLOAT); $$ = $2;}
+                | TOKEN_TO_INT primary
+                  {$2->set_type(INT); $$ = $2;}
+                
 
 number:         TOKEN_NUMBER
                   {$$ = new number($1, "", ""); free($1);}

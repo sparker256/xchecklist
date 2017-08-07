@@ -77,4 +77,5 @@ SOURCES += main.c \
 
 LEXSOURCES += ../src/chkl.l
 YACCSOURCES += ../src/chkl.y
+QMAKE_YACCFLAGS_MANGLE += -v
 

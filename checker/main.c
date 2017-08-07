@@ -17,20 +17,20 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref)
   (void)name;
   (void)index;
   (void)dref;
-  return false;
+  return true;
 }
 
 bool find_dataref(const char *name, dataref_p *dref)
 {
   (void)name;
   (void)dref;
-  return false;
+  return true;
 }
 
 float get_float_dataref(dataref_p dref)
 {
   (void) dref;
-  return 0.0f;
+  return 42.43f;
 }
 
 bool create_checklist(unsigned int size, const char *title,

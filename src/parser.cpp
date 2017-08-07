@@ -27,6 +27,7 @@ int chklparse(void);
 
 checklist *current_checklist;
 char *parsed_file;
+static bool debug_expr_eval;
 
 bool checklist_item::check()
 {
@@ -318,6 +319,12 @@ dataref_dsc::dataref_dsc(dataref_name *dr, value *val)
   val1 = val;
   val2 = NULL;
   op = XC_EQ;
+
+  if(debug_expr_eval){
+    float res;
+    val1->get_value(res);
+    std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res << std::endl;
+  }
 }
 
 dataref_dsc::dataref_dsc(dataref_name *dr, operation_t *o, value *val)
@@ -327,6 +334,12 @@ dataref_dsc::dataref_dsc(dataref_name *dr, operation_t *o, value *val)
   val1 = val;
   val2 = NULL;
   op = *o;
+
+  if(debug_expr_eval){
+    float res;
+    val1->get_value(res);
+    std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res << std::endl;
+  }
 }
 
 dataref_dsc::dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in)
@@ -339,6 +352,14 @@ dataref_dsc::dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in)
     op = XC_IN;
   }else{
     op = XC_HYST;
+  }
+
+  if(debug_expr_eval){
+    float res1, res2;
+    val1->get_value(res1);
+    val2->get_value(res2);
+    std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res1 << std::endl;
+    std::cout << "DEBUG EXPRESSIONS: " << val2->get_type_str() << *val2 << " = " << res2 << std::endl;
   }
 }
 
@@ -1042,12 +1063,20 @@ bool show_item::getDesc(checklist_item_desc_t &desc)
   return false;
 }
 
+/*
+ * Debug is a bitfield, with following meanings:
+ *   - bit 0 - verbose parser output
+ *   - bit 1 - verbosely evaluate expressions
+ */
+
 
 bool parse_clist(const std::string &fname, int debug)
 {
   if((chklin=fopen(fname.c_str(), "r")) != NULL){
     parsed_file = strdup(fname.c_str());
-    chkldebug=debug;
+
+    chkldebug       = debug & 1;
+    debug_expr_eval = debug & 2;
 
     current_checklist = NULL;
     binder = NULL;
@@ -1134,14 +1163,19 @@ void dataref_name::print(std::ostream &output)const
   }
 }
 
+void procedure::print(std::ostream &output)const
+{
+  output << name << "(" << *param << ")";
+}
+
 void arith_op::print(std::ostream &output)const
 {
-  output<<value1<<operation<<value2;
+  output << "(" << *value1 << " " << operation << " " << *value2 << ")";
 }
 
 void number::print(std::ostream &output)const
 {
-  output<<value;
+  output << value;
 }
 
 std::ostream& operator<<(std::ostream &output, const value& a)
@@ -1152,9 +1186,34 @@ std::ostream& operator<<(std::ostream &output, const value& a)
 
 std::ostream& operator<<(std::ostream &output, const arith_op& a)
 {
-  output << a.value1 << a.operation << a.value2;
+  output << *(a.value1) << " " << a.operation << " " << *(a.value2);
   return output;
 }
+
+std::ostream& operator<<(std::ostream &output, const procedure& a)
+{
+  output << a.name << "(" << a.param << ")";
+  return output;
+}
+
+std::string value::get_type_str()const
+{
+  switch(value_type){
+    case DOUBLE:
+      return "(double)";
+      break;
+    case FLOAT:
+      return "(float)";
+      break;
+    case INT:
+      return "(int)";
+      break;
+    default:
+      return "(!UNKNOWN!)";
+      break;
+  }
+}
+
 
 arith_op::arith_op(value *val1, char op, value *val2):value1(val1), value2(val2), operation(op)
 {
@@ -1249,4 +1308,45 @@ bool arith_op::get_value(double &d)
   }
   return false;
 }
+
+bool procedure::get_value(double &d){
+  d = 0.0;
+  double param_val;
+  if(!param->get_value(param_val)){
+    return false;
+  }
+  if(name == "round"){
+    d = round(param_val);
+    return true;
+  }
+  return false;
+}
+
+bool procedure::get_value(float &f){
+  f = 0.0f;
+  float param_val;
+  if(!param->get_value(param_val)){
+    return false;
+  }
+  if(name == "round"){
+    f = roundf(param_val);
+    return true;
+  }
+  return false;
+}
+
+bool procedure::get_value(int &i){
+  i = 0.0;
+  int param_val;
+  if(!param->get_value(param_val)){
+    return false;
+  }
+  if(name == "round"){
+    i = roundf(param_val);
+    return true;
+  }
+  return false;
+}
+
+
 

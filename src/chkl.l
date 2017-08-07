@@ -76,12 +76,10 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>\{[^}\r\n]+\}           {
                               //skip opening brace, don't include the closing one
                               size_t len = strlen(yytext);
-                              chkllval.str=strndup(yytext+1, len - 2);
+                              chkllval.str = strdup(yytext + 1);
+                              chkllval.str[len - 2] = '\0';
                               return(TOKEN_DREF);
                              }
-<INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
-<DREF>{OR}                   {return(TOKEN_OR);}
-<DREF>{AND}                  {return(TOKEN_AND);}
 <NUM>{NUMBER}                {
                                chkllval.str=strdup(yytext);
                                return(TOKEN_NUMBER);
@@ -94,6 +92,17 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
                                chkllval.str=strdup(yytext);
                                return(TOKEN_EXPONENT);
                              }
+<NUM>[a-zA-Z][a-zA-Z0-9_]+   {
+                               chkllval.str = strdup(yytext);
+                               return(TOKEN_STRING);
+                             }
+<NUM>\(double\)              {return(TOKEN_TO_DOUBLE);}
+<NUM>\(float\)               {return(TOKEN_TO_FLOAT);}
+<NUM>\(int\)                 {return(TOKEN_TO_INT);}
+
+<INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
+<DREF>{OR}                   {return(TOKEN_OR);}
+<DREF>{AND}                  {return(TOKEN_AND);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
 <DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
 <DREF,NUM>{LPAREN}           {return(TOKEN_LEFT_PARENTHESIS);}
