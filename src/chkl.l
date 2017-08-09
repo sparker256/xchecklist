@@ -3,9 +3,9 @@
   #include <stdlib.h>
   #include <string.h>
   //#include <stdbool.h>
+  #include "src/chkl_parser.h"
   #include "chkl_yacc.h"
   #include "src/utils.h"
-  #include "src/chkl_parser.h"
 
   static bool isVoid = false;
 
@@ -99,6 +99,7 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>\(double\)              {return(TOKEN_TO_DOUBLE);}
 <NUM>\(float\)               {return(TOKEN_TO_FLOAT);}
 <NUM>\(int\)                 {return(TOKEN_TO_INT);}
+<NUM>,                       {return(TOKEN_COMA);}
 
 <INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
 <DREF>{OR}                   {return(TOKEN_OR);}

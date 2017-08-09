@@ -13,9 +13,9 @@
 
 
 #if IBM
-float roundf(float x)
+double round(double x)
 {
-  return floorf(x + 0.5f);
+  return floor(x + 0.5f);
 }
 #endif
 
@@ -91,18 +91,18 @@ template<class T>
     }
 
 
-float number::get_precision(std::string &i, std::string &d, std::string &e)
+double number::get_precision(std::string &i, std::string &d, std::string &e)
 {
   (void) i;
   int sig = 1;
   if(d.size() > 1){
     sig = (d.size() - 1);
   }
-  float bnd = pow(0.1, sig);
+  double bnd = pow(0.1, sig);
   if(!e.empty()){
     std::ostringstream str;
     str<<bnd<<e.c_str();
-    bnd = fromString<float>(str.str());
+    bnd = fromString<double>(str.str());
   }
   //std::cout<<i<<d<<e<<" => precision "<<bnd<<std::endl;
   return bnd;
@@ -112,7 +112,7 @@ float number::get_precision(std::string &i, std::string &d, std::string &e)
 number::number(std::string i, std::string d, std::string e)
 {
   precision = get_precision(i, d, e);
-  value = fromString<float>(i + d + e);
+  value = fromString<double>(i + d + e);
 /*
   if(d.size() > 1){
     decimals = d.size() - 1; //there is a dot before the decimals
@@ -123,25 +123,12 @@ number::number(std::string i, std::string d, std::string e)
 */
 };
 
-bool number::get_value(int &i)
-{
-  i = (int)value;
-  return true;
-}
-
-bool number::get_value(float &f)
-{
-  f = (float)value;
-  return true;
-}
-
 bool number::get_value(double &d)
 {
   d = (double)value;
+  cast(d);
   return true;
 }
-
-
 
 std::ostream& operator<<(std::ostream &output, const number& n)
 {
@@ -295,21 +282,15 @@ dataref_name::dataref_name(std::string n)
   dataref_struct = NULL;
 }
 
-bool dataref_name::get_value(int &i)
-{
-  i = (int)get_float_dataref(getDataref());
-  return true;
-}
-
-bool dataref_name::get_value(float &f)
-{
-  f = (float)get_float_dataref(getDataref());
-  return true;
-}
-
 bool dataref_name::get_value(double &d)
 {
-  d = (double)get_float_dataref(getDataref());
+  getDataref();
+  if(dataref_struct){
+    d = dataref_struct->accessor(dataref_struct);
+    cast(d);
+  }else{
+    d = 0.0;
+  }
   return true;
 }
 
@@ -319,9 +300,10 @@ dataref_dsc::dataref_dsc(dataref_name *dr, value *val)
   val1 = val;
   val2 = NULL;
   op = XC_EQ;
+  data_ref->set_type(val1->get_type());
 
   if(debug_expr_eval){
-    float res;
+    double res;
     val1->get_value(res);
     std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res << std::endl;
   }
@@ -334,9 +316,10 @@ dataref_dsc::dataref_dsc(dataref_name *dr, operation_t *o, value *val)
   val1 = val;
   val2 = NULL;
   op = *o;
+  data_ref->set_type(val1->get_type());
 
   if(debug_expr_eval){
-    float res;
+    double res;
     val1->get_value(res);
     std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res << std::endl;
   }
@@ -353,9 +336,10 @@ dataref_dsc::dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in)
   }else{
     op = XC_HYST;
   }
+  data_ref->set_type(val1->get_type());
 
   if(debug_expr_eval){
-    float res1, res2;
+    double res1, res2;
     val1->get_value(res1);
     val2->get_value(res2);
     std::cout << "DEBUG EXPRESSIONS: " << val1->get_type_str() << *val1 << " = " << res1 << std::endl;
@@ -389,7 +373,7 @@ dataref_p dataref_name::getDataref()
     return dataref_struct;
   }
   if(index < 0){
-    if(find_dataref(name.c_str(), &dataref_struct)){
+    if(find_dataref(name.c_str(), &dataref_struct, get_type())){
       return dataref_struct;
     }else{
       xcDebug("Dataref %s not found!\n", name.c_str());
@@ -397,7 +381,7 @@ dataref_p dataref_name::getDataref()
       return NULL;
     }
   }else{
-    if(find_array_dataref(name.c_str(), index, &dataref_struct)){
+    if(find_array_dataref(name.c_str(), index, &dataref_struct, get_type())){
       return dataref_struct;
     }else{
       xcDebug("Array dataref %s[%d] not found!\n", name.c_str(), index);
@@ -406,7 +390,7 @@ dataref_p dataref_name::getDataref()
       std::ostringstream strstr;
       strstr << name << "[" << index << "]";
       std::string str = strstr.str();
-      if(find_dataref(str.c_str(), &dataref_struct)){
+      if(find_dataref(str.c_str(), &dataref_struct, get_type())){
         return dataref_struct;
       }else{
         xcDebug("Dataref %s not found!\n", str.c_str());
@@ -426,61 +410,61 @@ bool dataref_dsc::registerDsc()
   return true;
 }
 
-bool number::le(const float &val1)
+bool number::le(const double &val1)
 {
   return val1 <= value;
 }
 
-bool number::ge(const float &val1)
+bool number::ge(const double &val1)
 {
   return val1 >= value;
 }
 
-bool number::lt(const float &val1)
+bool number::lt(const double &val1)
 {
   return val1 < value;
 }
 
-bool number::gt(const float &val1)
+bool number::gt(const double &val1)
 {
   return val1 > value;
 }
 
-bool number::eq(const float &val1)
+bool number::eq(const double &val1)
 {
-  float tmp = precision * roundf(val1 / precision);
-  return fabsf(value - tmp) < (precision / 10.0f);
+  double tmp = precision * round(val1 / precision);
+  return fabs(value - tmp) < (precision / 10.0);
 }
 
-bool operator<=(const float &val1, number val2)
+bool operator<=(const double &val1, number val2)
 {
   return val2.le(val1);
 }
 
-bool operator>=(const float &val1, number val2)
+bool operator>=(const double &val1, number val2)
 {
   return val2.ge(val1);
 }
 
-bool operator<(const float &val1, number val2)
+bool operator<(const double &val1, number val2)
 {
   return val2.lt(val1);
 }
 
-bool operator>(const float &val1, number val2)
+bool operator>(const double &val1, number val2)
 {
   return val2.gt(val1);
 }
 
-bool operator==(const float &val1, number val2)
+bool operator==(const double &val1, number val2)
 {
   return val2.eq(val1);
 }
 
 
-bool dataref_dsc::checkTrig(float val)
+bool dataref_dsc::checkTrig(double val)
 {
-  float value1, value2;
+  double value1, value2;
   val1->get_value(value1);
   val2->get_value(value2);
   if(value1 < value2){
@@ -525,8 +509,8 @@ bool dataref_dsc::trigered()
   if(dataref_struct == NULL){
     return res;
   }
-  float val = get_float_dataref(dataref_struct);
-  float value1, value2;
+  double val = dataref_struct->accessor(dataref_struct);
+  double value1, value2;
   val1->get_value(value1);
   std::cout<<"Cond: '"<<*this<<"'  Current value: "<<val<<std::endl;
   switch(op){
@@ -1165,7 +1149,14 @@ void dataref_name::print(std::ostream &output)const
 
 void procedure::print(std::ostream &output)const
 {
-  output << name << "(" << *param << ")";
+  output << name << "(";
+  size_t s = params->size();
+  for(size_t i = 0; i < s - 1; ++i){
+    (*params)[i]->print(output);
+    output << ", ";
+  }
+  (*params)[s - 1]->print(output);
+  output << ")";
 }
 
 void arith_op::print(std::ostream &output)const
@@ -1192,20 +1183,25 @@ std::ostream& operator<<(std::ostream &output, const arith_op& a)
 
 std::ostream& operator<<(std::ostream &output, const procedure& a)
 {
-  output << a.name << "(" << a.param << ")";
+  output << a.name << "(";
+  size_t s = a.params->size();
+  for(size_t i = 0; i < s - 1; ++i){
+    output << *((*a.params)[i]) << ", ";
+  }
+  output << *((*a.params)[s - 1]) << ")";
   return output;
 }
 
 std::string value::get_type_str()const
 {
   switch(value_type){
-    case DOUBLE:
+    case TYPE_DOUBLE:
       return "(double)";
       break;
-    case FLOAT:
+    case TYPE_FLOAT:
       return "(float)";
       break;
-    case INT:
+    case TYPE_INT:
       return "(int)";
       break;
     default:
@@ -1219,66 +1215,6 @@ arith_op::arith_op(value *val1, char op, value *val2):value1(val1), value2(val2)
 {
 }
 
-bool arith_op::get_value(int &i)
-{
-  int val1, val2;
-  value1->get_value(val1);
-  value2->get_value(val2);
-  switch(operation){
-    case '+':
-      i = val1 + val2;
-      return true;
-      break;
-    case '-':
-      i =  val1 - val2;
-      return true;
-      break;
-    case '*':
-      i = val1 * val2;
-      return true;
-      break;
-    case '/':
-      i = val1 / val2;
-      return true;
-      break;
-    case '^':
-      i = pow(val1, val2);
-      return true;
-      break;
-  }
-  return false;
-}
-
-bool arith_op::get_value(float &f)
-{
-  float val1, val2;
-  value1->get_value(val1);
-  value2->get_value(val2);
-  switch(operation){
-    case '+':
-      f = val1 + val2;
-      return true;
-      break;
-    case '-':
-      f =  val1 - val2;
-      return true;
-      break;
-    case '*':
-      f = val1 * val2;
-      return true;
-      break;
-    case '/':
-      f = val1 / val2;
-      return true;
-      break;
-    case '^':
-      f = powf(val1, val2);
-      return true;
-      break;
-  }
-  return false;
-}
-
 bool arith_op::get_value(double &d)
 {
   double val1, val2;
@@ -1287,66 +1223,107 @@ bool arith_op::get_value(double &d)
   switch(operation){
     case '+':
       d = val1 + val2;
+      cast(d);
       return true;
       break;
     case '-':
       d =  val1 - val2;
+      cast(d);
       return true;
       break;
     case '*':
       d = val1 * val2;
+      cast(d);
       return true;
       break;
     case '/':
       d = val1 / val2;
+      cast(d);
       return true;
       break;
     case '^':
       d = pow(val1, val2);
+      cast(d);
       return true;
+      break;
+    default:
+      xcDebug("Unsupprted operation '%c'.\n", operation);
       break;
   }
   return false;
 }
 
+
 bool procedure::get_value(double &d){
   d = 0.0;
+  if(!actor){
+    return false;
+  }
+  bool res = actor(params, d);
+  cast(d);
+  return res;
+}
+
+static bool round_func(const std::vector<value *> *params, double &res)
+{
+  if(params->size() != 1){
+    xcDebug("Function round takes only one value!\n");
+    return false;
+  }
   double param_val;
-  if(!param->get_value(param_val)){
+  if(!(*params)[0]->get_value(param_val)){
+    xcDebug("Error evaluating parameter value!\n");
     return false;
   }
-  if(name == "round"){
-    d = round(param_val);
-    return true;
-  }
-  return false;
+  res = round(param_val);
+  return true;
 }
 
-bool procedure::get_value(float &f){
-  f = 0.0f;
-  float param_val;
-  if(!param->get_value(param_val)){
+static bool step_func(const std::vector<value *> *params, double &res)
+{
+  if(params->size() != 1){
+    xcDebug("Error: Step function takes only one value!\n");
     return false;
   }
-  if(name == "round"){
-    f = roundf(param_val);
-    return true;
-  }
-  return false;
-}
-
-bool procedure::get_value(int &i){
-  i = 0.0;
-  int param_val;
-  if(!param->get_value(param_val)){
+  double param_val;
+  if(!(*params)[0]->get_value(param_val)){
+    xcDebug("Error evaluating parameter value!\n");
     return false;
   }
-  if(name == "round"){
-    i = roundf(param_val);
-    return true;
+  if(param_val < 0){
+    res = 0.0;
+  }else{
+    res = 1.0;
   }
-  return false;
+  return true;
 }
 
+static std::map<std::string, func_ptr_t> *functions;
 
+procedure::procedure(std::string n, std::vector<value *> *par):name(n), params(par), actor(NULL)
+{
+  if(!functions){
+    functions = new std::map<std::string, func_ptr_t>();
+    functions->insert(std::pair<std::string, func_ptr_t>("round", round_func));
+    functions->insert(std::pair<std::string, func_ptr_t>("step", step_func));
+  }
+  std::map<std::string, func_ptr_t>::const_iterator i = functions->find(name);
+  if(i != functions->end()){
+    actor = i->second;
+  }else{
+    xcDebug("Error: Function %s not supported!\n", name.c_str());
+  }
+}
+
+void value::cast(double &val)
+{ 
+  if(value_type == TYPE_DOUBLE){
+    return;
+  }
+  if(value_type == TYPE_INT){
+    val = (int)val;
+  }else{
+    val = (float)val;
+  }
+}
 

@@ -2,6 +2,7 @@
 #define INTERFACE__H
 
 #include <stdbool.h>
+#include "XPLMDataAccess.h"
 
 typedef struct{
   //Text of the checklist item
@@ -24,6 +25,20 @@ typedef enum{
   XC_FLOAT_ARRAY = 8,
   XC_INT_ARRAY   = 16
 } dataref_type_t;
+
+typedef enum {TYPE_DOUBLE, TYPE_FLOAT, TYPE_INT} value_type_t;
+
+struct dataref_struct_t;
+
+struct dataref_struct_t{
+  XPLMDataRef dref;
+  XPLMDataTypeID dref_type;
+  int index;
+  double (*accessor)(struct dataref_struct_t *dref);
+};
+
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -122,14 +137,8 @@ bool activate_item(int item);
 struct dataref_struct_t;
 typedef struct dataref_struct_t* dataref_p;
 
-bool find_dataref(const char *name, dataref_p *dref);
-bool find_array_dataref(const char *name, int index, dataref_p *dref);
-
-//Get value of float dataref
-//  name is the dataref name
-//
-//  Returns the float value of selected dataref
-float get_float_dataref(dataref_p dref);
+bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type);
+bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type_t preferred_type);
 
 bool dispose_dataref(dataref_p *dref);
 

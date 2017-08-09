@@ -1041,79 +1041,130 @@ bool activate_item(int itemNo)
   return true;
 }
 
-struct dataref_struct_t{
-  XPLMDataRef dref;
-  XPLMDataTypeID dref_type;
-  int index;
-};
-
-bool find_dataref(const char *name, dataref_p *dref)
+static double get_int_dataref(dataref_struct_t *dref)
 {
+  return (double)XPLMGetDatai(dref->dref);
+}
+
+static double get_float_dataref(dataref_struct_t *dref)
+{
+  return (double)XPLMGetDataf(dref->dref);
+}
+
+static double get_double_dataref(dataref_struct_t *dref)
+{
+  return XPLMGetDatad(dref->dref);
+}
+
+static double get_int_array_dataref(dataref_struct_t *dref)
+{
+  int val = 0;
+  if(XPLMGetDatavi(dref->dref, &val, dref->index, 1) != 1){
+    return 0.0;
+  }
+  return val;
+}
+
+static double get_float_array_dataref(dataref_struct_t *dref)
+{
+  float val = 0.0f;
+  if(XPLMGetDatavf(dref->dref, &val, dref->index, 1) != 1){
+    return 0.0;
+  }
+  return val;
+}
+
+
+bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type)
+{
+  *dref= NULL;
   XPLMDataRef tmp = XPLMFindDataRef(name);
   if(tmp == NULL){
-    *dref= NULL;
+    xcDebug("Failed to find a dataref %s\n", name);
     return false;
   }
+  int type = XPLMGetDataRefTypes(tmp);
+  struct dataref_struct_t tmp_dref;
+  tmp_dref.dref = tmp;
+  tmp_dref.dref_type = type;
+  tmp_dref.index = -1;
+
+  if((preferred_type == TYPE_INT) && (type & xplmType_Int)){
+    tmp_dref.accessor = get_int_dataref;
+  }else if((preferred_type == TYPE_FLOAT) && (type & xplmType_Float)){
+    tmp_dref.accessor = get_float_dataref;
+  }else if((preferred_type == TYPE_DOUBLE) && (type & xplmType_Double)){
+    tmp_dref.accessor = get_double_dataref;
+  }else{
+    //preferred type unavailable
+    if(type & xplmType_Double){
+      tmp_dref.accessor = get_double_dataref;
+    }else if(type & xplmType_Float){
+      tmp_dref.accessor = get_float_dataref;
+    }else if(type & xplmType_Int){
+      tmp_dref.accessor = get_int_dataref;
+    }else{
+      const char *t = NULL;
+      switch(preferred_type){
+        case TYPE_INT:
+          t = "int";
+          break;
+        case TYPE_FLOAT:
+          t = "float";
+          break;
+        case TYPE_DOUBLE:
+          t = "double";
+          break;
+        default:
+          t= "UNKNOWN";
+          break;
+      }
+
+      xcDebug("Dataref %s doesn't have the needed type %s.\n", name, t);
+      return false;
+    }
+  }
   *dref = new struct dataref_struct_t;
-  (*dref)->dref = tmp;
-  (*dref)->dref_type = XPLMGetDataRefTypes(tmp);
-  (*dref)->index = -1;
+  **dref = tmp_dref;
+  std::cout << "Dataref OK" << std::endl;
   return true;
 }
 
 
-bool find_array_dataref(const char *name, int index, dataref_p *dref)
+bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type_t preferred_type)
 {
+  *dref= NULL;
   XPLMDataRef tmp = XPLMFindDataRef(name);
   if(tmp == NULL){
-    *dref= NULL;
+    xcDebug("Failed to find a dataref %s\n", name);
     return false;
   }
-  *dref = new struct dataref_struct_t;
-  (*dref)->dref = tmp;
-  (*dref)->dref_type = XPLMGetDataRefTypes(tmp);
-  (*dref)->index = index;
-  return true;
-}
+  int type = XPLMGetDataRefTypes(tmp);
+  struct dataref_struct_t tmp_dref;
+  tmp_dref.dref = tmp;
+  tmp_dref.dref_type = type;
+  tmp_dref.index = index >= 0 ? index : 0;
 
-//Get value of float dataref
-//  name is the dataref name
-//
-//  Returns the float value of selected dataref
-float get_float_dataref(dataref_p dref)
-{
-  XPLMDataTypeID type = dref->dref_type;
-  if(type == xplmType_Unknown){
-    return 0.0f;
-  }
-  if((type & xplmType_FloatArray) != 0){
-    int index = (dref->index) < 0 ? 0 : dref->index;
-    float val = 0;
-    if(XPLMGetDatavf(dref->dref, &val, index, 1) != 1){
-      return 0.0f;
+  if(((preferred_type == TYPE_FLOAT) || (preferred_type == TYPE_DOUBLE)) && 
+     (type & xplmType_FloatArray)){
+    tmp_dref.accessor = get_float_array_dataref;
+  }else if((preferred_type = TYPE_INT) && (type & xplmType_IntArray)){
+    tmp_dref.accessor = get_int_array_dataref;
+  }else{
+    if(type & xplmType_FloatArray){
+      tmp_dref.accessor = get_float_array_dataref;
+    }else if(type & xplmType_IntArray){
+      tmp_dref.accessor = get_int_array_dataref;
     }else{
-      return val;
+      xcDebug("Array dataref %s doesn't have the needed type %s.\n", name,
+              preferred_type == TYPE_INT?"int_array" : "float_array");
+      return false;
     }
   }
-  if((type & xplmType_IntArray) != 0){
-    int index = (dref->index) < 0 ? 0 : dref->index;
-    int val = 0;
-    if(XPLMGetDatavi(dref->dref, &val, index, 1) != 1){
-      return 0.0f;
-    }else{
-      return (float) val;
-    }
-  }
-  if((type & xplmType_Int) != 0){
-    return (float)XPLMGetDatai(dref->dref);
-  }
-  if((type & xplmType_Float) != 0){
-    return XPLMGetDataf(dref->dref);
-  }
-  if((type & xplmType_Double) != 0){
-    return XPLMGetDatad(dref->dref);
-  }
-  return 0.0f;
+
+  *dref = new struct dataref_struct_t;
+  **dref = tmp_dref;
+  return true;
 }
 
 

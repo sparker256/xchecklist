@@ -10,7 +10,6 @@
 typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST,
               XC_AND, XC_OR, XC_POS_DIF, XC_NEG_DIF, XC_ABS_DIF} operation_t;
 typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item_state_t;
-typedef enum {DOUBLE, FLOAT, INT} value_type_t;
 class checklist_binder;
 extern checklist_binder *binder;
 class checklist;
@@ -105,29 +104,29 @@ class value{
   friend std::ostream& operator<<(std::ostream &output, const value& v);
   value_type_t value_type;
  public:
-  value():value_type(DOUBLE){};
+  value():value_type(TYPE_DOUBLE){};
   virtual ~value(){};
-  virtual bool get_value(int &i) = 0;
-  virtual bool get_value(float &f) = 0;
   virtual bool get_value(double &d) = 0;
   virtual void print(std::ostream &output)const = 0;
   value_type_t get_type()const{return value_type;};
   std::string get_type_str()const;
   void set_type(value_type_t t){value_type = t;};
+  void cast(double &val);
 };
+
+typedef bool (*func_ptr_t)(const std::vector<value *> *params, double &res);
 
 class procedure:public value{
   friend std::ostream& operator<<(std::ostream &output, const procedure& v);
  public:
-  procedure(std::string n, value *par):name(n), param(par){};
-  virtual ~procedure(){delete param;};
-  virtual bool get_value(int &i);
-  virtual bool get_value(float &f);
+  procedure(std::string n, std::vector<value *> *par);
+  virtual ~procedure(){delete params;};
   virtual bool get_value(double &d);
   virtual void print(std::ostream &output)const;
  private:
   std::string name;
-  value *param;
+  std::vector<value *> *params;
+  func_ptr_t actor;
 };
 
 class dataref_name:public value{
@@ -137,8 +136,6 @@ class dataref_name:public value{
   dataref_name(std::string n);
   ~dataref_name();
   dataref_p getDataref();
-  virtual bool get_value(int &i);
-  virtual bool get_value(float &f);
   virtual bool get_value(double &d);
   virtual void print(std::ostream &output)const;
  private:
@@ -152,8 +149,6 @@ class arith_op : public value{
  public:
   arith_op(value *val1, char op, value *val2);
   ~arith_op(){delete value1; delete value2;};
-  virtual bool get_value(int &i);
-  virtual bool get_value(float &f);
   virtual bool get_value(double &d);
   virtual void print(std::ostream &output)const;
  private:
@@ -165,19 +160,17 @@ class number : public value{
   friend std::ostream& operator<<(std::ostream &output, const number& n);
  public:
   number(std::string i, std::string d, std::string e);
-  virtual bool get_value(int &i);
-  virtual bool get_value(float &f);
   virtual bool get_value(double &d);
   virtual void print(std::ostream &output)const;
-  bool lt(const float &val1);
-  bool gt(const float &val1);
-  bool le(const float &val1);
-  bool ge(const float &val1);
-  bool eq(const float &val1);
+  bool lt(const double &val1);
+  bool gt(const double &val1);
+  bool le(const double &val1);
+  bool ge(const double &val1);
+  bool eq(const double &val1);
  private:
-  float get_precision(std::string &i, std::string &d, std::string &e);
-  float value;
-  float precision;
+  double get_precision(std::string &i, std::string &d, std::string &e);
+  double value;
+  double precision;
 };
 
 class dataref_t{
@@ -215,14 +208,14 @@ class dataref_dsc : public dataref_t{
   virtual void reset_trig(){state = NONE;};
   virtual bool trigered();
  private:
-  bool checkTrig(float val);
+  bool checkTrig(double val);
   dataref_name *data_ref;
   value *val1;
   value *val2;
   operation_t op;
   enum {NONE, INIT, TRIG} state;
   dataref_p dataref_struct;
-  float ref_val;
+  double ref_val;
 };
 
 class item_label{

@@ -36,6 +36,7 @@
   class item_label *lbl;
   class checklist_item *item;
   class value *val;
+  std::vector<class value *> *plist;
   int *op;
 }
 
@@ -63,6 +64,7 @@
 %token TOKEN_TO_DOUBLE
 %token TOKEN_TO_FLOAT
 %token TOKEN_TO_INT
+%token TOKEN_COMA
 %token <str>TOKEN_DREF
 %token TOKEN_POW
 %token TOKEN_PLUS
@@ -86,6 +88,7 @@
 %type <op> colsize;
 %type <item> show item_void item_info item item_remark;
 %type <val> number primary p_term term expression;
+%type <plist> param_list
 
 %%
 input:                /* empty */
@@ -309,7 +312,7 @@ primary:        number
                   }
                 | TOKEN_LEFT_PARENTHESIS expression TOKEN_RIGHT_PARENTHESIS
                   {$$ = $2;}
-                | TOKEN_STRING TOKEN_LEFT_PARENTHESIS expression TOKEN_RIGHT_PARENTHESIS
+                | TOKEN_STRING TOKEN_LEFT_PARENTHESIS param_list TOKEN_RIGHT_PARENTHESIS
                   {
                     $$ = new procedure($1, $3);
                     free($1);
@@ -321,11 +324,11 @@ primary:        number
                 | TOKEN_PLUS primary
                   {$$ = $2;}
                 | TOKEN_TO_DOUBLE primary
-                  {$2->set_type(DOUBLE); $$ = $2;}
+                  {$2->set_type(TYPE_DOUBLE); $$ = $2;}
                 | TOKEN_TO_FLOAT primary
-                  {$2->set_type(FLOAT); $$ = $2;}
+                  {$2->set_type(TYPE_FLOAT); $$ = $2;}
                 | TOKEN_TO_INT primary
-                  {$2->set_type(INT); $$ = $2;}
+                  {$2->set_type(TYPE_INT); $$ = $2;}
                 
 
 number:         TOKEN_NUMBER
@@ -342,5 +345,9 @@ number:         TOKEN_NUMBER
                   {$$ = new number("", $1, ""); free($1);}
 ;
 
+param_list:    param_list TOKEN_COMA expression
+                 {$$ = $1; $$->push_back($3);}
+               | expression
+                 {$$ = new std::vector<class value *>(); $$->push_back($1);}
 %%
 
