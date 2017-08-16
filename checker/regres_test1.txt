@@ -1,3 +1,6 @@
+#Run checker on this file with added parameter 4:
+#  ./checker regres_test1.txt 4
+
 #?#f checklist/test/float_dref1 5.2
 #?#ifd checklist/test/all_dref1 3.141592654
 
