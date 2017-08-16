@@ -1,0 +1,68 @@
+#?#f checklist/test/float_dref1 5.2
+#?#ifd checklist/test/all_dref1 3.141592654
+
+
+sw_checklist:Basic operations
+#?#i checklist/test/int_dref1 40
+#!#<001>checklist/test/int_dref1 30
+sw_item:<001>Equality test:checklist/test/int_dref1:30
+
+#!#<002>checklist/test/int_dref1 40
+sw_item:<002>Inequality test:checklist/test/int_dref1:!30
+
+#!#<003>checklist/test/int_dref1 51
+sw_item:<003>Test bigger that:checklist/test/int_dref1:>50
+
+#!#<004>checklist/test/int_dref1 49
+sw_item:<004>Test smaller than:checklist/test/int_dref1:<50
+
+#!#<005>checklist/test/int_dref1 51
+sw_item:<005>Test range:checklist/test/int_dref1:50 | 52
+
+#!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 51:checklist/test/int_dref1 53
+sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
+
+#!#<007>checklist/test/int_dref1 58
+sw_item:<007>Test bigger than or equal (equal):checklist/test/int_dref1:>=58
+
+#!#<008>checklist/test/int_dref1 61
+sw_item:<008>Test bigger than or equal (bigger):checklist/test/int_dref1:>=60
+
+#!#<009>checklist/test/int_dref1 58
+sw_item:<009>Test lower than or equal (equal):checklist/test/int_dref1:<=58
+
+#!#<010>checklist/test/int_dref1 59
+sw_item:<010>Test lower than or equal (lower):checklist/test/int_dref1:<=60
+
+#!#<011>checklist/test/int_dref1 59:checklist/test/int_dref1 62
+sw_item:<011>Test change up:checklist/test/int_dref1:+>2
+
+#!#<012>checklist/test/int_dref1 60:checklist/test/int_dref1 56
+sw_item:<012>Test change down:checklist/test/int_dref1:-<3
+
+#!#<013>checklist/test/int_dref1 60:checklist/test/int_dref1 54
+sw_item:<013>Test absolute change (down):checklist/test/int_dref1:><5
+
+#!#<014>checklist/test/int_dref1 60:checklist/test/int_dref1 66
+sw_item:<014>Test absolute change (up):checklist/test/int_dref1:><5
+
+
+sw_checklist:Expressions
+#?#f checklist/test/float_dref1 40
+#!#<101>checklist/test/float_dref1 30
+sw_item:<101>Equality test with type cast:checklist/test/float_dref1:(int)10.1 + 20
+
+#!#<102>checklist/test/float_dref1 40
+sw_item:<102>Inequality test:checklist/test/float_dref1:!2.0 * (10 + 5)
+
+#!#<103>checklist/test/float_dref1 5.1e1
+sw_item:<103>Test bigger that:checklist/test/float_dref1:>8 ** 2 - 14
+
+#!#<104>checklist/test/float_dref1 49
+sw_item:<104>Test smaller than:checklist/test/float_dref1:<1 + 7 * 7
+
+#!#<105>checklist/test/float_dref1 51,checklist/test/int_dref1 55
+sw_item:<105>Test range:checklist/test/float_dref1:({checklist/test/int_dref1} - 5) | ({checklist/test/int_dref1} - 3)
+
+
+

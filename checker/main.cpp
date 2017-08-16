@@ -180,7 +180,7 @@ void my_checklist::work()
   --safety;
   if(safety == 0){
     std::cout << std::endl << " * Error * Safety triggered, checking \"manually\"." << std::endl;
-    check_item();
+    manual = true;
     ++problems;
   }
   if(process_datarefs){
@@ -232,6 +232,8 @@ void my_checklist::notify_checked(int itemNo)
   activated = -1;
   process_datarefs = false;
   safety = 10;
+  std::string space(maxlen - strlen(items_list[itemNo].text) + 3, '.');
+  std::cout << space << items_list[itemNo].suffix << std::endl;
   //std::cout << "Checked item number " << itemNo << std::endl;
 }
 
@@ -302,8 +304,7 @@ bool create_checklist(unsigned int size, const char *title,
   if(cl){
     delete cl;
   }
-  std::cout << "Creating checklist \"";
-  std::cout << title << "\"" << std::endl;
+  std::cout << std::endl << title << std::endl;
   cl = new my_checklist(size, items);
 
   return true;
