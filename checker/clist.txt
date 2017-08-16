@@ -22,6 +22,9 @@ sw_iteminfo:Item with array dataref:sim/cockpit/engine/ignition_on[0]:>0.5
 sw_show:sim/cockpit/engine/ignition_on[0]:!1
 sw_continue
 
+sw_checklist:test001
+sw_item:Item1
+
 sw_checklist:bla(name):blabla(menutext)
 #pokus
 sw_item:I1:(sim/cockpit/engine/ignition_on[0]:<1.0e-3)&&(sim/cockpit/electrical/strobe_lights_on:0)

@@ -512,13 +512,13 @@ bool dataref_dsc::trigered()
   double val = dataref_struct->accessor(dataref_struct);
   double value1, value2;
   val1->get_value(value1);
-  std::cout<<"Cond: '"<<*this<<"'  Current value: "<<val<<std::endl;
+  //std::cout<<"Cond: '"<<*this<<"'  Current value: "<<val<<std::endl;
   switch(op){
     case XC_NOT:
-      res = (fabsf(val - value1) < 1e-6) ? false : true;
+      res = (fabs(val - value1) < 1e-6) ? false : true;
       break;
     case XC_EQ:
-      res = (fabsf(val - value1) > 1e-6) ? true : false;
+      res = (fabs(val - value1) < 1e-6) ? true : false;
       break;
     case XC_LT:
       res = (val < value1) ? true : false;
@@ -543,7 +543,7 @@ bool dataref_dsc::trigered()
       if(state != INIT){
         ref_val = val;
         state = INIT;
-        std::cout<<"POS_DIF ref = "<<ref_val<<std::endl;
+        //std::cout<<"POS_DIF ref = "<<ref_val<<std::endl;
       }
       res = ((val - ref_val) > value1) ? true : false;
       break;
@@ -551,7 +551,7 @@ bool dataref_dsc::trigered()
       if(state != INIT){
         ref_val = val;
         state = INIT;
-        std::cout<<"NEG_DIF ref = "<<ref_val<<std::endl;
+        //std::cout<<"NEG_DIF ref = "<<ref_val<<std::endl;
       }
       res = ((ref_val - val) > value1) ? true : false;
       break;
@@ -559,9 +559,9 @@ bool dataref_dsc::trigered()
       if(state != INIT){
         ref_val = val;
         state = INIT;
-        std::cout<<"ABS_DIF ref = "<<ref_val<<std::endl;
+        //std::cout<<"ABS_DIF ref = "<<ref_val<<std::endl;
       }
-      res = (fabsf(val - ref_val) > value1) ? true : false;
+      res = (fabs(val - ref_val) > value1) ? true : false;
       break;
     default:
       res = false;
@@ -725,7 +725,7 @@ bool checklist_binder::do_processing(bool visible, bool copilotOn)
       //We'll take the first one that triggers
       if(triggered == -1){
         triggered = i;
-        printf("Checklist No. %d triggers!\n", i);
+        //printf("Checklist No. %d triggers!\n", i);
       }
     }
   }
