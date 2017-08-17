@@ -73,6 +73,7 @@ double get_float_dataref(dataref_p dref)
 {
   if(dref->dref){
     dref_s *tmp = (dref_s *)dref->dref;
+    //std::cout << "Float dref: " << tmp->value << std::endl;
     return tmp->value;
   }
   //std::cout << "Float dref fallback: 3.14" << std::endl;
@@ -83,8 +84,8 @@ double get_int_dataref(dataref_p dref)
 {
   if(dref->dref){
     dref_s *tmp = (dref_s *)dref->dref;
-    //std::cout << "Int dref: " << tmp->value << std::endl;
-    return tmp->value;
+    //std::cout << "Int dref: " << (int)tmp->value << std::endl;
+    return (int)tmp->value;
   }
   //std::cout << "Int dref fallback: 442" << std::endl;
   return 442;
@@ -465,7 +466,6 @@ void read_comments(const char *fname)
 
 int main(int argc, char *argv[])
 {
-  xcDebug("Hello %s!\n", "World");
   int hidden_param = 0;
   if(argc > 2){
     hidden_param = atoi(argv[2]);
@@ -475,6 +475,14 @@ int main(int argc, char *argv[])
     start_checklists(argv[1], 0);
   }else{
     std::cout << "Usage: " << argv[0] << " checklist_name" << std::endl;
+    std::cout << "  reads the checklist and reports any errors encountered." << std::endl;
+    std::cout << std::endl;
+    std::cout << "For developement/debugging purposes a second agrument can be specified." << std::endl;
+    std::cout << "  Its value is treated as a bit field with the following meaning:" << std::endl;
+    std::cout << "    bit 0 - activates verbose mode of a parser" << std::endl;
+    std::cout << "    bit 1 - writes out all the expressions found in a checklist" << std::endl;
+    std::cout << "            and tries to evaluate them" << std::endl;
+    std::cout << "    bit 2 - enables checklist walkthrough mode; used for regression testing" << std::endl;
   }
 
   if(hidden_param & 4){

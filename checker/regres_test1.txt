@@ -1,8 +1,37 @@
-#Run checker on this file with added parameter 4:
+# Regression testing example
+# --------------------------
+# This file is an example of the usage of the Xchecklist's built-in 
+# regression testing functionality.
+#
+# The checklist format was extended by two special format comments;
+# one allows to create a dataref with specified type, name and initial value,
+# while the other specifies actions to perform the test.
+#
+# #?#i checklist/test/int_dref1 42
+#
+# This special comment creates integer (i) dataref available under the name
+#  checklist/test/int_dref1 that initialized to value 42.
+#  Currenly only integer (i), float (f) and double (d) datarefs are available.
+#
+# #!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 51:checklist/test/int_dref1 53
+# sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
+#
+# This special comment defines the actions to test a particular checklist line.
+#  The "target" line is identified by a tag <006>, that must occur within the
+#  checklist item's text field. Dataref assignments are performed as specified;
+#  where assignments are separated by coma, the assignments are performed 
+#  in the same timeslot, while assignments separated by colon are performed in
+#  the following timeslot. This allows to test operations requiring the dataref's 
+#  value to change in time.
+#
+# The order and placement of the above special comments is not critical - 
+#  they can be appear anywhere in the checklist file.
+#
+# For the test to run, execute the checker on this file with added parameter 4:
 #  ./checker regres_test1.txt 4
 
+
 #?#f checklist/test/float_dref1 5.2
-#?#ifd checklist/test/all_dref1 3.141592654
 
 
 sw_checklist:Basic operations
@@ -66,6 +95,16 @@ sw_item:<104>Test smaller than:checklist/test/float_dref1:<1 + 7 * 7
 
 #!#<105>checklist/test/float_dref1 51,checklist/test/int_dref1 55
 sw_item:<105>Test range:checklist/test/float_dref1:({checklist/test/int_dref1} - 5) | ({checklist/test/int_dref1} - 3)
+
+#?#ifd checklist/test/all_dref1 3.141592654
+#!#<106>checklist/test/all_dref1 3.141592654
+sw_item:<106>Equality test with type cast to int:checklist/test/all_dref1:(int)3
+
+#!#<107>checklist/test/all_dref1 3.141592654
+sw_item:<107>Equality test with type cast to float:checklist/test/all_dref1:(float)3.141592
+
+#!#<108>checklist/test/all_dref1 3.141592654
+sw_item:<108>Equality test with type cast to double:checklist/test/all_dref1:(double)3.141592
 
 
 
