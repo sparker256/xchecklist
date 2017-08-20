@@ -4,6 +4,13 @@
 
 checklist_binder *binder = NULL;
 
+void print_checklists(void)
+{
+  if(binder != NULL){
+    std::cout << *binder << std::endl;
+  }
+}
+
 bool start_checklists(const char *fname, int debug)
 {
   if(binder != NULL){

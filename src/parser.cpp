@@ -123,7 +123,7 @@ number::number(std::string i, std::string d, std::string e)
 */
 };
 
-bool number::get_value(double &d)
+bool number::get_value(double &d)const
 {
   d = (double)value;
   cast(d);
@@ -166,9 +166,13 @@ std::ostream& operator<<(std::ostream &output, const dataref_name& dn)
 
 std::ostream& operator<<(std::ostream &output, const dataref_t& d)
 {
-  (void) d;
-  output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
+  d.print(output);
   return output;
+}
+
+void dataref_t::print(std::ostream &output)const
+{
+  output <<" * Trying to print a dataref_t, CONTACT DEVELOPER PLEASE * ";
 }
 
 std::ostream& operator<<(std::ostream &output, const dataref_op& d)
@@ -209,16 +213,16 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
       output<<" HYST ("<< *(d.val1) <<" : "<<*(d.val2)<<")";
       break;
     case XC_POS_DIF:
-      output<<" VALUE GROWS MORE THAN "<<(d.val1);
+      output<<" VALUE GROWS MORE THAN "<<*(d.val1);
       break;
     case XC_NEG_DIF:
-      output<<" VALUE DECREASES MORE THAN "<<(d.val1);
+      output<<" VALUE DECREASES MORE THAN "<<*(d.val1);
       break;
     case XC_ABS_DIF:
-      output<<" DIFFERENCE BIGGER THAN "<<(d.val1);
+      output<<" DIFFERENCE BIGGER THAN "<<*(d.val1);
       break;
     default:
-      output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE* ";
+      output<<" *SOMETHING IS NOT OK HERE, CONTACT DEVELOPER PLEASE (unknown operator)* ";
       break;
   }
   return output;
@@ -273,6 +277,7 @@ dataref_name::dataref_name(std::string n, std::string i)
   name = n;
   index = atoi(i.c_str());
   dataref_struct = NULL;
+  getDataref();
 }
 
 dataref_name::dataref_name(std::string n)
@@ -280,11 +285,11 @@ dataref_name::dataref_name(std::string n)
   name = n;
   index = -1;
   dataref_struct = NULL;
+  getDataref();
 }
 
-bool dataref_name::get_value(double &d)
+bool dataref_name::get_value(double &d)const
 {
-  getDataref();
   if(dataref_struct){
     d = dataref_struct->accessor(dataref_struct);
     cast(d);
@@ -405,78 +410,63 @@ dataref_p dataref_name::getDataref()
 
 bool dataref_dsc::registerDsc()
 {
-  dataref_struct = data_ref->getDataref();
+//  dataref_struct = data_ref->getDataref();
 //  get_dataref_type(dataref_struct);
   return true;
 }
 
-bool number::le(const double &val1)
+bool operator<=(const value &val1, const value &val2)
 {
-  return val1 <= value;
+  double v1, v2;
+  val1.get_value(v1);
+  val2.get_value(v2);
+  return v1 <= v2;
 }
 
-bool number::ge(const double &val1)
+bool operator>=(const value &val1, const value &val2)
 {
-  return val1 >= value;
+  double v1, v2;
+  val1.get_value(v1);
+  val2.get_value(v2);
+  return v1 >= v2;
 }
 
-bool number::lt(const double &val1)
+bool operator<(const value &val1, const value &val2)
 {
-  return val1 < value;
+  double v1, v2;
+  val1.get_value(v1);
+  val2.get_value(v2);
+  return v1 < v2;
 }
 
-bool number::gt(const double &val1)
+bool operator>(const value &val1, const value &val2)
 {
-  return val1 > value;
+  double v1, v2;
+  val1.get_value(v1);
+  val2.get_value(v2);
+  return v1 > v2;
 }
 
-bool number::eq(const double &val1)
+bool operator==(const value &val1, const value &val2)
 {
-  double tmp = precision * round(val1 / precision);
-  return fabs(value - tmp) < (precision / 10.0);
+  double v1, v2;
+  val1.get_value(v1);
+  val2.get_value(v2);
+  return fabs(v1 - v2) < 1e-6;
 }
 
-bool operator<=(const double &val1, number val2)
+bool dataref_dsc::checkTrig()
 {
-  return val2.le(val1);
-}
-
-bool operator>=(const double &val1, number val2)
-{
-  return val2.ge(val1);
-}
-
-bool operator<(const double &val1, number val2)
-{
-  return val2.lt(val1);
-}
-
-bool operator>(const double &val1, number val2)
-{
-  return val2.gt(val1);
-}
-
-bool operator==(const double &val1, number val2)
-{
-  return val2.eq(val1);
-}
-
-
-bool dataref_dsc::checkTrig(double val)
-{
-  double value1, value2;
-  val1->get_value(value1);
-  val2->get_value(value2);
-  if(value1 < value2){
+  if(*val1 < *val2){
     switch(state){
       case NONE:
       case TRIG:
-        if(val <= value1){
+        if(*data_ref <= *val1){
           state = INIT;
         }
         break;
       case INIT:
-        if(val >= value2){
+        if(*data_ref >= *val2){
           state = TRIG;
         }
         break;
@@ -485,12 +475,12 @@ bool dataref_dsc::checkTrig(double val)
     switch(state){
       case NONE:
       case TRIG:
-      	if(val >= value1){
+      	if(*data_ref >= *val1){
           state = INIT;
         }
         break;
       case INIT:
-        if(val <= value2){
+        if(*data_ref <= *val2){
           state = TRIG;
         }
         break;
@@ -506,62 +496,65 @@ bool dataref_dsc::checkTrig(double val)
 bool dataref_dsc::trigered()
 {
   bool res = false;
-  if(dataref_struct == NULL){
-    return res;
-  }
-  double val = dataref_struct->accessor(dataref_struct);
-  double value1, value2;
-  val1->get_value(value1);
+  double val, value1, value2;
+  //data_ref->get_value(val);
+  //val1->get_value(value1);
   //std::cout<<"Cond: '"<<*this<<"'  Current value: "<<val<<std::endl;
   switch(op){
     case XC_NOT:
-      res = (fabs(val - value1) < 1e-6) ? false : true;
+      res = !(*data_ref == *val1);
       break;
     case XC_EQ:
-      res = (fabs(val - value1) < 1e-6) ? true : false;
+      res = *data_ref == *val1;
       break;
     case XC_LT:
-      res = (val < value1) ? true : false;
+      res = *data_ref < *val1;
       break;
     case XC_GT:
-      res = (val > value1)? true : false;
+      res = *data_ref > *val1;
       break;
     case XC_LE:
-      res = (val <= value1) ? true : false;
+      res = *data_ref <= *val1;
       break;
     case XC_GE:
-      res = (val >= value1)? true : false;
+      res = *data_ref >= *val1;
       break;
     case XC_IN:
       val2->get_value(value2);
-      res = ((val >= value1) && (val <= value2 )) ? true : false;
+      res = (*data_ref >= *val1) && (*data_ref <= *val2 );
       break;
     case XC_HYST:
-      res = checkTrig(val);
+      res = checkTrig();
       break;
     case XC_POS_DIF:
+      data_ref->get_value(val);
+      val1->get_value(value1);
       if(state != INIT){
         ref_val = val;
         state = INIT;
         //std::cout<<"POS_DIF ref = "<<ref_val<<std::endl;
       }
-      res = ((val - ref_val) > value1) ? true : false;
+      res = ((val - ref_val) > value1);
       break;
     case XC_NEG_DIF:
+      data_ref->get_value(val);
+      val1->get_value(value1);
       if(state != INIT){
         ref_val = val;
         state = INIT;
         //std::cout<<"NEG_DIF ref = "<<ref_val<<std::endl;
       }
-      res = ((ref_val - val) > value1) ? true : false;
+      res = ((ref_val - val) > value1);
       break;
     case XC_ABS_DIF:
+      data_ref->get_value(val);
+      val1->get_value(value1);
       if(state != INIT){
         ref_val = val;
         state = INIT;
         //std::cout<<"ABS_DIF ref = "<<ref_val<<std::endl;
       }
-      res = (fabs(val - ref_val) > value1) ? true : false;
+      res = (fabs(val - ref_val) > value1);
       break;
     default:
       res = false;
@@ -722,6 +715,7 @@ bool checklist_binder::do_processing(bool visible, bool copilotOn)
   int triggered = -1;
   for(unsigned int i = 0; i < checklists.size(); ++i){
     if(checklists[i]->triggered()){
+      //printf("Triggered!!!\n");
       //We'll take the first one that triggers
       if(triggered == -1){
         triggered = i;
@@ -1139,36 +1133,6 @@ bool dataref_op::trigered()
   return false;
 }
 
-void dataref_name::print(std::ostream &output)const
-{
-  output<<"Dataref: "<<name.c_str();
-  if(index != -1){
-    output<<"["<<index<<"]";
-  }
-}
-
-void procedure::print(std::ostream &output)const
-{
-  output << name << "(";
-  size_t s = params->size();
-  for(size_t i = 0; i < s - 1; ++i){
-    (*params)[i]->print(output);
-    output << ", ";
-  }
-  (*params)[s - 1]->print(output);
-  output << ")";
-}
-
-void arith_op::print(std::ostream &output)const
-{
-  output << "(" << *value1 << " " << operation << " " << *value2 << ")";
-}
-
-void number::print(std::ostream &output)const
-{
-  output << value;
-}
-
 std::ostream& operator<<(std::ostream &output, const value& a)
 {
   a.print(output);
@@ -1215,7 +1179,7 @@ arith_op::arith_op(value *val1, char op, value *val2):value1(val1), value2(val2)
 {
 }
 
-bool arith_op::get_value(double &d)
+bool arith_op::get_value(double &d)const
 {
   double val1, val2;
   value1->get_value(val1);
@@ -1254,7 +1218,8 @@ bool arith_op::get_value(double &d)
 }
 
 
-bool procedure::get_value(double &d){
+bool procedure::get_value(double &d)const
+{
   d = 0.0;
   if(!actor){
     return false;
@@ -1315,14 +1280,17 @@ procedure::procedure(std::string n, std::vector<value *> *par):name(n), params(p
   }
 }
 
-void value::cast(double &val)
+void value::cast(double &val)const
 { 
   if(value_type == TYPE_DOUBLE){
+    //std::cout << "Cast to double" << std::endl;
     return;
   }
   if(value_type == TYPE_INT){
+    //std::cout << "Cast to int" << std::endl;
     val = (int)val;
   }else{
+    //std::cout << "Cast to float" << std::endl;
     val = (float)val;
   }
 }

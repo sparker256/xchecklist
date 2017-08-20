@@ -106,12 +106,19 @@ class value{
  public:
   value():value_type(TYPE_DOUBLE){};
   virtual ~value(){};
-  virtual bool get_value(double &d) = 0;
-  virtual void print(std::ostream &output)const = 0;
+  virtual bool get_value(double &d)const = 0;
+  virtual void print(std::ostream &output)const{output << *this;};
   value_type_t get_type()const{return value_type;};
   std::string get_type_str()const;
   void set_type(value_type_t t){value_type = t;};
-  void cast(double &val);
+  void cast(double &val)const;
+  /*
+  bool lt(const double &val1)const;
+  bool gt(const double &val1)const;
+  bool le(const double &val1)const;
+  bool ge(const double &val1)const;
+  bool eq(const double &val1)const;
+  */
 };
 
 typedef bool (*func_ptr_t)(const std::vector<value *> *params, double &res);
@@ -121,8 +128,8 @@ class procedure:public value{
  public:
   procedure(std::string n, std::vector<value *> *par);
   virtual ~procedure(){delete params;};
-  virtual bool get_value(double &d);
-  virtual void print(std::ostream &output)const;
+  virtual bool get_value(double &d)const;
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
   std::string name;
   std::vector<value *> *params;
@@ -136,8 +143,8 @@ class dataref_name:public value{
   dataref_name(std::string n);
   ~dataref_name();
   dataref_p getDataref();
-  virtual bool get_value(double &d);
-  virtual void print(std::ostream &output)const;
+  virtual bool get_value(double &d)const;
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
   std::string name;
   int index;
@@ -149,8 +156,8 @@ class arith_op : public value{
  public:
   arith_op(value *val1, char op, value *val2);
   ~arith_op(){delete value1; delete value2;};
-  virtual bool get_value(double &d);
-  virtual void print(std::ostream &output)const;
+  virtual bool get_value(double &d)const;
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
   value *value1, *value2;
   char operation;
@@ -160,13 +167,8 @@ class number : public value{
   friend std::ostream& operator<<(std::ostream &output, const number& n);
  public:
   number(std::string i, std::string d, std::string e);
-  virtual bool get_value(double &d);
-  virtual void print(std::ostream &output)const;
-  bool lt(const double &val1);
-  bool gt(const double &val1);
-  bool le(const double &val1);
-  bool ge(const double &val1);
-  bool eq(const double &val1);
+  virtual bool get_value(double &d)const;
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
   double get_precision(std::string &i, std::string &d, std::string &e);
   double value;
@@ -180,6 +182,7 @@ class dataref_t{
   virtual bool registerDsc() = 0;
   virtual void reset_trig() = 0;
   virtual bool trigered() = 0;
+  virtual void print(std::ostream &output)const;
 };
 
 class dataref_op : public dataref_t {
@@ -190,6 +193,7 @@ class dataref_op : public dataref_t {
   virtual bool registerDsc();
   virtual void reset_trig();
   virtual bool trigered();
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
   dataref_t *dref1;
   dataref_t *dref2;
@@ -207,14 +211,14 @@ class dataref_dsc : public dataref_t{
   virtual bool registerDsc();
   virtual void reset_trig(){state = NONE;};
   virtual bool trigered();
+  virtual void print(std::ostream &output)const{output << *this;};
  private:
-  bool checkTrig(double val);
+  bool checkTrig();
   dataref_name *data_ref;
   value *val1;
   value *val2;
   operation_t op;
   enum {NONE, INIT, TRIG} state;
-  dataref_p dataref_struct;
   double ref_val;
 };
 

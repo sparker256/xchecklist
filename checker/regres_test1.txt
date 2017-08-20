@@ -33,14 +33,13 @@
 
 #?#f checklist/test/float_dref1 5.2
 
-
 sw_checklist:Basic operations
 #?#i checklist/test/int_dref1 40
 #!#<001>checklist/test/int_dref1 30
 sw_item:<001>Equality test:checklist/test/int_dref1:30
 
 #!#<002>checklist/test/int_dref1 40
-sw_item:<002>Inequality test:checklist/test/int_dref1:!30
+sw_iteminfo:<002>Inequality test:checklist/test/int_dref1:!30
 
 #!#<003>checklist/test/int_dref1 51
 sw_item:<003>Test bigger that:checklist/test/int_dref1:>50
@@ -51,8 +50,14 @@ sw_item:<004>Test smaller than:checklist/test/int_dref1:<50
 #!#<005>checklist/test/int_dref1 51
 sw_item:<005>Test range:checklist/test/int_dref1:50 | 52
 
-#!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 51:checklist/test/int_dref1 53
+#!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 53
 sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
+
+#!#<006_1>checklist/test/int_dref1 63:checklist/test/int_dref1 61:checklist/test/int_dref1 59
+sw_item:<006_1>Test change with hystheresis:checklist/test/int_dref1:62 : 60
+
+#!#<006_2>checklist/test/int_dref1 63:checklist/test/int_dref1 59
+sw_item:<006_2>Test change with hystheresis:checklist/test/int_dref1:62 : 60
 
 #!#<007>checklist/test/int_dref1 58
 sw_item:<007>Test bigger than or equal (equal):checklist/test/int_dref1:>=58
@@ -85,10 +90,10 @@ sw_checklist:Expressions
 sw_item:<101>Equality test with type cast:checklist/test/float_dref1:(int)10.1 + 20
 
 #!#<102>checklist/test/float_dref1 40
-sw_item:<102>Inequality test:checklist/test/float_dref1:!2.0 * (10 + 5)
+sw_item:<102>Inequality test:checklist/test/float_dref1:!2.0 * (10 + round(5.25))
 
 #!#<103>checklist/test/float_dref1 5.1e1
-sw_item:<103>Test bigger that:checklist/test/float_dref1:>8 ** 2 - 14
+sw_item:<103>Test bigger that:checklist/test/float_dref1:>8 ** 2 - 28 / 2
 
 #!#<104>checklist/test/float_dref1 49
 sw_item:<104>Test smaller than:checklist/test/float_dref1:<1 + 7 * 7
@@ -106,5 +111,37 @@ sw_item:<107>Equality test with type cast to float:checklist/test/all_dref1:(flo
 #!#<108>checklist/test/all_dref1 3.141592654
 sw_item:<108>Equality test with type cast to double:checklist/test/all_dref1:(double)3.141592
 
+#!#<109>checklist/test/int_dref1 14
+sw_item:<109>Equality test with type cast to int:checklist/test/int_dref1:round(14.1415)
+
+#!#<110>checklist/test/int_dref1 1, checklist/test/float_dref1 13:checklist/test/float_dref1 14
+sw_item:<110>Equality test with type cast to int:checklist/test/int_dref1:step({checklist/test/float_dref1} - 14)
+
+sw_checklist:Condition combinations
+#!#<200>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 43:checklist/test/float_dref1 42, checklist/test/int_dref1 43:checklist/test/float_dref1 43
+sw_item:<200>Condition combination (and):(checklist/test/float_dref1:43)&&(checklist/test/int_dref1:43)
+
+#!#<201>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 44
+sw_item:<201>Condition combination (or, first true):(checklist/test/float_dref1:44)||(checklist/test/int_dref1:44)
+
+#!#<202>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/int_dref1 45
+sw_item:<202>Condition combination (or, second true):(checklist/test/float_dref1:45)||(checklist/test/int_dref1:45)
+
+#!#<203>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 46,checklist/test/int_dref1 46
+sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:46)||(checklist/test/int_dref1:46)
+
+sw_checklist:Varia:Varia
+#?#f checklist/test/show_int1 0
+sw_show:checklist/test/show_int1:1
+sw_item:No check here
+sw_itemvoid:Whatever
+sw_itemvoid:Whatever|Whatever
+sw_remark:Thoughtfull remark
+sw_rcolsize:120
+#!#<300>checklist/test/show_int1 1:
+sw_item:<300>Switch test:checklist/test/show_int1:1
+
+sw_checklist:Varia1:Varia1
+sw_item:No check here either|Really
 
 

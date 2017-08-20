@@ -43,6 +43,7 @@ struct dataref_struct_t{
 #ifdef __cplusplus
 extern "C" {
 #endif
+void print_checklists(void);
 
 /*******************************************************************************
   Functions provided by the backend (parser + checklist logic)

@@ -8,8 +8,9 @@
 #include "../src/interface.h"
 #include "../src/speech.h"
 #include "../src/utils.h"
+#include "../src/chkl_parser.h"
 
-bool voice_state = false;
+bool voice_state = true;
 
 
 struct dref_s{
@@ -162,20 +163,22 @@ class my_checklist{
   int safety;
   int problems;
   bool manual;
+  std::string title;
 
  public:
-  my_checklist(int size, checklist_item_desc_t items[]);
+  my_checklist(const std::string t, int size, checklist_item_desc_t items[]);
   void activate_item(int item);
   bool check_item();
   bool check_item(int itemNo);
   //bool item_active(){a = activated; return !(activated < 0);};
   void notify_checked(int itemNo);
-  void work();
+  bool work(bool visible = true);
   int get_problems(){return problems;};
   std::string active_item_text(){return (activated < 0) ? "" : items_list[activated].text;};
+  const std::string &get_title(){return title;};
 };
 
-void my_checklist::work()
+bool my_checklist::work(bool visible)
 {
   //std::cout << "Working..." << std::endl;
   --safety;
@@ -202,13 +205,15 @@ void my_checklist::work()
     check_item();
     should_trigger = true;
   }
-  do_processing(true, true);
+  do_processing(visible, true);
+  bool switch_next = false;
+  return checklist_finished(&switch_next);
 }
 
 
-my_checklist::my_checklist(int size, checklist_item_desc_t items[]) : maxlen(0), 
+my_checklist::my_checklist(const std::string t, int size, checklist_item_desc_t items[]) : maxlen(0), 
                         activated(-1), process_datarefs(false), 
-                        should_trigger(false), safety(10), problems(0), manual(false)
+                        should_trigger(false), safety(10), problems(0), manual(false), title(t)
 {
   for(int i = 0; i < size; ++i){
     items_list.push_back(items[i]);
@@ -252,10 +257,11 @@ void my_checklist::activate_item(int item)
       // unknown tag => no receipt to activate
       //std::cout << "Have tag, but no receipt, checking manually." << std::endl;
       manual = true;
+    }else{
+      lists = rsi->second->begin();
+      list = (*lists)->begin();
+      process_datarefs = true;
     }
-    lists = rsi->second->begin();
-    list = (*lists)->begin();
-    process_datarefs = true;
   }else{
     // no tag => no receipt to activate
     //std::cout << "No tag, checking manually." << std::endl;
@@ -271,9 +277,9 @@ bool my_checklist::check_item()
     return false;
   }
   if(item_checked(activated)){
-    std::string text(items_list[activated].text);
-    std::string space(maxlen - text.length() + 3, '.');
-    std::cout << space << items_list[activated].suffix << std::endl;
+    //std::string text(items_list[activated].text);
+    //std::string space(maxlen - text.length() + 3, 'x');
+    //std::cout << space << items_list[activated].suffix << std::endl;
     return true;
   }
   return false;
@@ -305,8 +311,7 @@ bool create_checklist(unsigned int size, const char *title,
   if(cl){
     delete cl;
   }
-  std::cout << std::endl << title << std::endl;
-  cl = new my_checklist(size, items);
+  cl = new my_checklist(title, size, items);
 
   return true;
 }
@@ -334,19 +339,26 @@ bool init_speech(){return true;}
 void say(const char *text){(void)text;}
 void close_speech(){}
 void cleanup_speech(){}
-bool speech_active(){return false;}
+bool speech_active(){return true;}
 bool spoken(float elapsed){(void)elapsed;return true;}
 
 bool walkthrough_checklists()
 {
   int problems = 0;
-  do{
+  while(1){
     bool switch_next = false;
+    std::cout << cl->get_title() << std::endl;
     while(!checklist_finished(&switch_next)){
       cl->work();
     }
+    //to allow sw_show
+    if(cl->work(false)){
+      if(!next_checklist(false)){
+        break;
+      }
+    }
     problems += cl->get_problems();
-  }while(next_checklist(false));
+  }
   std::cout << "Encountered " << problems << " problems." << std::endl;
   return true;
 }
@@ -486,6 +498,24 @@ int main(int argc, char *argv[])
   }
 
   if(hidden_param & 4){
+    std::cout << "================================================" << std::endl;
+    std::cout << "Checklist printout" << std::endl;
+    print_checklists();
+    int all, msize;
+    constname_t *names; 
+    int *indexes;
+    if(get_checklist_names(&all, &msize, &names, &indexes)){
+      std::cout << "================================================" << std::endl;
+      std::cout << "Available " << msize << " named checklists out of " << all << std::endl;
+      std::cout << all << ", " << msize << std::endl;
+      for(int i = 0; i < msize; ++i){
+        std::cout << "  " << names[i] << std::endl;
+      }
+      free_checklist_names(all, msize, &names, &indexes);
+
+    }
+    std::cout << "================================================" << std::endl;
+    std::cout << "Checklist walkthrough" << std::endl;
     walkthrough_checklists();
   }
 
