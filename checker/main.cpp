@@ -507,7 +507,6 @@ int main(int argc, char *argv[])
     if(get_checklist_names(&all, &msize, &names, &indexes)){
       std::cout << "================================================" << std::endl;
       std::cout << "Available " << msize << " named checklists out of " << all << std::endl;
-      std::cout << all << ", " << msize << std::endl;
       for(int i = 0; i < msize; ++i){
         std::cout << "  " << names[i] << std::endl;
       }

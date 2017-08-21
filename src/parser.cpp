@@ -1229,6 +1229,33 @@ bool procedure::get_value(double &d)const
   return res;
 }
 
+static bool closer_than_func(const std::vector<value *> *params, double &res)
+{
+  if(params->size() != 3){
+    xcDebug("Function closer_than takes three parameters (value1, value2, epsilon)!\n");
+    return false;
+  }
+  double val1, val2, eps;
+  if(!(*params)[0]->get_value(val1)){
+    xcDebug("Error evaluating first parameter value!\n");
+    return false;
+  }
+  if(!(*params)[1]->get_value(val2)){
+    xcDebug("Error evaluating second parameter value!\n");
+    return false;
+  }
+  if(!(*params)[2]->get_value(eps)){
+    xcDebug("Error evaluating third parameter value!\n");
+    return false;
+  }
+  if(fabs(val1 - val2) < eps){
+    res = 1.0;
+  }else{
+    res = 0.0;
+  }
+  return true;
+}
+
 static bool round_func(const std::vector<value *> *params, double &res)
 {
   if(params->size() != 1){
@@ -1271,6 +1298,7 @@ procedure::procedure(std::string n, std::vector<value *> *par):name(n), params(p
     functions = new std::map<std::string, func_ptr_t>();
     functions->insert(std::pair<std::string, func_ptr_t>("round", round_func));
     functions->insert(std::pair<std::string, func_ptr_t>("step", step_func));
+    functions->insert(std::pair<std::string, func_ptr_t>("closer_than", closer_than_func));
   }
   std::map<std::string, func_ptr_t>::const_iterator i = functions->find(name);
   if(i != functions->end()){
