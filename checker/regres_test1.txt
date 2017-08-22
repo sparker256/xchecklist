@@ -118,8 +118,8 @@ sw_item:<109>Equality test with type cast to int:checklist/test/int_dref1:round(
 #!#<110>checklist/test/int_dref1 1, checklist/test/float_dref1 13:checklist/test/float_dref1 14
 sw_item:<110>Equality test with type cast to int:checklist/test/int_dref1:step({checklist/test/float_dref1} - 14)
 
-#!#<111>checklist/test/int_dref1 1, checklist/test/float_dref1 13:checklist/test/float_dref1 2.5
-sw_item:<111>Closer than function test:checklist/test/int_dref1:closer_than({checklist/test/int_dref1step},{checklist/test/float_dref1}, 2)
+#!#<111>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<111>Closer than function test:checklist/test/int_dref1:{checklist/test/int_dref1}*closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
 
 sw_checklist:Condition combinations
 #!#<200>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 43:checklist/test/float_dref1 42, checklist/test/int_dref1 43:checklist/test/float_dref1 43

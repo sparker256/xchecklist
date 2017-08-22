@@ -11,6 +11,7 @@
 #include "../src/chkl_parser.h"
 
 bool voice_state = true;
+int hidden_param = 0;
 
 
 struct dref_s{
@@ -125,8 +126,12 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
   *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
-    //Carenado style?
-    return false;
+    if(hidden_param & 4){
+      //Carenado style?
+      return false;
+    }else{
+      return true;
+    }
   }
   (*dref)->dref = /*(XPLMDataRef)*/i->second;
   (*dref)->index = index;
@@ -144,12 +149,18 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
 
 bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type)
 {
-  *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
-  if(i != datarefs_map.end()){
-    (*dref)->dref = /*(XPLMDataRef)*/i->second;
+  if(i == datarefs_map.end()){
+    if(hidden_param & 4){
+      std::cout << "Dataref named " << name << " doesn't exist!" << std::endl;
+      return false;
+    }else{
+      return true;
+    }
   }
-
+  *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
+  (*dref)->dref = /*(XPLMDataRef)*/i->second;
+ 
   switch(preferred_type){
     case TYPE_INT:
       (*dref)->accessor = get_int_dataref;
@@ -495,7 +506,6 @@ void read_comments(const char *fname)
 
 int main(int argc, char *argv[])
 {
-  int hidden_param = 0;
   if(argc > 2){
     hidden_param = atoi(argv[2]);
     read_comments(argv[1]);

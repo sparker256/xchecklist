@@ -1248,6 +1248,7 @@ static bool closer_than_func(const std::vector<value *> *params, double &res)
     xcDebug("Error evaluating third parameter value!\n");
     return false;
   }
+  //std::cout << "Closer than: " << val1 << " vs " << val2 << " < " << eps << std::endl;
   if(fabs(val1 - val2) < eps){
     res = 1.0;
   }else{
