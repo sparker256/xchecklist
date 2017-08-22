@@ -282,8 +282,16 @@ dataref_name::dataref_name(std::string n, std::string i)
 
 dataref_name::dataref_name(std::string n)
 {
-  name = n;
   index = -1;
+  size_t pos = n.find_first_of('[');
+  if(pos == n.npos){
+    name = n;
+  }else{
+    name = n.substr(0, pos);
+    std::istringstream idx_str(n.substr(pos + 1));
+    idx_str >> index;
+  }
+
   dataref_struct = NULL;
   getDataref();
 }

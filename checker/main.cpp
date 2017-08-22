@@ -149,6 +149,7 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
 
 bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type)
 {
+  //std::cout << "Find dataref: " << name << " of type " << preferred_type << std::endl;
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
     if(hidden_param & 4){
