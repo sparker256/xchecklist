@@ -35,8 +35,9 @@
 
 sw_checklist:Basic operations
 #?#i checklist/test/int_dref1 40
-#!#<001>checklist/test/int_dref1 30
-sw_item:<001>Equality test:checklist/test/int_dref1:30
+#?#I checklist/test/array_int_dref1 1 2 3 4 5 6 7 8 9
+#!#<001>checklist/test/int_dref1 30,checklist/test/array_int_dref1[4] 22
+sw_item:<001>Equality test:checklist/test/array_int_dref1[4]:22
 
 #!#<002>checklist/test/int_dref1 40
 sw_iteminfo:<002>Inequality test:checklist/test/int_dref1:!30

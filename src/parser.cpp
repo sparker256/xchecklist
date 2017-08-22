@@ -389,8 +389,8 @@ dataref_p dataref_name::getDataref()
     if(find_array_dataref(name.c_str(), index, &dataref_struct, get_type())){
       return dataref_struct;
     }else{
-      xcDebug("Array dataref %s[%d] not found!\n", name.c_str(), index);
-      printf("Array dataref %s[%d] not found!\n", name.c_str(), index);
+      xcDebug("Array dataref %s[%d] not found, trying Carenado style.\n", name.c_str(), index);
+      printf("Array dataref %s[%d] not found, trying Carenado style.\n", name.c_str(), index);
       //Lets try the Carenado style
       std::ostringstream strstr;
       strstr << name << "[" << index << "]";

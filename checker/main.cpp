@@ -14,9 +14,10 @@ bool voice_state = true;
 
 
 struct dref_s{
-  dref_s(int t, double v) : type(t), value(v){};
+  dref_s(int t, std::vector<double> *v) : type(t), values(v){};
   int type;
-  double value;    
+  int index;
+  std::vector<double> *values;    
 };
 
 typedef std::map<std::string, struct dref_s *> datarefs_map_t;
@@ -26,8 +27,9 @@ datarefs_map_t datarefs_map;
 
 struct action_s{
   struct dref_s *dref;
+  int index;
   double value;
-  action_s(struct dref_s *d, double v): dref(d), value(v) {};
+  action_s(struct dref_s *d, int i, double v): dref(d), index(i), value(v) {};
 };
 
 //Actions to be performed "simultaneously" (same step)
@@ -63,8 +65,8 @@ double get_double_dataref(dataref_p dref)
 {
   if(dref->dref){
     dref_s *tmp = (dref_s *)dref->dref;
-    //std::cout << "Double dref: " << tmp->value << std::endl;
-    return tmp->value;
+    //std::cout << "Double dref: " << tmp->values->at(0) << std::endl;
+    return tmp->values->at(0);
   }
   //std::cout << "Double dref fallback: 3.14" << std::endl;
   return 3.141592657;
@@ -74,8 +76,8 @@ double get_float_dataref(dataref_p dref)
 {
   if(dref->dref){
     dref_s *tmp = (dref_s *)dref->dref;
-    //std::cout << "Float dref: " << tmp->value << std::endl;
-    return tmp->value;
+    //std::cout << "Float dref: " << tmp->values->at(0) << std::endl;
+    return tmp->values->at(0);
   }
   //std::cout << "Float dref fallback: 3.14" << std::endl;
   return 3.14;
@@ -85,8 +87,8 @@ double get_int_dataref(dataref_p dref)
 {
   if(dref->dref){
     dref_s *tmp = (dref_s *)dref->dref;
-    //std::cout << "Int dref: " << (int)tmp->value << std::endl;
-    return (int)tmp->value;
+    //std::cout << "Int dref: " << (int)tmp->values->at(0) << std::endl;
+    return (int)tmp->values->at(0);
   }
   //std::cout << "Int dref fallback: 442" << std::endl;
   return 442;
@@ -94,13 +96,23 @@ double get_int_dataref(dataref_p dref)
 
 double get_float_array_dataref(dataref_p dref)
 {
-  (void) dref;
+  if(dref->dref){
+    dref_s *tmp = (dref_s *)dref->dref;
+    //std::cout << "Float array dref[" << dref->index << "]: " << (float)tmp->values->at(dref->index) << std::endl;
+    return (int)tmp->values->at(dref->index);
+  }
+  //std::cout << "Float array dref fallback: 7.77" << std::endl;
   return 7.77;
 }
 
 double get_int_array_dataref(dataref_p dref)
 {
-  (void) dref;
+  if(dref->dref){
+    dref_s *tmp = (dref_s *)dref->dref;
+    //std::cout << "Int array dref[" << tmp->index << "]: " << (int)tmp->values->at(tmp->index) << std::endl;
+    return (int)tmp->values->at(tmp->index);
+  }
+  //std::cout << "Int array dref fallback: 7.77" << std::endl;
   return 14;
 }
 
@@ -108,14 +120,17 @@ double get_int_array_dataref(dataref_p dref)
 
 bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type_t preferred_type)
 {
-  (void)name;
-  (void)index;
-  (void)dref;
-  (void)preferred_type;
-/*
-  (void)name;
-  (void)index;
+  //std::cout << "Find array dataref: " << name << "[" << index << "], of type " << preferred_type << std::endl;
+
   *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
+  datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
+  if(i == datarefs_map.end()){
+    //Carenado style?
+    return false;
+  }
+  (*dref)->dref = /*(XPLMDataRef)*/i->second;
+  (*dref)->index = index;
+
   switch(preferred_type){
     case TYPE_INT:
       (*dref)->accessor = get_int_array_dataref;
@@ -125,8 +140,6 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
       break;
   }
   return true;
-*/
-  return false; //Lets go Carenado style
 }
 
 bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type)
@@ -180,7 +193,7 @@ class my_checklist{
 
 bool my_checklist::work(bool visible)
 {
-  //std::cout << "Working..." << std::endl;
+  //std::cout << "Working... " << problems << " problems so far..." << std::endl;
   --safety;
   if(safety == 0){
     std::cout << std::endl << " * Error * Safety triggered, checking \"manually\"." << std::endl;
@@ -190,7 +203,7 @@ bool my_checklist::work(bool visible)
   if(process_datarefs){
     while(list != (*lists)->end()){
       struct action_s *a = *list; 
-      a->dref->value = a->value;
+      a->dref->values->at(a->index) = a->value;
       //std::cout << std::endl << "    -> " << a->value << std::endl;
       ++list;
     }
@@ -353,11 +366,11 @@ bool walkthrough_checklists()
     }
     //to allow sw_show
     if(cl->work(false)){
+      problems += cl->get_problems();
       if(!next_checklist(false)){
         break;
       }
     }
-    problems += cl->get_problems();
   }
   std::cout << "Encountered " << problems << " problems." << std::endl;
   return true;
@@ -375,10 +388,24 @@ struct action_s *read_action(std::string &line, size_t start, size_t stop)
   }
   datarefs_map_t::iterator i = datarefs_map.find(name);
   if(i == datarefs_map.end()){
+    size_t pos;
+    int value = 0;
+    if((pos = name.find("[")) != name.npos){
+      std::string base_name = name.substr(0, pos);
+      std::istringstream idx_str(name.substr(pos + 1));
+      idx_str >> value;
+      //std::cout << "Array: " << base_name << "[" << value << "] = " << val << std::endl;
+      i = datarefs_map.find(base_name);
+      if(i == datarefs_map.end()){
+        std::cout << "Can't find dataref " << base_name << std::endl;
+        return NULL;
+      }
+      return new struct action_s(i->second, value, val);
+    }
     return NULL;
   }
   //std::cout << "Action created!" << val << std::endl;
-  return new struct action_s(i->second, val);
+  return new struct action_s(i->second, 0, val);
 }
 
 
@@ -393,8 +420,8 @@ void read_comments(const char *fname)
       //Dataref definitions
       comment = line.substr(pos + 3);
       std::istringstream dref_str(comment);
-      dref_str >> type >> name >> val;
-      //std::cout << "Type: " << type << " Name: " << name << " Value: " << val <<std::endl;
+      dref_str >> type >> name;
+      //std::cout << "Type: " << type << " Name: " << name <<std::endl;
       int d_t = XC_UNKNOWN;
       if(type.find_first_of('i') != type.npos){
         d_t |= XC_INTEGER;
@@ -405,7 +432,19 @@ void read_comments(const char *fname)
       if(type.find_first_of('d') != type.npos){
         d_t |= XC_DOUBLE;
       }
-      datarefs_map.insert(std::pair<std::string, dref_s *>(std::string(name), new dref_s(d_t, val)));
+      if(type.find_first_of('I') != type.npos){
+        d_t |= XC_INT_ARRAY;
+      }
+      if(type.find_first_of('F') != type.npos){
+        d_t |= XC_FLOAT_ARRAY;
+      }
+      std::vector<double> *values = new std::vector<double>();
+      while(dref_str.good()){
+        dref_str >> val;
+        values->push_back(val);
+      }
+      //std::cout << "Creating dataref " << name << std::endl;
+      datarefs_map.insert(std::pair<std::string, dref_s *>(std::string(name), new dref_s(d_t, values)));
     }else if((pos = line.find("#!#")) != line.npos){
       //Action defs
       pos += 3;
@@ -452,28 +491,6 @@ void read_comments(const char *fname)
       }
     }
   }
-
-/*
-  regres_steps_t::iterator rsi = regres_steps.begin();
-  while(rsi != regres_steps.end()){
-    std::cout << "Tag: " << rsi->first << "(" << rsi->second->size() << ")" << std::endl;
-    int step = 0;
-    actions_list_t::iterator lists = rsi->second->begin();
-    while(lists != rsi->second->end()){
-      std::cout << "  Step: " << step << std::endl;
-      action_list_t *b = *lists;
-      action_list_t::iterator list = b->begin();
-      while(list != b->end()){
-        struct action_s *a = *list; 
-        std::cout << "    " << a->value << std::endl;
-        ++list;
-      }
-      ++step;
-      ++lists;
-    }
-    ++rsi;
-  }
-*/
 }
 
 int main(int argc, char *argv[])

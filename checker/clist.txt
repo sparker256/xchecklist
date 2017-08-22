@@ -37,7 +37,7 @@ sw_item:Priority test:clist/test/dataref:2 * 3 ** 4 | 2 ** 3 * 4
 sw_item:Priority test:clist/test/dataref:2 + 3 ** 4 | 2 ** 3 - 4 
 sw_item:Stupid test:clist/test/dataref:<-{clist/test/dataref} + 2 * ({clist/test/dataref})
 sw_item:Function test:clist/test/dataref:-round(0.63)|round(0.49)
-sw_item:Cast test:clist/test/dataref:(int)-(4)|-(double)(+roundd(7.4))
+sw_item:Cast test:clist/test/dataref:(int)-(4)|-(double)(+round(7.4))
 sw_item:Types test:clist/test/dataref:(int){clist/test/dataref}
 sw_item:Types test:clist/test/dataref:(float){clist/test/dataref}
 sw_item:Types test:clist/test/dataref:(double){clist/test/dataref}
