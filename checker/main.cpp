@@ -123,7 +123,6 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
 {
   //std::cout << "Find array dataref: " << name << "[" << index << "], of type " << preferred_type << std::endl;
 
-  *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
     if(hidden_param & 4){
@@ -133,6 +132,7 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
       return true;
     }
   }
+  *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
   (*dref)->dref = /*(XPLMDataRef)*/i->second;
   (*dref)->index = index;
 
@@ -207,10 +207,21 @@ bool my_checklist::work(bool visible)
 {
   //std::cout << "Working... " << problems << " problems so far..." << std::endl;
   --safety;
-  if(safety == 0){
-    std::cout << std::endl << " * Error * Safety triggered, checking \"manually\"." << std::endl;
-    manual = true;
-    ++problems;
+  if(safety <= 0){
+    if(!manual){
+      ++problems;
+      std::cout << std::endl << " * Error * Safety triggered, checking \"manually\"." << std::endl;
+      manual = true;
+      safety = 5;
+    }else{
+      if(activated >= 0){
+        ++problems;
+        std::cout << std::endl << " *Error * Couldn't trigger \"manually\". Advancing to the next checklist." << std::endl;
+      }
+      activated = -1;
+      //Try going to the next checklist
+      return true;
+    }
   }
   if(process_datarefs){
     while(list != (*lists)->end()){
@@ -261,6 +272,7 @@ void my_checklist::notify_checked(int itemNo)
     return;
   }
   activated = -1;
+  manual = false;
   process_datarefs = false;
   safety = 10;
   std::string space(maxlen - strlen(items_list[itemNo].text) + 3, '.');
@@ -371,11 +383,9 @@ bool walkthrough_checklists()
 {
   int problems = 0;
   while(1){
-    bool switch_next = false;
     std::cout << cl->get_title() << std::endl;
-    while(!checklist_finished(&switch_next)){
-      cl->work();
-    }
+    while(!cl->work());
+
     //to allow sw_show
     if(cl->work(false)){
       problems += cl->get_problems();

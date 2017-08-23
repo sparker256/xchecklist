@@ -173,7 +173,7 @@ item:                TOKEN_ITEM TOKEN_COLON spec_string {
                   }
 ;
 item_info:        TOKEN_ITEMINFO TOKEN_COLON spec_string {
-                    $$ = new chk_item($3, NULL, false);
+                    $$ = new chk_item($3, NULL, true);
                   }
                 | TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
                     $$ = new chk_item($3, $5, false);

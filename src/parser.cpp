@@ -298,7 +298,7 @@ dataref_name::dataref_name(std::string n)
 
 bool dataref_name::get_value(double &d)const
 {
-  if(dataref_struct){
+  if(dataref_struct && (dataref_struct->accessor)){
     d = dataref_struct->accessor(dataref_struct);
     cast(d);
   }else{
