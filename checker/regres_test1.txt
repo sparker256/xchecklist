@@ -11,7 +11,8 @@
 #
 # This special comment creates integer (i) dataref available under the name
 #  checklist/test/int_dref1 that initialized to value 42.
-#  Currenly only integer (i), float (f) and double (d) datarefs are available.
+#  Currenly integer (i), float (f) and double (d) datarefs are available.
+#  Also integer array (I) and float array (F) datarefs are available.
 #
 # #!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 51:checklist/test/int_dref1 53
 # sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
