@@ -233,7 +233,7 @@ void xcLoadDictionaries(std::map<std::string, std::string> &dict)
       line >> field;
       if(field.size() > 0){
         dict[field] = field;
-        std::cout << "Dref: '" << field << "'" << std::endl;
+        //std::cout << "Dref: '" << field << "'" << std::endl;
       }
     }
   }
