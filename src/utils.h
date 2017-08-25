@@ -16,6 +16,9 @@ char *findChecklist(void);
 #ifdef __cplusplus
 }
 
+#include <string>
+#include <map>
+void xcLoadDictionaries(std::map<std::string, std::string> &dict);
 
 
 #endif

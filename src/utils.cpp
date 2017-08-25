@@ -1,11 +1,14 @@
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <string.h>
-
+#include <dirent.h>
 
 static char *msg = NULL;
 static size_t msgSize = 0;
@@ -203,5 +206,36 @@ void xcClose()
   free(msg);
   msg = NULL;
   msgSize = 0;
+}
+
+
+void xcLoadDictionaries(std::map<std::string, std::string> &dict)
+{
+  //Scan current directory for the dataref dictionaries
+  DIR *dir = opendir(".");
+  if(dir == NULL){
+    std::cout << "Can't open '.' to scan for dataref dictionaries." << std::endl;
+    return;
+  }
+  struct dirent *de;
+  while((de = readdir(dir))){
+    const std::string fname(de->d_name);
+    if(fname.find("clist_dict_") != 0){
+      continue;
+    }
+    std::cout << "Loading dataref dictionary \"" << fname << "\"." << std::endl;
+    std::ifstream inp(fname.c_str());
+    std::string line_str;
+    std::string field;
+    while(std::getline(inp, line_str)){
+      std::istringstream line(line_str);
+      field = "";
+      line >> field;
+      if(field.size() > 0){
+        dict[field] = field;
+        std::cout << "Dref: '" << field << "'" << std::endl;
+      }
+    }
+  }
 }
 

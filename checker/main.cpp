@@ -13,6 +13,8 @@
 bool voice_state = true;
 int hidden_param = 0;
 
+std::map<std::string, std::string> dataref_dict;
+std::map<std::string, int> warned_already;
 
 struct dref_s{
   dref_s(int t, std::vector<double> *v) : type(t), values(v){};
@@ -125,6 +127,11 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
 
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
+    std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
+    if((j == dataref_dict.end()) && (warned_already[name] == 0)){
+      std::cout << "Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+      ++warned_already[name];
+    }
     if(hidden_param & 4){
       //Carenado style?
       return false;
@@ -152,8 +159,14 @@ bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type
   //std::cout << "Find dataref: " << name << " of type " << preferred_type << std::endl;
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
+    std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
+    if((j == dataref_dict.end()) && (warned_already[name] == 0)){
+      std::cout << "Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+      ++warned_already[name];
+    }
     if(hidden_param & 4){
-      std::cout << "Dataref named " << name << " doesn't exist!" << std::endl;
+      std::cout << "Dataref named " << name << " on line " << chkllineno << 
+                   " not declared using regression test special comment.!" << std::endl;
       return false;
     }else{
       return true;
@@ -522,6 +535,7 @@ int main(int argc, char *argv[])
     read_comments(argv[1]);
     start_checklists(argv[1], hidden_param);
   }else if(argc > 1){
+    xcLoadDictionaries(dataref_dict);
     start_checklists(argv[1], 0);
   }else{
     std::cout << "Usage: " << argv[0] << " checklist_name" << std::endl;
