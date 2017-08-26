@@ -127,15 +127,15 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
 
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
-    std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
-    if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-      std::cout << "Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
-      ++warned_already[name];
-    }
     if(hidden_param & 4){
       //Carenado style?
       return false;
     }else{
+      std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
+      if((j == dataref_dict.end()) && (warned_already[name] == 0)){
+        std::cout << " * WARNING * Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+        ++warned_already[name];
+      }
       return true;
     }
   }
@@ -159,18 +159,18 @@ bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type
   //std::cout << "Find dataref: " << name << " of type " << preferred_type << std::endl;
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
-    std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
-    if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-      std::cout << "Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
-      ++warned_already[name];
-    }
-    if(hidden_param & 4){
-      std::cout << "Dataref named " << name << " on line " << chkllineno << 
+    if((hidden_param & 4) && (warned_already[name] == 0)){
+      std::cout << " * WARNING * Dataref named " << name << " on line " << chkllineno << 
                    " not declared using regression test special comment.!" << std::endl;
-      return false;
+      ++warned_already[name];
     }else{
-      return true;
+      std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
+      if((j == dataref_dict.end()) && (warned_already[name] == 0)){
+        std::cout << " * WARNING * Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+        ++warned_already[name];
+      }
     }
+    return true;
   }
   *dref = (dataref_p)malloc(sizeof(struct dataref_struct_t));
   (*dref)->dref = /*(XPLMDataRef)*/i->second;
@@ -530,12 +530,12 @@ void read_comments(const char *fname)
 
 int main(int argc, char *argv[])
 {
+  xcLoadDictionaries(dataref_dict);
   if(argc > 2){
     hidden_param = atoi(argv[2]);
     read_comments(argv[1]);
     start_checklists(argv[1], hidden_param);
   }else if(argc > 1){
-    xcLoadDictionaries(dataref_dict);
     start_checklists(argv[1], 0);
   }else{
     std::cout << "Usage: " << argv[0] << " checklist_name" << std::endl;
