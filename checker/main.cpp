@@ -133,8 +133,10 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
     }else{
       std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
       if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-        std::cout << " * WARNING * Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
-        ++warned_already[name];
+          if (clist_dict_found == 1) {
+              std::cout << " * WARNING * Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+              ++warned_already[name];
+          }
       }
       return true;
     }
@@ -160,14 +162,20 @@ bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
     if((hidden_param & 4) && (warned_already[name] == 0)){
-      std::cout << " * WARNING * Dataref named " << name << " on line " << chkllineno << 
-                   " not declared using regression test special comment.!" << std::endl;
-      ++warned_already[name];
+        if (clist_dict_found == 1) {
+            std::cout << " * WARNING * Dataref named " << name << " on line " << chkllineno <<
+            " not declared using regression test special comment.!" << std::endl;
+            ++warned_already[name];
+        }
+
     }else{
+
       std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
       if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-        std::cout << " * WARNING * Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
-        ++warned_already[name];
+          if (clist_dict_found == 1) {
+              std::cout << " * WARNING * Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+              ++warned_already[name];
+          }
       }
     }
     return true;

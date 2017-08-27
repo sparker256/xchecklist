@@ -12,6 +12,7 @@
 
 static char *msg = NULL;
 static size_t msgSize = 0;
+int clist_dict_found = 0;
 
 /*NOT THREAD SAFE!!!*/
 
@@ -224,6 +225,7 @@ void xcLoadDictionaries(std::map<std::string, std::string> &dict)
       continue;
     }
     std::cout << "Loading dataref dictionary \"" << fname << "\"." << std::endl;
+    clist_dict_found = 1;
     std::ifstream inp(fname.c_str());
     std::string line_str;
     std::string field;
@@ -237,5 +239,9 @@ void xcLoadDictionaries(std::map<std::string, std::string> &dict)
       }
     }
   }
+  if (clist_dict_found == 0) {
+      printf("Xchecklist: dataref dictionary not found\n");
+  }
+
 }
 

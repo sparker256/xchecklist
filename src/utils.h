@@ -13,6 +13,8 @@ char *prefsPath(void);
 char *pluginPath(const char *name);
 char *findChecklist(void);
 
+extern int clist_dict_found;
+
 #ifdef __cplusplus
 }
 
