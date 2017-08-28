@@ -131,10 +131,18 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
       //Carenado style?
       return false;
     }else{
+      //usual array dataref style
       std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
-      if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-        std::cout << " * WARNING * Array dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
-        ++warned_already[name];
+      if(j == dataref_dict.end()){
+        //not found, try Carenado style
+        std::ostringstream full_name;
+        full_name << name << "[" << index << "]";
+        j = dataref_dict.find(full_name.str());
+        if((j == dataref_dict.end()) && (warned_already[name] == 0)){
+          std::cout << " * WARNING * Array dataref " << name << " on line " << 
+                       chkllineno << " not found in any dictionary!" << std::endl;
+          ++warned_already[name];
+        }
       }
       return true;
     }
