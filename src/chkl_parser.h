@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
 
 #include "interface.h"
 
@@ -127,13 +128,14 @@ class procedure:public value{
   friend std::ostream& operator<<(std::ostream &output, const procedure& v);
  public:
   procedure(std::string n, std::vector<value *> *par);
-  virtual ~procedure(){delete params;};
+  virtual ~procedure();
   virtual bool get_value(double &d)const;
   virtual void print(std::ostream &output)const{output << *this;};
  private:
   std::string name;
   std::vector<value *> *params;
   func_ptr_t actor;
+  static std::map<std::string, func_ptr_t> functions;
 };
 
 class dataref_name:public value{

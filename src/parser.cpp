@@ -1299,22 +1299,31 @@ static bool step_func(const std::vector<value *> *params, double &res)
   return true;
 }
 
-static std::map<std::string, func_ptr_t> *functions;
+std::map<std::string, func_ptr_t> procedure::functions;
 
 procedure::procedure(std::string n, std::vector<value *> *par):name(n), params(par), actor(NULL)
 {
-  if(!functions){
-    functions = new std::map<std::string, func_ptr_t>();
-    functions->insert(std::pair<std::string, func_ptr_t>("round", round_func));
-    functions->insert(std::pair<std::string, func_ptr_t>("step", step_func));
-    functions->insert(std::pair<std::string, func_ptr_t>("closer_than", closer_than_func));
+  if(functions.empty()){
+    functions.insert(std::pair<std::string, func_ptr_t>("round", round_func));
+    functions.insert(std::pair<std::string, func_ptr_t>("step", step_func));
+    functions.insert(std::pair<std::string, func_ptr_t>("closer_than", closer_than_func));
   }
-  std::map<std::string, func_ptr_t>::const_iterator i = functions->find(name);
-  if(i != functions->end()){
+  std::map<std::string, func_ptr_t>::const_iterator i = functions.find(name);
+  if(i != functions.end()){
     actor = i->second;
   }else{
     xcDebug("Error: Function %s not supported!\n", name.c_str());
   }
+}
+
+procedure::~procedure()
+{
+  if(params){
+    for(std::vector<value *>::iterator i = params->begin(); i != params->end(); ++i){
+      delete *i;
+    }
+  }
+  delete params;
 }
 
 void value::cast(double &val)const

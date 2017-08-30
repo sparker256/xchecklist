@@ -237,5 +237,6 @@ void xcLoadDictionaries(std::map<std::string, std::string> &dict)
       }
     }
   }
+  closedir(dir);
 }
 

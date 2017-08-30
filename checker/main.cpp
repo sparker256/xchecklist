@@ -12,6 +12,7 @@
 
 bool voice_state = true;
 int hidden_param = 0;
+int chkllex_destroy(void);
 
 std::map<std::string, std::string> dataref_dict;
 std::map<std::string, int> warned_already;
@@ -60,7 +61,10 @@ std::string get_tag(std::string text)
 
 bool dispose_dataref(dataref_p *dref)
 {
-  (void)dref;
+  if(*dref){
+    free(*dref);
+    *dref = NULL;
+  }
   return true;
 }
 
@@ -464,6 +468,11 @@ void read_comments(const char *fname)
       comment = line.substr(pos + 3);
       std::istringstream dref_str(comment);
       dref_str >> type >> name;
+
+      if(datarefs_map.find(name) != datarefs_map.end()){
+        std::cout << " *WARNING * Dataref named '" << name << "' already." << std::endl;
+        continue;
+      }
       //std::cout << "Type: " << type << " Name: " << name <<std::endl;
       int d_t = XC_UNKNOWN;
       if(type.find_first_of('i') != type.npos){
@@ -495,6 +504,9 @@ void read_comments(const char *fname)
       if(tag == ""){
         //std::cout << "Found action list, but no tag!" << std::endl;
         continue;
+      }else if(regres_steps.find(tag) != regres_steps.end()){
+        std::cout << " * WARNING * Tag '" << tag << "' used already!" << std::endl;
+        continue;
       }
       pos += tag.length() + 2;
       size_t end_pos;
@@ -508,7 +520,7 @@ void read_comments(const char *fname)
             actions = new action_list_t();
           }
           actions->push_back(action);
-          if(line[end_pos] == ':'){
+          if((end_pos != line.npos) && (line[end_pos] == ':')){
             if(actions_list == NULL){
               actions_list = new actions_list_t();
             }
@@ -534,6 +546,36 @@ void read_comments(const char *fname)
       }
     }
   }
+}
+
+void do_cleanup()
+{
+  regres_steps_t::iterator steps = regres_steps.begin();
+  while(steps != regres_steps.end()){
+    actions_list_t::iterator actions_list = steps->second->begin();
+    while(actions_list != steps->second->end()){
+      action_list_t::iterator action = (*actions_list)->begin();
+      while(action != (*actions_list)->end()){
+        if((*action)->dref){
+          delete *action;
+        }
+        ++action;
+      }
+      delete *actions_list;
+      ++actions_list;
+    }
+    delete steps->second;
+    ++steps;
+  }
+  datarefs_map_t::iterator di = datarefs_map.begin();
+  while(di != datarefs_map.end()){
+    delete di->second->values;
+    delete di->second;
+    ++di;
+  }
+  delete cl;
+  cl = NULL;
+  chkllex_destroy();
 }
 
 int main(int argc, char *argv[])
@@ -578,6 +620,7 @@ int main(int argc, char *argv[])
     walkthrough_checklists();
   }
 
+  do_cleanup();
   stop_checklists();
   //discard_checklist();
   xcClose();
