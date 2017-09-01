@@ -414,7 +414,7 @@ bool walkthrough_checklists()
     //to allow sw_show
     if(cl->work(false)){
       problems += cl->get_problems();
-      if(!next_checklist(false)){
+      if(!next_checklist(true)){
         break;
       }
     }
@@ -463,14 +463,14 @@ void read_comments(const char *fname)
   double val;
   while(std::getline(infile, line)){
     size_t pos;
-    if((pos = line.find("#?#")) != line.npos){
+    if(((pos = line.find("#?#")) != line.npos) && (pos == 0)){
       //Dataref definitions
       comment = line.substr(pos + 3);
       std::istringstream dref_str(comment);
       dref_str >> type >> name;
 
       if(datarefs_map.find(name) != datarefs_map.end()){
-        std::cout << " *WARNING * Dataref named '" << name << "' already." << std::endl;
+        std::cout << " *WARNING * Dataref named '" << name << "' exists already." << std::endl;
         continue;
       }
       //std::cout << "Type: " << type << " Name: " << name <<std::endl;
@@ -497,7 +497,7 @@ void read_comments(const char *fname)
       }
       //std::cout << "Creating dataref " << name << std::endl;
       datarefs_map.insert(std::pair<std::string, dref_s *>(std::string(name), new dref_s(d_t, values)));
-    }else if((pos = line.find("#!#")) != line.npos){
+    }else if(((pos = line.find("#!#")) != line.npos) && (pos == 0)){
       //Action defs
       pos += 3;
       std::string tag = get_tag(line);

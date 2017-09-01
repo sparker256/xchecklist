@@ -205,11 +205,16 @@ show:                TOKEN_SHOW TOKEN_COLON dataref_expr{
                     $$ = new show_item($3);
                   }
 ;
-continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING{
-                    current_checklist->setContinueFlag($3);
+continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING TOKEN_COLON dataref_expr{
+                    current_checklist->add_continue_flag($3, $5);
+                    free($3);
+                  }
+                | TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING{
+                    current_checklist->add_continue_flag($3);
+                    free($3);
                   }
                 | TOKEN_CONTINUE {
-                    current_checklist->setContinueFlag();
+                    current_checklist->add_continue_flag();
                   }
 ;
 colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{

@@ -45,9 +45,8 @@ checklist::checklist(std::string display, std::string menu)
   width = 300;
   finished = false;
   trigger_block = false;
-  continueFlag = false;
-  continueLabel = "";
-  nextIndex = -1;
+  continue_flag = false;
+  continue_label = "";
 }
 
 checklist::checklist(std::string display)
@@ -57,9 +56,8 @@ checklist::checklist(std::string display)
   width = 300;
   finished = false;
   trigger_block = false;
-  continueFlag = false;
-  continueLabel = "";
-  nextIndex = -1;
+  continue_flag = false;
+  continue_label = "";
 }
 
 checklist::~checklist()
@@ -67,6 +65,9 @@ checklist::~checklist()
   std::vector<checklist_item*>::iterator i;
   for(i = items.begin(); i != items.end(); ++i){
     delete(*i);
+  }
+  for(size_t j = 0; j < gotos.size(); ++j){
+    delete(gotos[j].second);
   }
 }
 
@@ -641,6 +642,14 @@ checklist_binder::~checklist_binder()
 void checklist_binder::add_checklist(checklist *c)
 {
   checklists.push_back(c);
+  std::string name = c->get_display_text();
+  if(!name.empty()){
+    if(labels.find(name) != labels.end()){
+      xcDebug(" * WARNING * Checklist label '%s' already used!\n", name.c_str());
+      return;
+    }
+    labels[name] = checklists.size() - 1;
+  }
 }
 
 bool checklist_binder::select_checklist(unsigned int index, bool force)
@@ -659,12 +668,14 @@ bool checklist_binder::prev_checklist()
 
 bool checklist_binder::next_checklist(bool followSwCont)
 {
-
-  if((checklists[current]->get_next_index() != -1) && followSwCont){
-    return select_checklist(checklists[current]->get_next_index(), true);
-  }else{
-    return select_checklist(current + 1, true);
+  std::string label;
+  if(checklists[current]->get_next(label) && followSwCont){
+    if(labels.find(label) != labels.end()){
+      return select_checklist(labels[label], true);
+    }
+    xcDebug(" * WARNING * Sw_continue requests to continue on nonexistent label '%s'.\n", label);
   }
+  return select_checklist(current + 1, true);
 }
 
 bool checklist_binder::item_checked(int item)
@@ -893,6 +904,18 @@ bool checklist::activate_next_item(bool init)
     }else{
       finished = true;
       current_item = -1;
+      //Look up if any of the sw_continue is matching 
+      std::vector<std::pair<std::string, dataref_t *> >::iterator i;
+      for(i = gotos.begin(); i != gotos.end(); ++i){
+        //Finally - first time ever using the coma!
+        if((i->second == NULL) || (i->second->reset_trig(), i->second->trigered())){
+          //unconditional or dataref triggered
+          continue_label = i->first;
+          continue_flag = true;
+          return true;
+        }
+      }
+      continue_flag =  false;
       return false;
     }
     ++current_item;
@@ -937,33 +960,13 @@ const std::string& checklist::get_display_text()const
   return displaytext;
 }
 
-bool checklist_binder::resolve_references()
+bool checklist_binder::check_references()
 {
   int sizeOfAll = checklists.size();
-  std::map<std::string, int> names;
-  int i = 0;
-  //first pass to gather names
-  for(i = 0; i < sizeOfAll; ++i){
-    if(!checklists[i]->get_display_text().empty()){
-      printf("Inserting %s\n", checklists[i]->get_display_text().c_str());
-      names.insert(std::pair<std::string, int>(checklists[i]->get_display_text(), i));
-    }
-  }
   std::string nextLabel;
   std::map<std::string, int>::const_iterator ref;
-  for(i = 0; i < sizeOfAll; ++i){
-    if(checklists[i]->get_next(nextLabel)){
-      if(!nextLabel.empty()){
-        ref = names.find(nextLabel);
-        if(ref != names.end()){
-          checklists[i]->set_next_index(ref->second);
-        }else{
-          xcDebug("Checklist number %d contains nonexistent reference '%s'.\n", i, nextLabel.c_str());
-        }
-      }else{
-        checklists[i]->set_next_index(i+1);
-      }
-    }
+  for(int i = 0; i < sizeOfAll; ++i){
+    checklists[i]->check_references(labels);
   }
   return true;
 }
@@ -1099,8 +1102,25 @@ bool checklist_binder::checklist_finished(bool *switchNext)
 
 bool checklist::checklist_finished(bool *switchNext)
 {
-    *switchNext = continueFlag;
+    *switchNext = continue_flag;
     return finished;
+}
+
+void checklist::add_continue_flag(std::string label, dataref_t *dref)
+{
+  gotos.push_back(std::pair<std::string, dataref_t *>(label, dref));
+}
+
+
+void checklist::check_references(const std::map<std::string, int> &labels)
+{
+  std::vector<std::pair<std::string, dataref_t *> >::iterator i;
+  for(i = gotos.begin(); i != gotos.end(); ++i){
+    if(labels.find(i->first) == labels.end()){
+      xcDebug(" * WARNING * Checklist '%s' contains reference to nonexistent checklist '%s'.\n", 
+              displaytext.c_str(), i->first.c_str());
+    }
+  }
 }
 
 dataref_op::dataref_op(dataref_t *dr1, operation_t o, dataref_t *dr2) : dref1(dr1), dref2(dr2), op(o)

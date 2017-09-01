@@ -32,8 +32,6 @@
 #  ./checker regres_test1.txt 4
 
 
-#?#f checklist/test/float_dref1 5.2
-
 sw_checklist:Basic operations
 #?#i checklist/test/int_dref1 40
 #?#I checklist/test/array_int_dref1 1 2 3 4 5 6 7 8 9
@@ -152,5 +150,29 @@ sw_item:<300>Switch test:checklist/test/show_int1:1
 
 sw_checklist:Varia1:Varia1
 sw_item:No check here either|Really
+sw_continue:C0
+
+sw_checklist:C2:C2m
+#!#<402>checklist/test/int_dref1 5:checklist/test/float_dref1 13
+sw_item:<402>Item C2:checklist/test/float_dref1:>12
+sw_continue:C1
+
+
+sw_checklist:C0:C0m
+#!#<400>checklist/test/float_dref1 0, checklist/test/int_dref1 0
+sw_item:<400>Item C1:checklist/test/float_dref1:0
+sw_continue:C1
+
+sw_checklist:C1:C1m
+#!#<401>checklist/test/float_dref1 1
+sw_item:<401>Item C1:checklist/test/float_dref1:>-1
+sw_continue:C2:checklist/test/int_dref1:0
+sw_continue:C3
+
+sw_checklist:We don't go to Ravneholm
+sw_item:If you see this, something is wrong
+
+sw_checklist:C3:C3m
+sw_item:Item C3
 
 

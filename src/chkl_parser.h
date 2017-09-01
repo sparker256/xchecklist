@@ -14,6 +14,7 @@ typedef enum {INACTIVE, SAY_LABEL, CHECKABLE, PROCESSING, SAY_SUFFIX, NEXT} item
 class checklist_binder;
 extern checklist_binder *binder;
 class checklist;
+class dataref_t;
 extern checklist *current_checklist;
 
 #if LIN | APL
@@ -63,10 +64,9 @@ class checklist{
   const std::string& get_display_text()const;
   bool triggered();
   bool checklist_finished(bool *switchNext);
-  void setContinueFlag(std::string label = ""){continueFlag = true; continueLabel = label;};
-  bool get_next(std::string &l){l = continueLabel; return continueFlag;};
-  void set_next_index(int i){nextIndex = i;};
-  int get_next_index(){return nextIndex;};
+  void add_continue_flag(std::string label = "", dataref_t *dref = NULL);
+  bool get_next(std::string &l){l = continue_label; return continue_flag;};
+  void check_references(const std::map<std::string, int> &labels);
  private:
   std::string displaytext;
   std::string menutext;
@@ -75,9 +75,9 @@ class checklist{
   int current_item;
   bool finished;
   bool trigger_block;
-  bool continueFlag;
-  std::string continueLabel;
-  int nextIndex;
+  std::vector<std::pair<std::string, dataref_t *> > gotos;
+  bool continue_flag;
+  std::string continue_label;
 };
 
 //Collection of checklists
@@ -95,9 +95,10 @@ class checklist_binder{
     bool get_checklist_names(int *all_checklists, int *menu_size, constname_t *names[], int *indexes[]);
     bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
     bool checklist_finished(bool *switchNext);
-    bool resolve_references();
+    bool check_references();
   private:
     std::vector<checklist*> checklists;
+    std::map<std::string, int> labels;
     int current;
 };
 

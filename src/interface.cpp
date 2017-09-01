@@ -21,7 +21,7 @@ bool start_checklists(const char *fname, int debug)
     return false;
   }
   if(binder != NULL){
-    binder->resolve_references();
+    binder->check_references();
     return binder->select_checklist(0);
   }
   return false;
