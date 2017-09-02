@@ -143,8 +143,7 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
         full_name << name << "[" << index << "]";
         j = dataref_dict.find(full_name.str());
         if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-          std::cout << " * WARNING * Array dataref " << name << " on line " << 
-                       chkllineno << " not found in any dictionary!" << std::endl;
+          xcWarn("Array dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
           ++warned_already[name];
         }
       }
@@ -172,13 +171,13 @@ bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
     if((hidden_param & 4) && (warned_already[name] == 0)){
-      std::cout << " * WARNING * Dataref named " << name << " on line " << chkllineno << 
-                   " not declared using regression test special comment.!" << std::endl;
+      xcWarn("Dataref named %s on line %d not declared using regression"
+             " test special comment!\n", name, chkllineno);
       ++warned_already[name];
     }else{
       std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
       if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-        std::cout << " * WARNING * Dataref " << name << " on line " << chkllineno << " not found in any dictionary!" << std::endl;
+        xcWarn("Dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
         ++warned_already[name];
       }
     }
@@ -211,7 +210,6 @@ class my_checklist{
   bool process_datarefs;
   bool should_trigger;
   int safety;
-  int problems;
   bool manual;
   std::string title;
 
@@ -223,25 +221,21 @@ class my_checklist{
   //bool item_active(){a = activated; return !(activated < 0);};
   void notify_checked(int itemNo);
   bool work(bool visible = true);
-  int get_problems(){return problems;};
   std::string active_item_text(){return (activated < 0) ? "" : items_list[activated].text;};
   const std::string &get_title(){return title;};
 };
 
 bool my_checklist::work(bool visible)
 {
-  //std::cout << "Working... " << problems << " problems so far..." << std::endl;
   --safety;
   if(safety <= 0){
     if(!manual){
-      ++problems;
-      std::cout << std::endl << " * Error * Safety triggered, checking \"manually\"." << std::endl;
+      xcWarn("Safety triggered, checking \"manually\".\n");
       manual = true;
       safety = 5;
     }else{
       if(activated >= 0){
-        ++problems;
-        std::cout << std::endl << " *Error * Couldn't trigger \"manually\". Advancing to the next checklist." << std::endl;
+        xcWarn("Couldn't trigger \"manually\". Advancing to the next checklist.\n");
       }
       activated = -1;
       //Try going to the next checklist
@@ -274,7 +268,7 @@ bool my_checklist::work(bool visible)
 
 my_checklist::my_checklist(const std::string t, int size, checklist_item_desc_t items[]) : maxlen(0), 
                         activated(-1), process_datarefs(false), 
-                        should_trigger(false), safety(10), problems(0), manual(false), title(t)
+                        should_trigger(false), safety(10), manual(false), title(t)
 {
   for(int i = 0; i < size; ++i){
     items_list.push_back(items[i]);
@@ -287,13 +281,11 @@ my_checklist::my_checklist(const std::string t, int size, checklist_item_desc_t 
 void my_checklist::notify_checked(int itemNo)
 {
   if(itemNo != activated){
-    std::cout << std::endl << " * Error * " << activated << "active while checked " << itemNo << "." << std::endl;
-    ++problems;
+    xcErr("%d active while checked %d.\n", activated, itemNo);
     return;
   }
   if(!should_trigger){
-    std::cout << std::endl << " * Error * Item number " << itemNo << " checked unexpectedly." << std::endl;
-    ++problems;
+    xcErr("Item number %d checked unexpectedly.\n", itemNo);
     return;
   }
   activated = -1;
@@ -335,7 +327,7 @@ void my_checklist::activate_item(int item)
 bool my_checklist::check_item()
 {
   if(activated < 0){
-    std::cout << std::endl << " * Error * No item active!" << std::endl;
+    xcErr("No item active!\n");
     return false;
   }
   if(item_checked(activated)){
@@ -350,7 +342,7 @@ bool my_checklist::check_item()
 bool my_checklist::check_item(int itemNo)
 {
   if(itemNo != activated){
-    std::cout << std::endl << " * Error * Request to check inactive item (active " << activated << ", requested " << itemNo << ")!" << std::endl;
+    xcErr("Request to check inactive item (active %d, requested %d)!\n", activated, itemNo);
     return false;
   }
   return this->check_item();
@@ -406,20 +398,18 @@ bool spoken(float elapsed){(void)elapsed;return true;}
 
 bool walkthrough_checklists()
 {
-  int problems = 0;
   while(1){
     std::cout << cl->get_title() << std::endl;
     while(!cl->work());
 
     //to allow sw_show
     if(cl->work(false)){
-      problems += cl->get_problems();
       if(!next_checklist(true)){
         break;
       }
     }
   }
-  std::cout << "Encountered " << problems << " problems." << std::endl;
+  xcSummary();
   return true;
 }
 
@@ -444,7 +434,7 @@ struct action_s *read_action(std::string &line, size_t start, size_t stop)
       //std::cout << "Array: " << base_name << "[" << value << "] = " << val << std::endl;
       i = datarefs_map.find(base_name);
       if(i == datarefs_map.end()){
-        std::cout << "Can't find dataref " << base_name << std::endl;
+        xcWarn("Can't find dataref \"%s\".\n", base_name.c_str());
         return NULL;
       }
       return new struct action_s(i->second, value, val);
@@ -470,7 +460,7 @@ void read_comments(const char *fname)
       dref_str >> type >> name;
 
       if(datarefs_map.find(name) != datarefs_map.end()){
-        std::cout << " *WARNING * Dataref named '" << name << "' exists already." << std::endl;
+        xcWarn("Dataref named '%s' exists already.\n", name);
         continue;
       }
       //std::cout << "Type: " << type << " Name: " << name <<std::endl;
@@ -505,7 +495,7 @@ void read_comments(const char *fname)
         //std::cout << "Found action list, but no tag!" << std::endl;
         continue;
       }else if(regres_steps.find(tag) != regres_steps.end()){
-        std::cout << " * WARNING * Tag '" << tag << "' used already!" << std::endl;
+        xcWarn("Tag '%s' used already!\n", tag.c_str());
         continue;
       }
       pos += tag.length() + 2;

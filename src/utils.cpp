@@ -201,7 +201,38 @@ void xcDebug(const char *format, ...)
   va_end(ap);
 }
 
-void xcClose()
+static int errors = 0;
+static int warnings = 0;
+
+void xcWarn(const char *format, ...)
+{
+  ++warnings;
+  std::string aug(" * WARNING * ");
+  aug += format;
+  va_list ap;
+  va_start(ap,format);
+  xcDebugInt(aug.c_str(), ap);
+  va_end(ap);
+}
+
+void xcErr(const char *format, ...)
+{
+  ++errors;
+  std::string aug(" * ERROR * ");
+  aug += format;
+  va_list ap;
+  va_start(ap,format);
+  xcDebugInt(aug.c_str(), ap);
+  va_end(ap);
+}
+
+void xcSummary()
+{
+  xcDebug("Encountered %d errors and %d warnings.\n", errors, warnings);
+}
+
+
+void xcClose(void)
 {
   free(msg);
   msg = NULL;

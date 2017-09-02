@@ -12,6 +12,9 @@ void xcClose();
 char *prefsPath(void);
 char *pluginPath(const char *name);
 char *findChecklist(void);
+void xcWarn(const char *format, ...);
+void xcErr(const char *format, ...);
+void xcSummary(void);
 
 #ifdef __cplusplus
 }

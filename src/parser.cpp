@@ -390,8 +390,7 @@ dataref_p dataref_name::getDataref()
     if(find_dataref(name.c_str(), &dataref_struct, get_type())){
       return dataref_struct;
     }else{
-      xcDebug("Dataref %s not found!\n", name.c_str());
-      printf("Dataref %s not found!\n", name.c_str());
+      xcWarn("Dataref %s not found!\n", name.c_str());
       return NULL;
     }
   }else{
@@ -407,8 +406,7 @@ dataref_p dataref_name::getDataref()
       if(find_dataref(str.c_str(), &dataref_struct, get_type())){
         return dataref_struct;
       }else{
-        xcDebug("Dataref %s not found!\n", str.c_str());
-        printf("Dataref %s not found!\n", str.c_str());
+        xcWarn("Dataref %s not found!\n", str.c_str());
         return NULL;
       }
       return NULL;
@@ -645,7 +643,7 @@ void checklist_binder::add_checklist(checklist *c)
   std::string name = c->get_display_text();
   if(!name.empty()){
     if(labels.find(name) != labels.end()){
-      xcDebug(" * WARNING * Checklist label '%s' already used!\n", name.c_str());
+      xcWarn("Checklist label '%s' already used!\n", name.c_str());
       return;
     }
     labels[name] = checklists.size() - 1;
@@ -673,7 +671,7 @@ bool checklist_binder::next_checklist(bool followSwCont)
     if(labels.find(label) != labels.end()){
       return select_checklist(labels[label], true);
     }
-    xcDebug(" * WARNING * Sw_continue requests to continue on nonexistent label '%s'.\n", label);
+    xcWarn("Sw_continue requests to continue on nonexistent label '%s'.\n", label);
   }
   return select_checklist(current + 1, true);
 }
@@ -1085,7 +1083,7 @@ bool parse_clist(const std::string &fname, int debug)
 
 void chklerror(char const *s)
 {
-  xcDebug("Xchecklist: %s in file %s, line %d near '%s'\n",
+  xcErr("Xchecklist: %s in file %s, line %d near '%s'\n",
           s, parsed_file, chkllineno, chkltext);
 }
 
@@ -1117,7 +1115,7 @@ void checklist::check_references(const std::map<std::string, int> &labels)
   std::vector<std::pair<std::string, dataref_t *> >::iterator i;
   for(i = gotos.begin(); i != gotos.end(); ++i){
     if(labels.find(i->first) == labels.end()){
-      xcDebug(" * WARNING * Checklist '%s' contains reference to nonexistent checklist '%s'.\n", 
+      xcWarn("Checklist '%s' contains reference to nonexistent checklist '%s'.\n", 
               displaytext.c_str(), i->first.c_str());
     }
   }
@@ -1239,7 +1237,7 @@ bool arith_op::get_value(double &d)const
       return true;
       break;
     default:
-      xcDebug("Unsupprted operation '%c'.\n", operation);
+      xcErr("Unsupprted operation '%c'.\n", operation);
       break;
   }
   return false;
@@ -1260,20 +1258,20 @@ bool procedure::get_value(double &d)const
 static bool closer_than_func(const std::vector<value *> *params, double &res)
 {
   if(params->size() != 3){
-    xcDebug("Function closer_than takes three parameters (value1, value2, epsilon)!\n");
+    xcErr("Function closer_than takes three parameters (value1, value2, epsilon)!\n");
     return false;
   }
   double val1, val2, eps;
   if(!(*params)[0]->get_value(val1)){
-    xcDebug("Error evaluating first parameter value!\n");
+    xcErr("Error evaluating first parameter value!\n");
     return false;
   }
   if(!(*params)[1]->get_value(val2)){
-    xcDebug("Error evaluating second parameter value!\n");
+    xcErr("Error evaluating second parameter value!\n");
     return false;
   }
   if(!(*params)[2]->get_value(eps)){
-    xcDebug("Error evaluating third parameter value!\n");
+    xcErr("Error evaluating third parameter value!\n");
     return false;
   }
   //std::cout << "Closer than: " << val1 << " vs " << val2 << " < " << eps << std::endl;
@@ -1288,12 +1286,12 @@ static bool closer_than_func(const std::vector<value *> *params, double &res)
 static bool round_func(const std::vector<value *> *params, double &res)
 {
   if(params->size() != 1){
-    xcDebug("Function round takes only one value!\n");
+    xcErr("Function round takes only one value!\n");
     return false;
   }
   double param_val;
   if(!(*params)[0]->get_value(param_val)){
-    xcDebug("Error evaluating parameter value!\n");
+    xcErr("Error evaluating parameter value!\n");
     return false;
   }
   res = round(param_val);
@@ -1303,12 +1301,12 @@ static bool round_func(const std::vector<value *> *params, double &res)
 static bool step_func(const std::vector<value *> *params, double &res)
 {
   if(params->size() != 1){
-    xcDebug("Error: Step function takes only one value!\n");
+    xcErr("Step function takes only one value!\n");
     return false;
   }
   double param_val;
   if(!(*params)[0]->get_value(param_val)){
-    xcDebug("Error evaluating parameter value!\n");
+    xcErr("Error evaluating parameter value!\n");
     return false;
   }
   if(param_val < 0){
@@ -1332,7 +1330,7 @@ procedure::procedure(std::string n, std::vector<value *> *par):name(n), params(p
   if(i != functions.end()){
     actor = i->second;
   }else{
-    xcDebug("Error: Function %s not supported!\n", name.c_str());
+    xcErr("Function %s not supported!\n", name.c_str());
   }
 }
 
