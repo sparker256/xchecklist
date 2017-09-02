@@ -16,6 +16,8 @@ void xcWarn(const char *format, ...);
 void xcErr(const char *format, ...);
 void xcSummary(void);
 
+extern int clist_dict_found;
+
 #ifdef __cplusplus
 }
 

@@ -143,8 +143,10 @@ bool find_array_dataref(const char *name, int index, dataref_p *dref, value_type
         full_name << name << "[" << index << "]";
         j = dataref_dict.find(full_name.str());
         if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-          xcWarn("Array dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
-          ++warned_already[name];
+          if (clist_dict_found == 1) {
+            xcWarn("Array dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
+            ++warned_already[name];
+          }
         }
       }
       return true;
@@ -171,14 +173,18 @@ bool find_dataref(const char *name, dataref_p *dref, value_type_t preferred_type
   datarefs_map_t::iterator i = datarefs_map.find(std::string(name));
   if(i == datarefs_map.end()){
     if((hidden_param & 4) && (warned_already[name] == 0)){
-      xcWarn("Dataref named %s on line %d not declared using regression"
-             " test special comment!\n", name, chkllineno);
-      ++warned_already[name];
+      if (clist_dict_found == 1) {
+        xcWarn("Dataref named %s on line %d not declared using regression"
+               " test special comment!\n", name, chkllineno);
+        ++warned_already[name];
+      }
     }else{
       std::map<std::string, std::string>::const_iterator j = dataref_dict.find(name);
       if((j == dataref_dict.end()) && (warned_already[name] == 0)){
-        xcWarn("Dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
-        ++warned_already[name];
+        if (clist_dict_found == 1) {
+          xcWarn("Dataref %s on line %d not found in any dictionary!\n", name, chkllineno);
+          ++warned_already[name];
+        }
       }
     }
     return true;
