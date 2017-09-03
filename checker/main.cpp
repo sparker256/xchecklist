@@ -466,7 +466,7 @@ void read_comments(const char *fname)
       dref_str >> type >> name;
 
       if(datarefs_map.find(name) != datarefs_map.end()){
-        xcWarn("Dataref named '%s' exists already.\n", name);
+        xcWarn("Dataref named '%s' exists already.\n", name.c_str());
         continue;
       }
       //std::cout << "Type: " << type << " Name: " << name <<std::endl;

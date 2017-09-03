@@ -671,7 +671,7 @@ bool checklist_binder::next_checklist(bool followSwCont)
     if(labels.find(label) != labels.end()){
       return select_checklist(labels[label], true);
     }
-    xcWarn("Sw_continue requests to continue on nonexistent label '%s'.\n", label);
+    xcWarn("Sw_continue requests to continue on nonexistent label '%s'.\n", label.c_str());
   }
   return select_checklist(current + 1, true);
 }
