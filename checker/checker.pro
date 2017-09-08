@@ -3,7 +3,7 @@ TEMPLATE = app
 QT -= gui core
 
 CONFIG += warn_on plugin release
-CONFIG -= thread exceptions qt rtti release
+CONFIG -= thread exceptions qt rtti debug
 
 
 VERSION = 1.0.0
