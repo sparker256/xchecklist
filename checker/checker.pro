@@ -2,7 +2,7 @@
 TEMPLATE = app
 QT -= gui core
 
-CONFIG += warn_on plugin debug #gcov
+CONFIG += warn_on plugin release
 CONFIG -= thread exceptions qt rtti release
 
 
