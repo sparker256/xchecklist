@@ -174,5 +174,8 @@ sw_item:If you see this, something is wrong
 
 sw_checklist:C3:C3m
 sw_item:Item C3
+sw_continue
 
+sw_checklist:C4:C4m
+sw_item:Item C4
 

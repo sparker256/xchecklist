@@ -671,7 +671,9 @@ bool checklist_binder::next_checklist(bool followSwCont)
     if(labels.find(label) != labels.end()){
       return select_checklist(labels[label], true);
     }
-    xcWarn("Sw_continue requests to continue on nonexistent label '%s'.\n", label.c_str());
+    if(!label.empty()){
+      xcWarn("Sw_continue requests to continue on nonexistent label '%s'.\n", label.c_str());
+    }
   }
   return select_checklist(current + 1, true);
 }
@@ -1114,7 +1116,7 @@ void checklist::check_references(const std::map<std::string, int> &labels)
 {
   std::vector<std::pair<std::string, dataref_t *> >::iterator i;
   for(i = gotos.begin(); i != gotos.end(); ++i){
-    if(labels.find(i->first) == labels.end()){
+    if(!i->first.empty() && (labels.find(i->first) == labels.end())){
       xcWarn("Checklist '%s' contains reference to nonexistent checklist '%s'.\n", 
               displaytext.c_str(), i->first.c_str());
     }
