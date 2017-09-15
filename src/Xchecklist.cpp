@@ -8,7 +8,8 @@
 //     A plugin to display a clist.txt in widget window
 //     Also use speach to prompt user
 //
-//     Supporting X-Plane 10.25+ 32/64bit
+//     Supporting X-Plane 10.51r2 32/64bit
+//     X-Plane 11.05r2+
 //     Also suporting X-Plane 9.70
 //
 // *********************************************************
@@ -32,6 +33,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 #include "chkl_parser.h"
 #include "interface.h"
@@ -115,6 +117,10 @@ XPLMCommandRef cmdreloadchecklist;
 
 static XPLMDataRef              ext_view = NULL;
 
+static XPLMDataRef ParsedDataRef = NULL;
+
+static XPLMDataTypeID ParsedDataRefType = 0;
+
 int checklists_count = -1;
 
 void xCheckListMenuHandler(void *, void *);
@@ -128,8 +134,10 @@ static bool init_checklists();
 static bool init_setup();
 static bool do_cleanup();
 static bool set_sound(bool enable);
+static bool create_dictionary();
 static int prev_external_view = false;
 static bool restore_on_internal = false;
+
 bool voice_state;
 int win_pos_x1 = -1;
 int win_pos_x2 = -1;
@@ -181,6 +189,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(PluginMenu, "Open CheckList", (void *) "checklist", 1);
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
         XPLMAppendMenuItem(PluginMenu, "Reload", (void *) "reload", 1);
+        XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
 
         ChecklistsSubMenuItem = XPLMAppendMenuItem(
                     PluginMenu,
@@ -482,6 +491,80 @@ bool init_setup()
   return true;
 }
 
+bool create_dictionary()
+{
+    static int line_number = 0;
+    static int parsed_array_size = 0;
+
+    std::ofstream clist_dict_file("./Resources/plugins/Xchecklist/clist_dict_drt_last_run.txt");
+
+    if (!clist_dict_file) {
+         printf("XchecklistDictionaryCreator: Could not open clist_dict_drt_last_run.txt\n");
+         return false;
+    }
+
+    std::ifstream drtfile("./Output/preferences/drt_last_run_datarefs.txt");
+    std::string line;
+
+    if (!drtfile) {
+        printf("XchecklistDictionaryCreator: Could not open drt_last_run_datarefs.txt\n");
+        return false;
+    } else {
+        while (std::getline(drtfile, line)) {
+            line_number = line_number + 1;
+            std::cout << "" << line << "\n";
+
+            ParsedDataRef = XPLMFindDataRef(line.c_str());
+            ParsedDataRefType = XPLMGetDataRefTypes(ParsedDataRef);
+            if (ParsedDataRefType == 16) {
+                parsed_array_size = XPLMGetDatavi(
+                                        ParsedDataRef,
+                                        NULL,    /* Can be NULL */
+                                        0,
+                                        8);
+                std::ostringstream s;
+                int array_size = 0;
+                while (array_size < parsed_array_size) {
+                    s.str("");
+                    s.clear();
+                    s << array_size;
+                    std::string i_to_string(s.str());
+                    clist_dict_file << line + "[" + i_to_string + "]\n";
+                    array_size = array_size + 1;
+                }
+            }
+            if (ParsedDataRefType == 8) {
+                parsed_array_size = XPLMGetDatavf(
+                                        ParsedDataRef,
+                                        NULL,    /* Can be NULL */
+                                        0,
+                                        8);
+                if (parsed_array_size > 1000) {
+                    parsed_array_size = 1000;
+                }
+                std::ostringstream s;
+                int array_size = 0;
+                while (array_size < parsed_array_size) {
+                    s.str("");
+                    s.clear();
+                    s << array_size;
+                    const std::string i_to_string(s.str());
+                    clist_dict_file << line + "[" + i_to_string + "]\n";
+                    array_size = array_size + 1;
+                }
+            }
+
+            if (ParsedDataRefType != 8 && ParsedDataRefType != 16) {
+                clist_dict_file << line + "\n";
+            }
+        }
+        drtfile.close();
+        clist_dict_file.close();
+        return true;
+    }
+}
+
+
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inParam)
 {
@@ -597,6 +680,9 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
     if (!strcmp((char *) inItemRef, "reload")){
       do_cleanup();
       init_checklists();
+    }
+    if (!strcmp((char *) inItemRef, "dictionary")){
+        create_dictionary();
     }
   }else if((intptr_t)inMenuRef == 1){
     open_checklist((intptr_t)inItemRef);
