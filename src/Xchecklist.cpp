@@ -462,7 +462,7 @@ bool init_setup()
     xcDebug("Xchecklist: During Startup unknown preferences version, using defaults.\n");
 	break;
     }
-    safe_window_defaults(); 
+    //safe_window_defaults();
     // Set the upper left corner from the prefs file
     // Not sure if this is the corect place but it is working
     x = win_pos_x1;
@@ -599,6 +599,7 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
     
     do_cleanup();
     init_checklists();
+    safe_window_defaults();
     save_prefs();
 
     return 0; // Returning 0 stops DeferredInitFLCB from being looped again.
