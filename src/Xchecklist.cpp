@@ -413,6 +413,7 @@ bool save_prefs()
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
     fout.close();
     xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
+    xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
     xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
     xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
     xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -450,6 +451,7 @@ bool init_setup()
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
+        xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
         xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
