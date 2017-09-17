@@ -408,6 +408,33 @@ bool save_prefs()
     //Store prefs version first
     fout<<"1"<<std::endl;
     XPGetWidgetGeometry(xCheckListWidget, &win_pos_x1, &win_pos_x2, &win_pos_y1, &win_pos_y2);
+
+    int screen_w, screen_h;
+    int to_far_right, to_far_up;
+    XPLMGetScreenSize(&screen_w, &screen_h);
+    xcDebug("Xchecklist: XPLMGetScreenSize  screen_w = %d  screen_h = %d\n", screen_w, screen_h);
+    xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+
+    if (win_pos_y1 > screen_w) {
+        xcDebug("Xchecklist: Checklist to far to the right of the screen.\n");
+        to_far_right = win_pos_y1 - screen_w;
+        to_far_right = to_far_right + 30;
+        win_pos_x1 = win_pos_x1 - to_far_right;
+        win_pos_y1 = win_pos_y1 - to_far_right;
+        xcDebug("Xchecklist: win_pos_x1 = %d  win_pos_y1 = %d  to_far_right = %d\n", win_pos_x1, win_pos_y1, to_far_right);
+    }
+
+    if (win_pos_x2 > screen_h) {
+        xcDebug("Xchecklist: Checklist to far up on the screen.\n");
+        to_far_up = win_pos_x2 - screen_h;
+        to_far_up = to_far_up + 30;
+        win_pos_x2 = win_pos_x2 - to_far_up;
+        win_pos_y2 = win_pos_y2 - to_far_up;
+        xcDebug("Xchecklist: win_pos_x2 = %d  win_pos_y2 = %d  to_far_up = %d\n", win_pos_x2, win_pos_y2, to_far_up);
+    }
+
+    XPSetWidgetGeometry(xCheckListWidget, win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+
     fout<<win_pos_x1<<" "<<win_pos_x2<<" "<<win_pos_y1<<" "<<win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
