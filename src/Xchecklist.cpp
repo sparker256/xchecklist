@@ -186,11 +186,32 @@ PLUGIN_API int XPluginStart(
                     xCheckListMenuHandler,
                     (void *)0);
 
+        ChecklistsSubMenuItem = XPLMAppendMenuItem(
+                    PluginMenu,
+                    "CheckLists",
+                    NULL,
+                    1);
+
+        checklistsMenu = XPLMCreateMenu(
+                    "CheckLists",
+                    PluginMenu,
+                    ChecklistsSubMenuItem,
+                    xCheckListMenuHandler,
+                    (void *)1);
+
+        XPLMAppendMenuItem(checklistsMenu, "CheckList1", (void *) 0, 1);
+        XPLMAppendMenuItem(checklistsMenu, "CheckList2", (void *) 1, 1);
+
+        XPLMAppendMenuSeparator(PluginMenu);
+
         XPLMAppendMenuItem(PluginMenu, "Open CheckList", (void *) "checklist", 1);
+        XPLMAppendMenuSeparator(PluginMenu);
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
         XPLMAppendMenuItem(PluginMenu, "Reload", (void *) "reload", 1);
         XPLMAppendMenuItem(PluginMenu, "Move Window Down", (void *) "window", 1);
         XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
+
+/*
 
         ChecklistsSubMenuItem = XPLMAppendMenuItem(
                     PluginMenu,
@@ -208,7 +229,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(checklistsMenu, "CheckList1", (void *) 0, 1);
         XPLMAppendMenuItem(checklistsMenu, "CheckList2", (void *) 1, 1);
 
-
+*/
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
         cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
