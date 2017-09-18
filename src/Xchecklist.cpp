@@ -189,6 +189,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(PluginMenu, "Open CheckList", (void *) "checklist", 1);
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
         XPLMAppendMenuItem(PluginMenu, "Reload", (void *) "reload", 1);
+        XPLMAppendMenuItem(PluginMenu, "Move Window Down", (void *) "window", 1);
         XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
 
         ChecklistsSubMenuItem = XPLMAppendMenuItem(
@@ -626,7 +627,7 @@ float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCh
     
     do_cleanup();
     init_checklists();
-    safe_window_defaults();
+    // safe_window_defaults();
     save_prefs();
 
     return 0; // Returning 0 stops DeferredInitFLCB from being looped again.
@@ -711,6 +712,12 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
       do_cleanup();
       init_checklists();
     }
+    if (!strcmp((char *) inItemRef, "window")){
+        XPUMoveWidgetBy(
+                    xCheckListWidget,
+                    0,
+                    -25);
+    }
     if (!strcmp((char *) inItemRef, "dictionary")){
         create_dictionary();
     }
@@ -729,7 +736,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
         int yOffset;
 
 
-// Create the Main Widget window.
+// Create the Setup Widget window.
         setupWidget = XPCreateWidget(xx, yy, xx2, yy2,
                       1,		  // Visible
                       "Xchecklist Setup",  // desc
@@ -738,7 +745,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
                       xpWidgetClass_MainWindow);
 
 
-// Add Close Box to the Main Widget.  Other options are available.  See the SDK Documentation.
+// Add Close Box to the Setup Widget.  Other options are available.  See the SDK Documentation.
         XPSetWidgetProperty(setupWidget, xpProperty_MainWindowHasCloseBoxes, 1);
 
 // Display each line of setup.
@@ -790,7 +797,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
         XPSetWidgetProperty(setupSaveSettingsButton, xpProperty_ButtonType, xpPushButton);
 
 
-        // Register our widget handler
+        // Register our setup widget handler
         XPAddWidgetCallback(setupWidget, xSetupHandler);
 
 
@@ -813,7 +820,7 @@ bool set_sound(bool enable)
 
 
 
-// This is our widget handler.  In this example we are only interested when the close box is pressed.
+// This is our setup widget handler.  In this example we are only interested when the close box is pressed.
 int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2)
 {
   (void) inParam1;
@@ -898,7 +905,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 	return 0;
 }
 
-// This is our widget handler.  In this example we are only interested when the close box is pressed.
+// This is our Checklist widget handler.  In this example we are only interested when the close box is pressed.
 int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2)
 {
   (void) inParam2;
