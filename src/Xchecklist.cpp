@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.27 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.28 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -209,6 +209,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(PluginMenu, "Open Setup", (void *) "setup", 1);
         XPLMAppendMenuItem(PluginMenu, "Reload", (void *) "reload", 1);
         XPLMAppendMenuItem(PluginMenu, "Move Window Down", (void *) "window", 1);
+        XPLMAppendMenuItem(PluginMenu, "Save Settings", (void *) "settings", 1);
         XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
 
 /*
@@ -435,7 +436,7 @@ bool save_prefs()
     int to_far_right, to_far_up;
     XPLMGetScreenSize(&screen_w, &screen_h);
     xcDebug("Xchecklist: XPLMGetScreenSize  screen_w = %d  screen_h = %d\n", screen_w, screen_h);
-    xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+    xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 botton = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
 
     if (win_pos_y1 > screen_w) {
         xcDebug("Xchecklist: Checklist to far to the right of the screen.\n");
@@ -462,7 +463,7 @@ bool save_prefs()
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
     fout.close();
     xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
-    xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+    xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
     xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
     xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
     xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -500,7 +501,7 @@ bool init_setup()
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
-        xcDebug("Xchecklist: Checklist window position win_pos_x1 = %d win_pos_x2 = %d win_pos_y1 = %d win_pos_y2 = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+        xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
         xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -738,6 +739,10 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
                     xCheckListWidget,
                     0,
                     -25);
+    }
+    if (!strcmp((char *) inItemRef, "settings")){
+        save_prefs();
+        XPHideWidget(setupWidget);
     }
     if (!strcmp((char *) inItemRef, "dictionary")){
         create_dictionary();
