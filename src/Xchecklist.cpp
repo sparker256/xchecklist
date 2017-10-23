@@ -433,7 +433,7 @@ bool save_prefs()
     XPGetWidgetGeometry(xCheckListWidget, &win_pos_x1, &win_pos_x2, &win_pos_y1, &win_pos_y2);
 
     int screen_w, screen_h;
-    int to_far_right, to_far_up;
+    int to_far_right, to_far_left, to_far_up, to_far_down;
     XPLMGetScreenSize(&screen_w, &screen_h);
     xcDebug("Xchecklist: XPLMGetScreenSize  screen_w = %d  screen_h = %d\n", screen_w, screen_h);
     xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 botton = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
@@ -454,6 +454,24 @@ bool save_prefs()
         win_pos_x2 = win_pos_x2 - to_far_up;
         win_pos_y2 = win_pos_y2 - to_far_up;
         xcDebug("Xchecklist: win_pos_x2 = %d  win_pos_y2 = %d  to_far_up = %d\n", win_pos_x2, win_pos_y2, to_far_up);
+    }
+
+    if (win_pos_x1 < 0) {
+        xcDebug("Xchecklist: Checklist to far to the left of the screen.\n");
+        to_far_left = win_pos_x1;
+        to_far_left = abs(to_far_left);
+        win_pos_y1 = win_pos_y1 + to_far_left + 30;
+        win_pos_x1 = 30;
+        xcDebug("Xchecklist: win_pos_x1 = %d  win_pos_y1 = %d  to_far_left = %d\n", win_pos_x1, win_pos_y1, to_far_left);
+    }
+
+    if (win_pos_y2 < 0) {
+        xcDebug("Xchecklist: Checklist to far below the screen.\n");
+        to_far_down = win_pos_y2;
+        to_far_down = abs(to_far_down);
+        win_pos_y2 = 30;
+        win_pos_x2 = win_pos_x2 + to_far_down + 30;
+        xcDebug("Xchecklist: win_pos_x2 = %d  win_pos_y2 = %d  to_far_down = %d\n", win_pos_x2, win_pos_y2, to_far_down);
     }
 
     XPSetWidgetGeometry(xCheckListWidget, win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
