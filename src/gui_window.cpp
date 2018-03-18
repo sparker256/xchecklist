@@ -103,6 +103,7 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
         // Draw the main body of the checklist window.
 
+
         line_number = 1;
 
         // xcDebug("Xchecklist: xcvr_title = %s\n", xcvr_title);

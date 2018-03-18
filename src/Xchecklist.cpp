@@ -1194,6 +1194,10 @@ bool create_checklist(unsigned int size, const char *title,
      xCheckListTextAWidget.resize(size);
 
      xcvr_size = size;
+     // reset xcvr_item_checked to un checked for next checklist
+     for (i = 0; i < xcvr_size; ++i) {
+         xcvr_item_checked[i] = 0;
+     }
 
      for(i = 0; i < size; ++i){
 
@@ -1331,9 +1335,10 @@ bool check_item(int itemNo)
   if(itemNo >= 0){
     XPSetWidgetProperty(xCheckListCheckWidget[itemNo], xpProperty_ButtonState, 1);
     item_checked(itemNo);
-    xcvr_item_checked[itemNo];
+    xcvr_item_checked[itemNo] = 1;
     return true;
   }
+  xcvr_item_checked[itemNo] = 0;
   return false;
 }
 
