@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.28 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.29 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -154,6 +154,45 @@ bool state[SETUP_TEXT_ITEMS];
 
 bool init_done = false;
 
+
+// Start of VR
+
+// Variables to be passed to VR window
+const char * xcvr_title = ""; // title to be used for the VR window
+int xcvr_width = 0; // width of the widget checklist window
+int xcvr_height = 0; // height of the widget checklist window
+unsigned int xcvr_size = 0; // number of items per checklist page
+int xcvr_copilot_controlled[30]; // do we draw the copilot sysbol
+int xcvr_item_void[30]; // is the item checkable
+int xcvr_left_text_start = 0;
+const char * xcvr_text[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
+int xcvr_right_text_start = 0;
+const char * xcvr_suffix[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
+int xcvr_item_checked[30];
+
+
+static XPLMWindowID	xcvr_g_window;
+
+void				xcvr_draw(XPLMWindowID in_window_id, void * in_refcon);
+int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon);
+
+int					xcvr_dummy_mouse_handler(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon) { return 0; }
+XPLMCursorStatus	xcvr_dummy_cursor_status_handler(XPLMWindowID in_window_id, int x, int y, void * in_refcon) { return xplm_CursorDefault; }
+int					xcvr_dummy_wheel_handler(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void * in_refcon) { return 0; }
+void				xcvr_dummy_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void * in_refcon, int losing_focus) { }
+
+XPLMDataRef g_vr_dref;
+static bool g_in_vr = false;
+
+static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return ((x >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
+
+int vr_is_enabled = 0;
+
+int                         VersionXP, VersionSDK;
+XPLMHostApplicationID       HostID;
+
+char scratch_buffer1[150];
+
 PLUGIN_API int XPluginStart(
 						char *		outName,
 						char *		outSig,
@@ -169,8 +208,20 @@ PLUGIN_API int XPluginStart(
         strcpy(outSig, "Michal_Bill.Example.Xchecklist");
         strcpy(outDesc, "A plugin to display checklists in a widget window.");
 
+        ext_view = XPLMFindDataRef("sim/graphics/view/view_is_external");
 
-  ext_view = XPLMFindDataRef("sim/graphics/view/view_is_external");
+        // NOTE: We do *not* create the window here, because our plugin initialization
+        //       happens *before* VR gets initialized. So, the sim will *always* report
+        //       that VR is disabled at this point.
+        //       Instead, we'll wait for the first "scenery loaded" message to create
+        //       our window. (See XPluginReceiveMessage() below.)
+
+        g_vr_dref = XPLMFindDataRef("sim/graphics/VR/enabled");
+
+        XPLMGetVersions(&VersionXP, &VersionSDK, &HostID);
+
+        sprintf(scratch_buffer1, "Xchecklist: VersionXP = %d  VersionSDK = %d\n", VersionXP, VersionSDK);
+        XPLMDebugString(scratch_buffer1);
 
 // Create our menu
         PluginSubMenuItem = XPLMAppendMenuItem(
@@ -269,7 +320,11 @@ PLUGIN_API int XPluginStart(
 
         init_setup();
 
-        return 1;
+        // If this dataref is for some reason not available,
+        // we won't be able to move the window to VR anyway,
+        // so go ahead an disable us!
+        return (g_vr_dref != NULL), 1;
+
 }
 
 PLUGIN_API void	XPluginStop(void)
@@ -647,6 +702,49 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
       XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
     }
   }
+
+  if (VersionXP > 11200) {
+
+      // We want to wait to create our window until *after* the first scenery load,
+      // so that VR will actually be available.
+      if(!xcvr_g_window && inMsg == XPLM_MSG_SCENERY_LOADED)
+      {
+
+          // We're not guaranteed that the main monitor's lower left is at (0, 0)...
+          // we'll need to query for the global desktop bounds!
+          int xcvr_global_desktop_bounds[4]; // left, bottom, right, top
+          XPLMGetScreenBoundsGlobal(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
+
+          XPLMCreateWindow_t params;
+          params.structSize = sizeof(params);
+          params.left = xcvr_global_desktop_bounds[0] + 50;
+          params.bottom = xcvr_global_desktop_bounds[1] + 100;
+          params.right = xcvr_global_desktop_bounds[0] + 550;
+          params.top = xcvr_global_desktop_bounds[1] + 800;
+          params.visible = 1;
+          params.drawWindowFunc = xcvr_draw;
+          params.handleMouseClickFunc = xcvr_handle_mouse;
+          params.handleRightClickFunc = xcvr_dummy_mouse_handler;
+          params.handleMouseWheelFunc = xcvr_dummy_wheel_handler;
+          params.handleKeyFunc = xcvr_dummy_key_handler;
+          params.handleCursorFunc = xcvr_dummy_cursor_status_handler;
+          params.refcon = NULL;
+          params.layer = xplm_WindowLayerFloatingWindows;
+          params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
+
+          xcvr_g_window = XPLMCreateWindowEx(&params);
+
+          vr_is_enabled = XPLMGetDatai(g_vr_dref);
+          XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+          g_in_vr = vr_is_enabled;
+
+          XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 900); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
+          XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
+          //XPLMSetWindowTitle(xcvr_g_window, "Sample VR Window");
+      }
+  }
+
+
 }
 
 // ************************* Aircraft Loaded Deferred Init Callback  *************************
@@ -996,6 +1094,8 @@ bool create_checklist(unsigned int size, const char *title,
     int x2, y2;
     int screen_w, screen_h;
 
+    xcvr_title = title;
+
     h = (5+18+(size*20)) + 50;
 
     restore_on_internal = false;
@@ -1048,6 +1148,10 @@ bool create_checklist(unsigned int size, const char *title,
     if (width > w) {
         w = width;
     }
+
+    xcvr_width = w;
+    xcvr_height = h;
+
     //xcDebug("Xchecklist: w = %d\n", w);
     XPLMGetScreenSize(&screen_w, &screen_h);
     //xcDebug("Xchecklist: screen_w = %d\n", screen_w);
@@ -1089,6 +1193,8 @@ bool create_checklist(unsigned int size, const char *title,
      xCheckListTextWidget.resize(size);
      xCheckListTextAWidget.resize(size);
 
+     xcvr_size = size;
+
      for(i = 0; i < size; ++i){
 
      yOffset = (5+18+(i*20));
@@ -1102,6 +1208,8 @@ bool create_checklist(unsigned int size, const char *title,
                                          0,		// root
                                          xCheckListWidget,
                                          xpWidgetClass_Caption);
+
+            xcvr_copilot_controlled[i] = items[i].copilot_controlled;
 
             if (state[TRANSLUCENT] == true) {
               XPSetWidgetProperty(xCheckListCopilotWidget[i], xpProperty_CaptionLit, 1);
@@ -1117,6 +1225,9 @@ bool create_checklist(unsigned int size, const char *title,
                                         xCheckListWidget,
                                         xpWidgetClass_Button);
 
+             xcvr_left_text_start = 25;
+             xcvr_item_void[i] = items[i].item_void;
+
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonType, xpRadioButton);
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonBehavior, xpButtonBehaviorCheckBox);
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonState, 0);
@@ -1128,6 +1239,8 @@ bool create_checklist(unsigned int size, const char *title,
                                       0,		// root
                                       xCheckListWidget,
                                       xpWidgetClass_Caption);
+
+            xcvr_text[i] = items[i].text;
 
             if (state[TRANSLUCENT] == true) {
 
@@ -1143,11 +1256,25 @@ bool create_checklist(unsigned int size, const char *title,
                                         xCheckListWidget,
                                         xpWidgetClass_Caption);
 
+             xcvr_right_text_start = (maxw_1 + 50);
+             xcvr_suffix[i] = items[i].suffix;
+
              if (state[TRANSLUCENT] == true) {
 
                 XPSetWidgetProperty(xCheckListTextAWidget[i], xpProperty_CaptionLit, 1);
+             }
 
-              }
+             /*
+
+             xcDebug("Xchecklist: xcvr_title = %s\n", xcvr_title);
+             xcDebug("Xchecklist: xcvr_width = %d    xcvr_height = %d\n", xcvr_width, xcvr_height);
+             xcDebug("Xchecklist: i = %d   xcvr_copilot_controlled[i] =  %d   xcvr_item_void[i] = %d\n", i, xcvr_copilot_controlled[i], xcvr_item_void[i]);
+             xcDebug("Xchecklist: xcvr_item_checked[i] =  %d  \n", xcvr_item_checked[i]);
+             xcDebug("Xchecklist: xcvr_left_text_start = %d   xcvr_right_text_start =  %d\n", xcvr_left_text_start, xcvr_right_text_start);
+             xcDebug("Xchecklist: xcvr_text[i] = %s   xcvr_suffix[i] =  %s\n", xcvr_text[i], xcvr_suffix[i]);
+
+             */
+
      }
 
 
@@ -1204,6 +1331,7 @@ bool check_item(int itemNo)
   if(itemNo >= 0){
     XPSetWidgetProperty(xCheckListCheckWidget[itemNo], xpProperty_ButtonState, 1);
     item_checked(itemNo);
+    xcvr_item_checked[itemNo];
     return true;
   }
   return false;

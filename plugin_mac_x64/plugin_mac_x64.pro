@@ -13,8 +13,9 @@ INCLUDEPATH += ../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
 VPATH = ..
 
-# Defined to use X-Plane SDK 3.0.0 capabilities - no backward compatibility before 11.10
-DEFINES += XPLM300 \
+# Defined to use X-Plane SDK 3.0.1 capabilities - no backward compatibility before 11.20
+DEFINES += XPLM301 \
+           XPLM300 \
 	   XPLM210 \
            XPLM200
 
@@ -105,7 +106,8 @@ HEADERS += ../src/interface.h \
 SOURCES += ../src/Xchecklist.cpp \
            ../src/interface.cpp \
            ../src/parser.cpp \
-           ../src/utils.cpp
+           ../src/utils.cpp \
+           ../src/gui_window.cpp
 
 LEXSOURCES += ../src/chkl.l
 YACCSOURCES += ../src/chkl.y
