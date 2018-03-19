@@ -25,18 +25,10 @@
 #include "utils.h"
 #include "interface.h"
 
-static XPLMWindowID	xcvr_g_window;
-
-static float g_vr_button_lbrt[4]; // left, bottom, right, top
-
-
 static float g_check_box_lbrt[25][4]; // left, bottom, right, top
-
 static float g_previous_button_lbrt[4]; // left, bottom, right, top
 static float g_next_button_lbrt[4]; // left, bottom, right, top
 static float g_check_item_button_lbrt[4]; // left, bottom, right, top
-
-
 
 char scratch_buffer[150];
 float col_white[] = {1.0, 1.0, 1.0};
@@ -50,8 +42,6 @@ float green[] = {0.0, 1.0, 0.0, 1.0};
 float white[] = {1.0, 1.0, 1.0, 1.0};
 
 char * copilot_on = "+";
-
-
 char * checkmark_off = "    ";
 char * checkmark_on = " X ";
 
@@ -59,14 +49,13 @@ int checked [25];
 
 int line_number = 2;
 
-int size = 25;
+// int size = 25;
 
 size_t ii;
 
 
 // bounds_lbrt  0 left,  1 bottom,  2 right,  3 top
 static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x - 10) >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
-
 
 
 void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
@@ -87,20 +76,9 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
     XPLMGetFontDimensions(xplmFont_Proportional, NULL, &char_height, NULL);
 
     int l, t, r, b;
-
-    xcDebug("Xchecklist: xcvr_width = %d    xcvr_height = %d\n", xcvr_width, xcvr_height);
     XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
 
-    // const int vr_is_enabled = XPLMGetDatai(g_vr_dref);
-    if(vr_is_enabled)
-    {
-       XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowVR, 0);
-    }
-    else
-    {
-        XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowPositionFree, 0);
 
-    }
 
         // Draw the main body of the checklist window.
 

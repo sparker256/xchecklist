@@ -1153,6 +1153,14 @@ bool create_checklist(unsigned int size, const char *title,
     xcvr_width = w;
     xcvr_height = h;
 
+    int left, top, right, bottom;
+    XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
+
+    right = left + xcvr_width;
+    bottom = top - xcvr_height;
+
+    XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+
     XPLMGetScreenSize(&screen_w, &screen_h);
     if (w > screen_w/2) {
         w = screen_w/2;
