@@ -87,8 +87,9 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
     XPLMGetFontDimensions(xplmFont_Proportional, NULL, &char_height, NULL);
 
     int l, t, r, b;
-    XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
 
+    xcDebug("Xchecklist: xcvr_width = %d    xcvr_height = %d\n", xcvr_width, xcvr_height);
+    XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
 
     // const int vr_is_enabled = XPLMGetDatai(g_vr_dref);
     if(vr_is_enabled)
@@ -106,20 +107,13 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
         line_number = 1;
 
-        // xcDebug("Xchecklist: xcvr_title = %s\n", xcvr_title);
-        // xcDebug("Xchecklist: xcvr_width = %d    xcvr_height = %d\n", xcvr_width, xcvr_height);
-
 
         for (ii = 0; ii < xcvr_size; ++ii) {
-
-
 
             // If we have a copilot draw the copilot symbol
             if (xcvr_copilot_controlled[ii]) {
                 XPLMDrawString(col_white, l, t - (line_number * char_height), copilot_on, NULL, xplmFont_Proportional);
             }
-
-
 
             // If checkable then draw a checkbox
             if (!xcvr_item_void[ii]) {
@@ -155,22 +149,20 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
             }
 
-
             // Draw text for what to be checked.
             XPLMDrawString(col_white, l + 40, t - line_number * char_height, (char *)xcvr_text[ii], NULL, xplmFont_Proportional);
 
             // Draw text for the result to be checked
             XPLMDrawString(col_white, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_suffix[ii], NULL, xplmFont_Proportional);
-            //XPLMDrawString(col_white, l + 350, t - line_number * char_height, (char *)xcvr_suffix[i], NULL, xplmFont_Proportional);
-
-
-            // xcDebug("Xchecklist: xcvr_item_checked[ii] =  %d  \n", xcvr_item_checked[ii]);
 
             line_number = line_number + 2;
-
-
         }
 
+        // Display whether we're in front of our our layer
+        {
+            sprintf(scratch_buffer, "In front? %s", XPLMIsWindowInFront(in_window_id) ? "Y" : "N");
+            XPLMDrawString(col_white, l, t - line_number * char_height, scratch_buffer, NULL, xplmFont_Proportional);
+        }
 
         // Draw the Previous button
         line_number = line_number + 2;
@@ -249,59 +241,6 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
         // Draw the text for the next button.
         XPLMDrawString(col_black, g_next_button_lbrt[0], g_next_button_lbrt[1] + 4, (char *)next_btn_label, NULL, xplmFont_Proportional);
 
-
-
-
-
-        // Draw a bunch of informative text
-            {
-                // Set the y position for the first bunch of text we'll draw to a little below the buttons
-                int y = g_previous_button_lbrt[1] - 2 * char_height;
-
-                // Display whether we're in front of our our layer
-                {
-                    sprintf(scratch_buffer, "In front? %s", XPLMIsWindowInFront(in_window_id) ? "Y" : "N");
-                    XPLMDrawString(col_white, l, y, scratch_buffer, NULL, xplmFont_Proportional);
-                    y -= 1.5 * char_height;
-                }
-
-                // Display the total global desktop bounds
-                {
-                    int global_desktop_lbrt[4];
-                    XPLMGetScreenBoundsGlobal(&global_desktop_lbrt[0], &global_desktop_lbrt[3], &global_desktop_lbrt[2], &global_desktop_lbrt[1]);
-                    sprintf(scratch_buffer, "Global desktop bounds: (%d, %d) to (%d, %d)", global_desktop_lbrt[0], global_desktop_lbrt[1], global_desktop_lbrt[2], global_desktop_lbrt[3]);
-                    XPLMDrawString(col_white, l, y, scratch_buffer, NULL, xplmFont_Proportional);
-                    y -= 1.5 * char_height;
-                }
-
-                // Display our bounds
-                if(XPLMWindowIsPoppedOut(in_window_id)) // we are in our own first-class window, rather than "floating" within X-Plane's own window
-                {
-                    int window_os_bounds[4];
-                    XPLMGetWindowGeometryOS(in_window_id, &window_os_bounds[0], &window_os_bounds[3], &window_os_bounds[2], &window_os_bounds[1]);
-                    sprintf(scratch_buffer, "OS Bounds: (%d, %d) to (%d, %d)", window_os_bounds[0], window_os_bounds[1], window_os_bounds[2], window_os_bounds[3]);
-                    XPLMDrawString(col_white, l, y, scratch_buffer, NULL, xplmFont_Proportional);
-                    y -= 1.5 * char_height;
-                }
-                else
-                {
-                    int global_bounds[4];
-                    XPLMGetWindowGeometry(in_window_id, &global_bounds[0], &global_bounds[3], &global_bounds[2], &global_bounds[1]);
-                    sprintf(scratch_buffer, "Window bounds: %d %d %d %d", global_bounds[0], global_bounds[1], global_bounds[2], global_bounds[3]);
-                    XPLMDrawString(col_white, l, y, scratch_buffer, NULL, xplmFont_Proportional);
-                    y -= 1.5 * char_height;
-                }
-
-                // Display the mouse's position info text
-                {
-                    int mouse_global_x, mouse_global_y;
-                    XPLMGetMouseLocationGlobal(&mouse_global_x, &mouse_global_y);
-                    sprintf(scratch_buffer, "Draw mouse (global): %d %d\n", mouse_global_x, mouse_global_y);
-                    XPLMDrawString(col_white, l, y, scratch_buffer, NULL, xplmFont_Proportional);
-                    y -= 1.5 * char_height;
-                }
-
-            }
 }
 
 

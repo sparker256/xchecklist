@@ -739,8 +739,9 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
           g_in_vr = vr_is_enabled;
 
           XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 900); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
+
           XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
-          //XPLMSetWindowTitle(xcvr_g_window, "Sample VR Window");
+
       }
   }
 
@@ -961,7 +962,6 @@ bool set_sound(bool enable)
 }
 
 
-
 // This is our setup widget handler.  In this example we are only interested when the close box is pressed.
 int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  inParam1, intptr_t  inParam2)
 {
@@ -1095,6 +1095,8 @@ bool create_checklist(unsigned int size, const char *title,
     int screen_w, screen_h;
 
     xcvr_title = title;
+    XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
+
 
     h = (5+18+(size*20)) + 50;
 
@@ -1130,21 +1132,20 @@ bool create_checklist(unsigned int size, const char *title,
     float tmp_text, tmp_suffix;
     for (i = 0; i < size; ++i) {
         tmp_text = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
-        //xcDebug("Xchecklist: text  %s   tmp_text = %f\n", items[i].text, tmp_text);
+
         if (tmp_text > maxw_1) {
             maxw_1 = tmp_text;
         }
         tmp_suffix = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
-        //xcDebug("Xchecklist: suffix  %s   tmp_suffix = %f\n", items[i].suffix, tmp_suffix);
+
         if (tmp_suffix > maxw_2) {
             maxw_2 = tmp_suffix;
         }
     }
-    //xcDebug("Xchecklist: maxw_1 = %f   maxw_2 = %f\n", maxw_1, maxw_2);
-    //xcDebug("Xchecklist: int(maxw_1) = %d  int(maxw_2) = %d\n", int(maxw_1), int(maxw_2));
+
 
     w = int(maxw_1) + int(maxw_2) + 85;// original was 75
-    //xcDebug("Xchecklist: width = %d w = %d\n", width, w);
+
     if (width > w) {
         w = width;
     }
@@ -1152,9 +1153,7 @@ bool create_checklist(unsigned int size, const char *title,
     xcvr_width = w;
     xcvr_height = h;
 
-    //xcDebug("Xchecklist: w = %d\n", w);
     XPLMGetScreenSize(&screen_w, &screen_h);
-    //xcDebug("Xchecklist: screen_w = %d\n", screen_w);
     if (w > screen_w/2) {
         w = screen_w/2;
     }
@@ -1540,4 +1539,3 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
 
     return 1;
 }
-
