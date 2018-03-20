@@ -141,15 +141,18 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
             XPLMDrawString(col_white, l, t - line_number * char_height, scratch_buffer, NULL, xplmFont_Proportional);
         }
 
+
+        // Find out how big to make the buttons so they always fit on the window
+
         // Draw the Previous button
         line_number = line_number + 2;
-        const char * previous_btn_label = "      Previous      ";
+        const char * previous_btn_label = "Previous";
 
         // 0 left, 1 bottom, 2 right, 3 top
         // Position the button in the upper left of the window (sized to fit the button text)
         g_previous_button_lbrt[0] = l;
         g_previous_button_lbrt[3] = t - (line_number * char_height);
-        g_previous_button_lbrt[2] = g_previous_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, previous_btn_label, strlen(previous_btn_label)); // *just* wide enough to fit the button text
+        g_previous_button_lbrt[2] = g_previous_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, previous_btn_label, strlen(previous_btn_label) +5); // *just* wide enough to fit the button text
         g_previous_button_lbrt[1] = g_previous_button_lbrt[3] - (1.25f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
@@ -165,6 +168,7 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
         // Draw the text on the previous button.
         // 0 left, 1 bottom, 2 right, 3 top
+        g_previous_button_lbrt[0] = g_previous_button_lbrt[0] + 15;
         XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 4, (char *)previous_btn_label, NULL, xplmFont_Proportional);
 
 
@@ -172,13 +176,13 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
 
         // Draw the Check Item button
-        const char * check_item_btn_label = "     Check Item     ";
+        const char * check_item_btn_label = "Check Item";
 
         // 0 left, 1 bottom, 2 right, 3 top
         // Position the button in between the previous and next buttons
         g_check_item_button_lbrt[0] = l + (xcvr_width / 3) + 10;
         g_check_item_button_lbrt[3] = t - (line_number * char_height);
-        g_check_item_button_lbrt[2] = g_check_item_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, check_item_btn_label, strlen(check_item_btn_label)); // *just* wide enough to fit the button text
+        g_check_item_button_lbrt[2] = g_check_item_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, check_item_btn_label, strlen(check_item_btn_label) + 3); // *just* wide enough to fit the button text
         g_check_item_button_lbrt[1] = g_check_item_button_lbrt[3] - (1.25f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
@@ -194,16 +198,17 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
         // Draw the text on the check item button.
         // 0 left, 1 bottom, 2 right, 3 top
+        g_check_item_button_lbrt[0] = g_check_item_button_lbrt[0] + 10;
         XPLMDrawString(col_black, g_check_item_button_lbrt[0], g_check_item_button_lbrt[1] + 4, (char *)check_item_btn_label, NULL, xplmFont_Proportional);
 
 
         // Draw the Next button
-        const char * next_btn_label = "        Next        ";
+        const char * next_btn_label = "Next";
 
         // Position the button in the upper left of the window (sized to fit the button text)
         g_next_button_lbrt[0] = l + (2 * (xcvr_width / 3)) + 20;
         g_next_button_lbrt[3] = t - (line_number * char_height);
-        g_next_button_lbrt[2] = g_next_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, next_btn_label, strlen(next_btn_label)); // *just* wide enough to fit the button text
+        g_next_button_lbrt[2] = g_next_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, next_btn_label, strlen(next_btn_label) + 9); // *just* wide enough to fit the button text
         g_next_button_lbrt[1] = g_next_button_lbrt[3] - (1.25f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
@@ -219,6 +224,7 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
         glEnd();
 
         // Draw the text for the next button.
+        g_next_button_lbrt[0] = g_next_button_lbrt[0] + 25;
         XPLMDrawString(col_black, g_next_button_lbrt[0], g_next_button_lbrt[1] + 4, (char *)next_btn_label, NULL, xplmFont_Proportional);
 
 }
