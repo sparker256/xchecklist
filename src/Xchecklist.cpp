@@ -169,6 +169,7 @@ const char * xcvr_text[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "
 int xcvr_right_text_start = 0;
 const char * xcvr_suffix[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
 int xcvr_item_checked[30];
+bool xcvr_g_in_vr = false;
 
 
 static XPLMWindowID	xcvr_g_window;
@@ -192,6 +193,11 @@ int                         VersionXP, VersionSDK;
 XPLMHostApplicationID       HostID;
 
 char scratch_buffer1[150];
+
+void xcvr_create_gui_window();
+
+XPLMWindowPositioningMode PositioningMode = NULL;
+
 
 PLUGIN_API int XPluginStart(
 						char *		outName,
@@ -709,44 +715,58 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
       // so that VR will actually be available.
       if(!xcvr_g_window && inMsg == XPLM_MSG_SCENERY_LOADED)
       {
+          xcvr_create_gui_window();
 
-          // We're not guaranteed that the main monitor's lower left is at (0, 0)...
-          // we'll need to query for the global desktop bounds!
-          int xcvr_global_desktop_bounds[4]; // left, bottom, right, top
-          XPLMGetScreenBoundsGlobal(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
-
-          XPLMCreateWindow_t params;
-          params.structSize = sizeof(params);
-          params.left = xcvr_global_desktop_bounds[0] + 50;
-          params.bottom = xcvr_global_desktop_bounds[1] + 100;
-          params.right = xcvr_global_desktop_bounds[0] + 550;
-          params.top = xcvr_global_desktop_bounds[1] + 800;
-          params.visible = 1;
-          params.drawWindowFunc = xcvr_draw;
-          params.handleMouseClickFunc = xcvr_handle_mouse;
-          params.handleRightClickFunc = xcvr_dummy_mouse_handler;
-          params.handleMouseWheelFunc = xcvr_dummy_wheel_handler;
-          params.handleKeyFunc = xcvr_dummy_key_handler;
-          params.handleCursorFunc = xcvr_dummy_cursor_status_handler;
-          params.refcon = NULL;
-          params.layer = xplm_WindowLayerFloatingWindows;
-          params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
-
-          xcvr_g_window = XPLMCreateWindowEx(&params);
-
-          vr_is_enabled = XPLMGetDatai(g_vr_dref);
-          XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
-          g_in_vr = vr_is_enabled;
-
-          XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 900); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
-
-          XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
 
       }
   }
 
 
 }
+
+
+void xcvr_create_gui_window() {
+
+    if (xcvr_g_window==NULL) {
+        xcDebug("Xchecklist: xcvr_g_window==NULL\n");
+        // We're not guaranteed that the main monitor's lower left is at (0, 0)...
+        // we'll need to query for the global desktop bounds!
+        int xcvr_global_desktop_bounds[4]; // left, bottom, right, top
+        XPLMGetScreenBoundsGlobal(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
+
+        XPLMCreateWindow_t params;
+        params.structSize = sizeof(params);
+        params.left = xcvr_global_desktop_bounds[0] + 50;
+        params.bottom = xcvr_global_desktop_bounds[1] + 100;
+        params.right = xcvr_global_desktop_bounds[0] + 550;
+        params.top = xcvr_global_desktop_bounds[1] + 800;
+        params.visible = 1;
+        params.drawWindowFunc = xcvr_draw;
+        params.handleMouseClickFunc = xcvr_handle_mouse;
+        params.handleRightClickFunc = xcvr_dummy_mouse_handler;
+        params.handleMouseWheelFunc = xcvr_dummy_wheel_handler;
+        params.handleKeyFunc = xcvr_dummy_key_handler;
+        params.handleCursorFunc = xcvr_dummy_cursor_status_handler;
+        params.refcon = NULL;
+        params.layer = xplm_WindowLayerFloatingWindows;
+        params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
+
+        xcvr_g_window = XPLMCreateWindowEx(&params);
+
+        vr_is_enabled = XPLMGetDatai(g_vr_dref);
+        xcDebug("Xchecklist: xcvr_create_gui_window vr_is_enabled = %d\n", vr_is_enabled);
+        XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+        g_in_vr = vr_is_enabled;
+
+        XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 900); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
+
+        XPLMSetWindowTitle(xcvr_g_window, xcvr_title); }
+
+    else XPLMSetWindowIsVisible(xcvr_g_window,1);
+    xcDebug("Xchecklist: xcvr_g_window not == NULL\n");
+
+}
+
 
 // ************************* Aircraft Loaded Deferred Init Callback  *************************
 float xCheckListDeferredInitNewAircraftFLCB(float xCheckListelapsedMe, float xCheckListelapsedSim, int xCheckListcounter, void * xCheckListrefcon)
@@ -832,6 +852,31 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
 
   if(((intptr_t)inMenuRef == 0) && ((intptr_t) inItemRef != 0)){
     if (!strcmp((char *) inItemRef, "checklist")){
+        if (VersionXP > 11200) {
+            xcDebug("Xchecklist: Open Checklist from menu before vr_is_enabled = %d\n", vr_is_enabled);
+            vr_is_enabled = XPLMGetDatai(g_vr_dref);
+            g_in_vr = vr_is_enabled;
+            xcDebug("Xchecklist: Open Checklist from menu after vr_is_enabled = %d\n", vr_is_enabled);
+            xcvr_create_gui_window();
+
+            if (XPLMWindowPositioningMode(PositioningMode) == 5) {
+                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowVR\n");
+            }
+            if (XPLMWindowPositioningMode(PositioningMode) == 0) {
+                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowPositionFree\n");
+                XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowVR, -1);
+            }
+
+
+            if (XPLMWindowPositioningMode(PositioningMode) == 5) {
+                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowVR\n");
+            }
+            if (XPLMWindowPositioningMode(PositioningMode) == 0) {
+                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowPositionFree\n");
+            }
+
+        }
+
       if (xCheckListWidget == NULL){
         create_checklist(pageSize, pageTitle, pageItems, 120, 0, 0);
       }else{

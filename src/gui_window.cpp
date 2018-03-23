@@ -52,12 +52,15 @@ int line_number = 2;
 
 size_t ii;
 
+void				xcvr_draw(XPLMWindowID in_window_id, void * in_refcon);
+int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon);
+
 
 // bounds_lbrt  0 left,  1 bottom,  2 right,  3 top
 static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x - 10) >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
 
 
-void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
+void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 {
 
     XPLMSetGraphicsState(
@@ -75,8 +78,7 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
     XPLMGetFontDimensions(xplmFont_Proportional, NULL, &char_height, NULL);
 
     int l, t, r, b;
-    XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
-
+    XPLMGetWindowGeometry(xcvr_in_window_id, &l, &t, &r, &b);
 
 
         // Draw the main body of the checklist window.
@@ -137,7 +139,7 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
 
         // Display whether we're in front of our our layer
         {
-            sprintf(scratch_buffer, "In front? %s", XPLMIsWindowInFront(in_window_id) ? "Y" : "N");
+            sprintf(scratch_buffer, "In front? %s", XPLMIsWindowInFront(xcvr_in_window_id) ? "Y" : "N");
             XPLMDrawString(col_white, l, t - line_number * char_height, scratch_buffer, NULL, xplmFont_Proportional);
         }
 
@@ -170,10 +172,6 @@ void	xcvr_draw(XPLMWindowID in_window_id, void * in_refcon)
         // 0 left, 1 bottom, 2 right, 3 top
         g_previous_button_lbrt[0] = g_previous_button_lbrt[0] + 15;
         XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 8, (char *)previous_btn_label, NULL, xplmFont_Proportional);
-
-
-
-
 
         // Draw the Check Item button
         const char * check_item_btn_label = "Check Item";

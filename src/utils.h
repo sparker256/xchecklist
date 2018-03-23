@@ -32,10 +32,8 @@ extern int xcvr_right_text_start;
 extern const char * xcvr_suffix[];
 extern int xcvr_item_checked[];
 
-extern int vr_is_enabled;
 
 extern int checkable;
-
 
 #ifdef __cplusplus
 }
