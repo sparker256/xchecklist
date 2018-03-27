@@ -713,19 +713,42 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
 
       // We want to wait to create our window until *after* the first scenery load,
       // so that VR will actually be available.
-      if(!xcvr_g_window && inMsg == XPLM_MSG_SCENERY_LOADED)
+      // if(!xcvr_g_window && inMsg == XPLM_MSG_SCENERY_LOADED)
+
+      if(inMsg == XPLM_MSG_SCENERY_LOADED)
       {
-          xcvr_create_gui_window();
+          xcDebug("Xchecklist: inMsg == XPLM_MSG_SCENERY_LOADED\n");
+          if (findChecklist()) {
+              xcDebug("Xchecklist: if (findChecklist()\n");
+              vr_is_enabled = XPLMGetDatai(g_vr_dref);
+              xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
+              xcvr_create_gui_window();
+          }
+      }
 
+      if(inMsg == XPLM_MSG_WILL_WRITE_PREFS)
+      {
+            xcDebug("Xchecklist: inMsg == XPLM_MSG_WILL_WRITE_PREFS\n");
+            if (findChecklist()) {
+                xcDebug("Xchecklist: if (findChecklist()\n");
+                vr_is_enabled = XPLMGetDatai(g_vr_dref);
+                xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
+                if (XPLMWindowPositioningMode(PositioningMode) == 0) {
+                    xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
+                    xcvr_create_gui_window();
+                }
 
+            }
       }
   }
-
 
 }
 
 
 void xcvr_create_gui_window() {
+
+    vr_is_enabled = XPLMGetDatai(g_vr_dref);
+    xcDebug("Xchecklist:In xcvr_create_gui_window() function vr_is_enabled = %d\n", vr_is_enabled);
 
     if (xcvr_g_window==NULL) {
         xcDebug("Xchecklist: xcvr_g_window==NULL\n");
@@ -753,7 +776,7 @@ void xcvr_create_gui_window() {
 
         xcvr_g_window = XPLMCreateWindowEx(&params);
 
-        vr_is_enabled = XPLMGetDatai(g_vr_dref);
+        // vr_is_enabled = XPLMGetDatai(g_vr_dref);
         xcDebug("Xchecklist: xcvr_create_gui_window vr_is_enabled = %d\n", vr_is_enabled);
         XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
         g_in_vr = vr_is_enabled;
@@ -764,6 +787,17 @@ void xcvr_create_gui_window() {
 
     else XPLMSetWindowIsVisible(xcvr_g_window,1);
     xcDebug("Xchecklist: xcvr_g_window not == NULL\n");
+    if (vr_is_enabled) {
+        if (XPLMWindowPositioningMode(PositioningMode) == 0) {
+            xcDebug("Xchecklist: xcvr_create_gui_window XPLMWindowPositioningMode == xplm_WindowPositionFree\n");
+
+            XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+            g_in_vr = vr_is_enabled;
+
+            xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
+        }
+    }
+
 
 }
 
@@ -852,29 +886,10 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
 
   if(((intptr_t)inMenuRef == 0) && ((intptr_t) inItemRef != 0)){
     if (!strcmp((char *) inItemRef, "checklist")){
-        if (VersionXP > 11200) {
-            xcDebug("Xchecklist: Open Checklist from menu before vr_is_enabled = %d\n", vr_is_enabled);
-            vr_is_enabled = XPLMGetDatai(g_vr_dref);
-            g_in_vr = vr_is_enabled;
-            xcDebug("Xchecklist: Open Checklist from menu after vr_is_enabled = %d\n", vr_is_enabled);
+        if ((VersionXP > 11200) && findChecklist()) {
+            xcDebug("Xchecklist: Open Checklist && VersionXP > 11200 && (findChecklist()\n");
+            xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
             xcvr_create_gui_window();
-
-            if (XPLMWindowPositioningMode(PositioningMode) == 5) {
-                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowVR\n");
-            }
-            if (XPLMWindowPositioningMode(PositioningMode) == 0) {
-                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowPositionFree\n");
-                XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowVR, -1);
-            }
-
-
-            if (XPLMWindowPositioningMode(PositioningMode) == 5) {
-                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowVR\n");
-            }
-            if (XPLMWindowPositioningMode(PositioningMode) == 0) {
-                xcDebug("Xchecklist: XPLMWindowPositioningMode == xplm_WindowPositionFree\n");
-            }
-
         }
 
       if (xCheckListWidget == NULL){

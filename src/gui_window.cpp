@@ -155,7 +155,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         g_previous_button_lbrt[0] = l;
         g_previous_button_lbrt[3] = t - (line_number * char_height);
         g_previous_button_lbrt[2] = g_previous_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, previous_btn_label, strlen(previous_btn_label) +5); // *just* wide enough to fit the button text
-        g_previous_button_lbrt[1] = g_previous_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
+        g_previous_button_lbrt[1] = g_previous_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
         glColor4fv(green);
@@ -171,7 +171,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         // Draw the text on the previous button.
         // 0 left, 1 bottom, 2 right, 3 top
         g_previous_button_lbrt[0] = g_previous_button_lbrt[0] + 15;
-        XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 8, (char *)previous_btn_label, NULL, xplmFont_Proportional);
+        XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 12, (char *)previous_btn_label, NULL, xplmFont_Proportional);
 
         // Draw the Check Item button
         const char * check_item_btn_label = "Check Item";
@@ -181,7 +181,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         g_check_item_button_lbrt[0] = l + (xcvr_width / 3) + 10;
         g_check_item_button_lbrt[3] = t - (line_number * char_height);
         g_check_item_button_lbrt[2] = g_check_item_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, check_item_btn_label, strlen(check_item_btn_label) + 3); // *just* wide enough to fit the button text
-        g_check_item_button_lbrt[1] = g_check_item_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
+        g_check_item_button_lbrt[1] = g_check_item_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
         glColor4fv(green);
@@ -197,7 +197,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         // Draw the text on the check item button.
         // 0 left, 1 bottom, 2 right, 3 top
         g_check_item_button_lbrt[0] = g_check_item_button_lbrt[0] + 10;
-        XPLMDrawString(col_black, g_check_item_button_lbrt[0], g_check_item_button_lbrt[1] + 8, (char *)check_item_btn_label, NULL, xplmFont_Proportional);
+        XPLMDrawString(col_black, g_check_item_button_lbrt[0], g_check_item_button_lbrt[1] + 12, (char *)check_item_btn_label, NULL, xplmFont_Proportional);
 
 
         // Draw the Next button
@@ -207,7 +207,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         g_next_button_lbrt[0] = l + (2 * (xcvr_width / 3)) + 20;
         g_next_button_lbrt[3] = t - (line_number * char_height);
         g_next_button_lbrt[2] = g_next_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, next_btn_label, strlen(next_btn_label) + 9); // *just* wide enough to fit the button text
-        g_next_button_lbrt[1] = g_next_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
+        g_next_button_lbrt[1] = g_next_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
 
         // Draw the box around our rudimentary button
         //float green2[] = {0.0, 1.0, 0.0, 1.0};
@@ -223,7 +223,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
         // Draw the text for the next button.
         g_next_button_lbrt[0] = g_next_button_lbrt[0] + 25;
-        XPLMDrawString(col_black, g_next_button_lbrt[0], g_next_button_lbrt[1] + 8, (char *)next_btn_label, NULL, xplmFont_Proportional);
+        XPLMDrawString(col_black, g_next_button_lbrt[0], g_next_button_lbrt[1] + 12, (char *)next_btn_label, NULL, xplmFont_Proportional);
 
 }
 
