@@ -174,6 +174,8 @@ bool xcvr_g_in_vr = false;
 
 static XPLMWindowID	xcvr_g_window;
 
+static XPLMWindowID	setup_window;
+
 void				xcvr_draw(XPLMWindowID in_window_id, void * in_refcon);
 int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon);
 
@@ -233,6 +235,8 @@ PLUGIN_API int XPluginStart(
 
         sprintf(scratch_buffer1, "Xchecklist: VersionXP = %d  VersionSDK = %d\n", VersionXP, VersionSDK);
         XPLMDebugString(scratch_buffer1);
+
+        XPLMEnableFeature("XPLM_USE_NATIVE_WIDGET_WINDOWS", 1);
 
 // Create our menu
         PluginSubMenuItem = XPLMAppendMenuItem(
@@ -807,8 +811,6 @@ void xcvr_create_gui_window() {
             xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
         }
     }
-
-
 }
 
 
@@ -914,7 +916,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
         CreateSetupWidget(400, 550, 215, 200);	//left, top, right, bottom.
       }else{
         if(!XPIsWidgetVisible(setupWidget))
-          XPShowWidget(setupWidget);
+            XPShowWidget(setupWidget);
       }
     }
     if (!strcmp((char *) inItemRef, "reload")){
@@ -1012,7 +1014,10 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
 
         // Register our setup widget handler
         XPAddWidgetCallback(setupWidget, xSetupHandler);
-
+        setup_window = XPGetWidgetUnderlyingWindow(setupWidget);
+        XPLMSetWindowIsVisible(setup_window, 1);
+        vr_is_enabled = XPLMGetDatai(g_vr_dref);
+        XPLMSetWindowPositioningMode(setup_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
 
 }
 
