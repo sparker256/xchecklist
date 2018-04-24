@@ -34,6 +34,7 @@ extern int xcvr_item_checked[];
 
 extern int checkable;
 
+extern int mouse_down_hide;
 extern int mouse_down_previous;
 extern int mouse_down_check_item;
 extern int mouse_down_next;

@@ -187,6 +187,7 @@ void				xcvr_dummy_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags
 XPLMDataRef g_vr_dref;
 static bool g_in_vr = false;
 
+int mouse_down_hide = 0;
 int mouse_down_previous = 0;
 int mouse_down_check_item = 0;
 int mouse_down_next = 0;
@@ -901,6 +902,10 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
         if ((VersionXP > 11200) && findChecklist()) {
             xcDebug("Xchecklist: Open Checklist && VersionXP > 11200 && (findChecklist()\n");
             xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
+            mouse_down_hide = 0;
+            mouse_down_previous = 0;
+            mouse_down_check_item = 0;
+            mouse_down_next = 0;
             xcvr_create_gui_window();
         }
 

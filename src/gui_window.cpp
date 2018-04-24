@@ -26,6 +26,7 @@
 #include "interface.h"
 
 static float g_check_box_lbrt[25][4]; // left, bottom, right, top
+static float g_hide_button_lbrt[4]; // left, bottom, right, top
 static float g_previous_button_lbrt[4]; // left, bottom, right, top
 static float g_next_button_lbrt[4]; // left, bottom, right, top
 static float g_check_item_button_lbrt[4]; // left, bottom, right, top
@@ -152,8 +153,42 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
         // Find out how big to make the buttons so they always fit on the window
 
+
+        // Draw the Hide button
+        line_number = line_number;
+        const char * hide_btn_label = "Hide";
+
+        // 0 left, 1 bottom, 2 right, 3 top
+        // Position the button in the upper left of the window (sized to fit the button text)
+        g_hide_button_lbrt[0] = l + (xcvr_width / 3) + 10;
+        g_hide_button_lbrt[3] = t - (line_number * char_height);
+        g_hide_button_lbrt[2] = g_hide_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, hide_btn_label, strlen(hide_btn_label) + 9); // *just* wide enough to fit the button text
+        g_hide_button_lbrt[1] = g_hide_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
+
+        // Draw the box around our rudimentary button
+        if (mouse_down_hide) {
+            glColor4fv(light_green);
+        }
+        else {
+           glColor4fv(pail_green);
+        }
+        glBegin(GL_POLYGON);
+        {
+            glVertex2i(g_hide_button_lbrt[0], g_hide_button_lbrt[3]);
+            glVertex2i(g_hide_button_lbrt[2], g_hide_button_lbrt[3]);
+            glVertex2i(g_hide_button_lbrt[2], g_hide_button_lbrt[1]);
+            glVertex2i(g_hide_button_lbrt[0], g_hide_button_lbrt[1]);
+        }
+        glEnd();
+
+        // Draw the text on the previous button.
+        // 0 left, 1 bottom, 2 right, 3 top
+        g_hide_button_lbrt[0] = g_hide_button_lbrt[0] + 25;
+        XPLMDrawString(col_black, g_hide_button_lbrt[0], g_hide_button_lbrt[1] + 8, (char *)hide_btn_label, NULL, xplmFont_Proportional);
+
+
         // Draw the Previous button
-        line_number = line_number + 2;
+        line_number = line_number + 3;
         const char * previous_btn_label = "Previous";
 
         // 0 left, 1 bottom, 2 right, 3 top
@@ -183,6 +218,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         // 0 left, 1 bottom, 2 right, 3 top
         g_previous_button_lbrt[0] = g_previous_button_lbrt[0] + 15;
         XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 12, (char *)previous_btn_label, NULL, xplmFont_Proportional);
+
 
         // Draw the Check Item button
         const char * check_item_btn_label = "Check Item";
@@ -270,6 +306,13 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
                 }
             }
 
+            else if (coord_in_rect(xcvr_x, xcvr_y, g_hide_button_lbrt))
+            {
+                mouse_down_hide = 1;
+                sprintf(scratch_buffer, "Hide button has been clicked\n");
+                XPLMDebugString(scratch_buffer);
+                XPLMSetWindowIsVisible(xcvr_in_window_id, 0);
+            }
 
             else if (coord_in_rect(xcvr_x, xcvr_y, g_previous_button_lbrt))
             {
@@ -311,6 +354,7 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
 
     if(xcvr_mouse_status == xplm_MouseUp)
     {
+        mouse_down_hide = 0;
         mouse_down_previous = 0;
         mouse_down_check_item = 0;
         mouse_down_next = 0;
