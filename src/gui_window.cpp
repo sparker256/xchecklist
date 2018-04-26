@@ -45,12 +45,21 @@ float white[] = {1.0, 1.0, 1.0, 1.0};
 
 float pail_green[] = {0.282, 0.45, 0.25, 1.0};
 float light_green[] = {0.43, 0.58, 0.309, 1.0};
+float widget_green[] = {0.5019, 1.0, 0.0, 1.0};
+
 float gost_white[] = {0.9725, 0.9725, 1.0, 1.0};
+
+float gainsboro[] = {0.8627, 0.8627, 0.8627, 1.0};
+float light_grey[] = {0.8274, 0.8274, 0.8274, 1.0};
+
+
 float cyan[] = {0.0, 1.0, 1.0, 1.0};
 
 char * copilot_on = "+";
 char * checkmark_off = "    ";
 char * checkmark_on = " X ";
+// char * checkmark_on = " \u2714\ ";
+
 
 int checked [25];
 
@@ -111,7 +120,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
                 g_check_box_lbrt[ii][1] = g_check_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
 
                 // Draw the box around our rudimentary button
-                glColor4fv(pail_green);
+                glColor4fv(light_grey);
                 glBegin(GL_POLYGON);
                 {
                     glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3]);
@@ -123,7 +132,17 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                 if (xcvr_item_checked[ii])
                 {
-                   XPLMDrawString(col_black, g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1] + 4, (char *)checkmark_on, NULL, xplmFont_Proportional);
+                    glColor4fv(widget_green);
+                    glBegin(GL_POLYGON);
+                    {
+                        glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3]);
+                        glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][3]);
+                        glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][1]);
+                        glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1]);
+                    }
+                    glEnd();
+
+                    XPLMDrawString(col_black, g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1] + 4, (char *)checkmark_on, NULL, xplmFont_Proportional);
                 }
                 else
                 {
@@ -132,7 +151,6 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                 // Draw the checkmard on the checkmark box.
                 // XPLMDrawString(col_black, g_check_box_lbrt[i][0], g_check_box_lbrt[i][1] + 4, (char *)Checkmark[i], NULL, xplmFont_Proportional);
-
             }
 
             // Draw text for what to be checked.
