@@ -71,7 +71,7 @@ int Item;
 //char FileName[256], AircraftPath[512];
 //char prefsPath[512];
 
-enum {NEXT_CHECKLIST_COMMAND, PREV_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, HIDE_CHECKLIST_COMMAND, RELOAD_CHECKLIST_COMMAND};
+enum {NEXT_CHECKLIST_COMMAND, PREV_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, TOGGLE_CHECKLIST_COMMAND, RELOAD_CHECKLIST_COMMAND};
 
 int MyCommandCallback(
                                    XPLMCommandRef       inCommand,
@@ -112,7 +112,7 @@ XPLMCommandRef nextchecklist = NULL;
 XPLMCommandRef cmdcheckitem;
 XPLMCommandRef cmdnextchecklist;
 XPLMCommandRef cmdprevchecklist;
-XPLMCommandRef cmdhidechecklist;
+XPLMCommandRef cmdtogglechecklist;
 XPLMCommandRef cmdreloadchecklist;
 
 static XPLMDataRef              ext_view = NULL;
@@ -301,7 +301,7 @@ PLUGIN_API int XPluginStart(
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
         cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
-        cmdhidechecklist = XPLMCreateCommand("bgood/xchecklist/hide_checklist","Hide Checklist");
+        cmdtogglechecklist = XPLMCreateCommand("bgood/xchecklist/toggle_checklist","Hide Checklist");
         cmdreloadchecklist = XPLMCreateCommand("bgood/xchecklist/reload_checklist","Reload Checklist");
 
         XPLMRegisterCommandHandler(
@@ -323,10 +323,10 @@ PLUGIN_API int XPluginStart(
                     (void *)PREV_CHECKLIST_COMMAND);
 
         XPLMRegisterCommandHandler(
-                    cmdhidechecklist,
+                    cmdtogglechecklist,
                     MyCommandCallback,
                     true,
-                    (void *)HIDE_CHECKLIST_COMMAND);
+                    (void *)TOGGLE_CHECKLIST_COMMAND);
 
         XPLMRegisterCommandHandler(
                     cmdreloadchecklist,
@@ -733,6 +733,9 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
               vr_is_enabled = XPLMGetDatai(g_vr_dref);
               xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
               xcvr_create_gui_window();
+              // if (vr_is_enabled) {
+              //    XPLMSetWindowIsVisible(xcvr_g_window,0);
+              // }
           }
       }
 
@@ -746,8 +749,10 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
                 if (XPLMWindowPositioningMode(PositioningMode) == 0) {
                     xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
                     xcvr_create_gui_window();
+                    // if (vr_is_enabled) {
+                    //    XPLMSetWindowIsVisible(xcvr_g_window,0);
+                    // }
                 }
-
             }
       }
   }
@@ -1240,6 +1245,7 @@ bool create_checklist(unsigned int size, const char *title,
     bottom = top - xcvr_height;
 
     XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+    XPLMBringWindowToFront(xcvr_g_window);
 
     XPLMGetScreenSize(&screen_w, &screen_h);
     if (w > screen_w/2) {
@@ -1619,11 +1625,21 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                 XPShowWidget(xCheckListWidget);
             }
             break;
-        case HIDE_CHECKLIST_COMMAND:
-            XPHideWidget(xCheckListWidget);
+        case TOGGLE_CHECKLIST_COMMAND:
+            if (XPIsWidgetVisible(xCheckListWidget)) {
+                XPHideWidget(xCheckListWidget);
+            }
+            else {
+                XPShowWidget(xCheckListWidget);
+            }
+            if (XPLMGetWindowIsVisible(xcvr_g_window)) {
+                XPLMSetWindowIsVisible(xcvr_g_window,0);
+            }
+            else {
+                XPLMSetWindowIsVisible(xcvr_g_window,1);
+            }
             break;
         }
     }
-
     return 1;
 }
