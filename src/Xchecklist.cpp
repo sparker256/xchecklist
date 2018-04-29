@@ -301,7 +301,7 @@ PLUGIN_API int XPluginStart(
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
         cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
-        cmdtogglechecklist = XPLMCreateCommand("bgood/xchecklist/toggle_checklist","Hide Checklist");
+        cmdtogglechecklist = XPLMCreateCommand("bgood/xchecklist/toggle_checklist","Toggle Checklist");
         cmdreloadchecklist = XPLMCreateCommand("bgood/xchecklist/reload_checklist","Reload Checklist");
 
         XPLMRegisterCommandHandler(
