@@ -26,7 +26,13 @@
 #include "interface.h"
 
 static float g_check_box_lbrt[25][4]; // left, bottom, right, top
+static float g_copilot_box_lbrt[25][4]; // left, bottom, right, top
+static float g_text_box_lbrt[25][4]; // left, bottom, right, top
+static float g_suffix_box_lbrt[25][4]; // left, bottom, right, top
+
+
 static float g_hide_button_lbrt[4]; // left, bottom, right, top
+static float g_in_front_button_lbrt[4]; // left, bottom, right, top
 static float g_previous_button_lbrt[4]; // left, bottom, right, top
 static float g_next_button_lbrt[4]; // left, bottom, right, top
 static float g_check_item_button_lbrt[4]; // left, bottom, right, top
@@ -45,6 +51,8 @@ float white[] = {1.0, 1.0, 1.0, 1.0};
 
 float pail_green[] = {0.282, 0.45, 0.25, 1.0};
 float light_green[] = {0.43, 0.58, 0.309, 1.0};
+float light_green_50[] = {0.43, 0.58, 0.309, 0.5};
+float light_green_60[] = {0.43, 0.58, 0.309, 0.6};
 float widget_green[] = {0.5019, 1.0, 0.0, 1.0};
 
 float gost_white[] = {0.9725, 0.9725, 1.0, 1.0};
@@ -96,17 +104,35 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
     int l, t, r, b;
     XPLMGetWindowGeometry(xcvr_in_window_id, &l, &t, &r, &b);
 
-
         // Draw the main body of the checklist window.
 
-
         line_number = 1;
-
 
         for (ii = 0; ii < xcvr_size; ++ii) {
 
             // If we have a copilot draw the copilot symbol
             if (xcvr_copilot_controlled[ii]) {
+                if (vr_is_enabled) {
+                    // Draw text for what to be checked.
+                    g_copilot_box_lbrt[ii][0] = l;
+                    g_copilot_box_lbrt[ii][3] = t - (line_number * char_height) + 10;
+                    g_copilot_box_lbrt[ii][2] = g_copilot_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, copilot_on, strlen(copilot_on)); // *just* wide enough to fit the button text
+                    g_copilot_box_lbrt[ii][1] = g_copilot_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
+
+
+                    // Draw the box around our rudimentary button
+                    glColor4fv(light_green_60);
+                    glBegin(GL_POLYGON);
+                    {
+                        glVertex2i(g_copilot_box_lbrt[ii][0], g_copilot_box_lbrt[ii][3]);
+                        glVertex2i(g_copilot_box_lbrt[ii][2], g_copilot_box_lbrt[ii][3]);
+                        glVertex2i(g_copilot_box_lbrt[ii][2], g_copilot_box_lbrt[ii][1]);
+                        glVertex2i(g_copilot_box_lbrt[ii][0], g_copilot_box_lbrt[ii][1]);
+                    }
+                    glEnd();
+
+                }
+
                 XPLMDrawString(col_cyan, l, t - (line_number * char_height), copilot_on, NULL, xplmFont_Proportional);
             }
 
@@ -153,21 +179,53 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
                 // XPLMDrawString(col_black, g_check_box_lbrt[i][0], g_check_box_lbrt[i][1] + 4, (char *)Checkmark[i], NULL, xplmFont_Proportional);
             }
 
-            // Draw text for what to be checked.
+            if (vr_is_enabled) {
+                // Draw text for what to be checked.
+                g_text_box_lbrt[ii][0] = l + 40;
+                g_text_box_lbrt[ii][3] = t - (line_number * char_height) + 10;
+                g_text_box_lbrt[ii][2] = g_text_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_text[ii], strlen(xcvr_text[ii])); // *just* wide enough to fit the button text
+                g_text_box_lbrt[ii][1] = g_text_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
+
+
+                // Draw the box around our rudimentary button
+                glColor4fv(light_green_60);
+                glBegin(GL_POLYGON);
+                {
+                    glVertex2i(g_text_box_lbrt[ii][0], g_text_box_lbrt[ii][3]);
+                    glVertex2i(g_text_box_lbrt[ii][2], g_text_box_lbrt[ii][3]);
+                    glVertex2i(g_text_box_lbrt[ii][2], g_text_box_lbrt[ii][1]);
+                    glVertex2i(g_text_box_lbrt[ii][0], g_text_box_lbrt[ii][1]);
+                }
+                glEnd();
+
+            }
+
             XPLMDrawString(col_cyan, l + 40, t - line_number * char_height, (char *)xcvr_text[ii], NULL, xplmFont_Proportional);
 
-            // Draw text for the result to be checked
+            if (vr_is_enabled) {
+                // Draw text for the result to be checked
+                g_suffix_box_lbrt[ii][0] = l + xcvr_right_text_start;
+                g_suffix_box_lbrt[ii][3] = t - (line_number * char_height) + 10;
+                g_suffix_box_lbrt[ii][2] = g_suffix_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_suffix[ii], strlen(xcvr_suffix[ii])); // *just* wide enough to fit the button text
+                g_suffix_box_lbrt[ii][1] = g_suffix_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
+
+
+                // Draw the box around our rudimentary button
+                glColor4fv(light_green_60);
+                glBegin(GL_POLYGON);
+                {
+                    glVertex2i(g_suffix_box_lbrt[ii][0], g_suffix_box_lbrt[ii][3]);
+                    glVertex2i(g_suffix_box_lbrt[ii][2], g_suffix_box_lbrt[ii][3]);
+                    glVertex2i(g_suffix_box_lbrt[ii][2], g_suffix_box_lbrt[ii][1]);
+                    glVertex2i(g_suffix_box_lbrt[ii][0], g_suffix_box_lbrt[ii][1]);
+                }
+                glEnd();
+            }
+
             XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_suffix[ii], NULL, xplmFont_Proportional);
 
             line_number = line_number + 2;
         }
-
-        // Display whether we're in front of our our layer
-        // {
-        //     sprintf(scratch_buffer, "In front? %s", XPLMIsWindowInFront(xcvr_in_window_id) ? "Y" : "N");
-        //     XPLMDrawString(col_white, l, t - line_number * char_height, scratch_buffer, NULL, xplmFont_Proportional);
-        // }
-
 
         // Find out how big to make the buttons so they always fit on the window
 
@@ -201,8 +259,45 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
         // Draw the text on the previous button.
         // 0 left, 1 bottom, 2 right, 3 top
-        g_hide_button_lbrt[0] = g_hide_button_lbrt[0] + 25;
+        g_hide_button_lbrt[0] = g_hide_button_lbrt[0] + 20;
         XPLMDrawString(col_black, g_hide_button_lbrt[0], g_hide_button_lbrt[1] + 8, (char *)hide_btn_label, NULL, xplmFont_Proportional);
+
+
+        // Draw the In Front box
+        line_number = line_number;
+        const char * in_front_btn_label = "In Front";
+        int in_front = XPLMIsWindowInFront(xcvr_in_window_id);
+
+        // 0 left, 1 bottom, 2 right, 3 top
+        // Position the button in the upper left of the window (sized to fit the button text)
+        g_in_front_button_lbrt[0] = l + (2 * (xcvr_width / 3)) + 20;
+        g_in_front_button_lbrt[3] = t - (line_number * char_height);
+        g_in_front_button_lbrt[2] = g_in_front_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, in_front_btn_label, strlen(in_front_btn_label) + 5); // *just* wide enough to fit the button text
+        g_in_front_button_lbrt[1] = g_in_front_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
+
+        // Draw the box around our rudimentary button
+        if (in_front) {
+            glColor4fv(light_green);
+        }
+        else {
+           glColor4fv(pail_green);
+        }
+        glBegin(GL_POLYGON);
+        {
+            glVertex2i(g_in_front_button_lbrt[0], g_in_front_button_lbrt[3]);
+            glVertex2i(g_in_front_button_lbrt[2], g_in_front_button_lbrt[3]);
+            glVertex2i(g_in_front_button_lbrt[2], g_in_front_button_lbrt[1]);
+            glVertex2i(g_in_front_button_lbrt[0], g_in_front_button_lbrt[1]);
+        }
+        glEnd();
+
+        // Draw the text on the previous button.
+        // 0 left, 1 bottom, 2 right, 3 top
+        g_in_front_button_lbrt[0] = g_in_front_button_lbrt[0] + 10;
+        XPLMDrawString(col_black, g_in_front_button_lbrt[0], g_in_front_button_lbrt[1] + 8, (char *)in_front_btn_label, NULL, xplmFont_Proportional);
+
+
+
 
 
         // Draw the Previous button
@@ -314,7 +409,6 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
         }
         else
         {
-
             if (coord_in_rect(xcvr_x, xcvr_y, g_check_item_button_lbrt)) {
                 mouse_down_check_item = 1;
                 sprintf(scratch_buffer, "Check Item button has been clicked\n");

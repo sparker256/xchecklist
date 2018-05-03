@@ -39,6 +39,9 @@ extern int mouse_down_previous;
 extern int mouse_down_check_item;
 extern int mouse_down_next;
 
+extern int vr_is_enabled;
+
+
 #ifdef __cplusplus
 }
 
@@ -46,10 +49,6 @@ extern int mouse_down_next;
 #include <map>
 void xcLoadDictionaries(std::map<std::string, std::string> &dict);
 
-
 #endif
-
-
-
 
 #endif

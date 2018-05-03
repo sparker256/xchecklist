@@ -9,7 +9,7 @@
 //     Also use speach to prompt user
 //
 //     Supporting X-Plane 10.51r2 32/64bit
-//     X-Plane 11.05r2+
+//     X-Plane 11.20r3+
 //     Also suporting X-Plane 9.70
 //
 // *********************************************************
@@ -154,7 +154,6 @@ bool state[SETUP_TEXT_ITEMS];
 
 bool init_done = false;
 
-
 // Start of VR
 
 // Variables to be passed to VR window
@@ -170,7 +169,6 @@ int xcvr_right_text_start = 0;
 const char * xcvr_suffix[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
 int xcvr_item_checked[30];
 bool xcvr_g_in_vr = false;
-
 
 static XPLMWindowID	xcvr_g_window;
 
@@ -192,7 +190,6 @@ int mouse_down_previous = 0;
 int mouse_down_check_item = 0;
 int mouse_down_next = 0;
 
-
 static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return ((x >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
 
 int vr_is_enabled = 0;
@@ -204,8 +201,9 @@ char scratch_buffer1[150];
 
 void xcvr_create_gui_window();
 
+#if XPLM301
 XPLMWindowPositioningMode PositioningMode = NULL;
-
+#endif
 
 PLUGIN_API int XPluginStart(
 						char *		outName,
@@ -340,7 +338,6 @@ PLUGIN_API int XPluginStart(
         // we won't be able to move the window to VR anyway,
         // so go ahead an disable us!
         return (g_vr_dref != NULL), 1;
-
 }
 
 PLUGIN_API void	XPluginStop(void)
@@ -739,6 +736,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
           }
       }
 
+      #if XPLM301
       if(inMsg == XPLM_MSG_WILL_WRITE_PREFS)
       {
             xcDebug("Xchecklist: inMsg == XPLM_MSG_WILL_WRITE_PREFS\n");
@@ -755,6 +753,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
                 }
             }
       }
+      #endif
+
   }
 
 }
@@ -765,6 +765,7 @@ void xcvr_create_gui_window() {
     vr_is_enabled = XPLMGetDatai(g_vr_dref);
     xcDebug("Xchecklist:In xcvr_create_gui_window() function vr_is_enabled = %d\n", vr_is_enabled);
 
+    #if XPLM301
     if (xcvr_g_window==NULL) {
         xcDebug("Xchecklist: xcvr_g_window==NULL\n");
         // We're not guaranteed that the main monitor's lower left is at (0, 0)...
@@ -788,10 +789,10 @@ void xcvr_create_gui_window() {
         params.refcon = NULL;
         params.layer = xplm_WindowLayerFloatingWindows;
         if (vr_is_enabled) {
-            params.decorateAsFloatingWindow = 2;
+            params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecorated;
         }
         else {
-           params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
+            params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
         }
 
         xcvr_g_window = XPLMCreateWindowEx(&params);
@@ -817,6 +818,8 @@ void xcvr_create_gui_window() {
             xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
         }
     }
+    #endif
+
 }
 
 
@@ -954,12 +957,10 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
 // This will create our setup widget dialog.
 void CreateSetupWidget(int xx, int yy, int ww, int hh)
 {
-
         int xx2 = xx + ww;
         int yy2 = yy - hh;
 
         int yOffset;
-
 
 // Create the Setup Widget window.
         setupWidget = XPCreateWidget(xx, yy, xx2, yy2,
@@ -968,7 +969,6 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
                       1,			  // root
                       NULL,			  // no container
                       xpWidgetClass_MainWindow);
-
 
 // Add Close Box to the Setup Widget.  Other options are available.  See the SDK Documentation.
         XPSetWidgetProperty(setupWidget, xpProperty_MainWindowHasCloseBoxes, 1);
@@ -1021,14 +1021,18 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
 
         XPSetWidgetProperty(setupSaveSettingsButton, xpProperty_ButtonType, xpPushButton);
 
-
         // Register our setup widget handler
         XPAddWidgetCallback(setupWidget, xSetupHandler);
+        #if XPLM301
         setup_window = XPGetWidgetUnderlyingWindow(setupWidget);
+        #endif
+
         XPLMSetWindowIsVisible(setup_window, 1);
         vr_is_enabled = XPLMGetDatai(g_vr_dref);
-        XPLMSetWindowPositioningMode(setup_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
 
+        #if XPLM301
+        XPLMSetWindowPositioningMode(setup_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+        #endif
 }
 
 bool set_sound(bool enable)
@@ -1060,9 +1064,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                 {
                       XPHideWidget(setupWidget);
                       return 1;
-
                 }
-
         }
 
         if (inMessage == xpMsg_ButtonStateChanged)
@@ -1083,31 +1085,28 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                 set_sound(state[VOICE]);
                 voice_state = (state[VOICE]);
 
-                if(state[TRANSLUCENT]){
+                if(state[TRANSLUCENT]) {
+                    XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
 
-                  XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
+                    for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii) {
+                        XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 1);
+                        XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 1);
+                        XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 1);
+                    }
 
-		  for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii){
-                    XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 1);
-                    XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 1);
-                    XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 1);
-		  }
+                    //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 1);
 
-                  //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 1);
+                } else {
+                    XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_MainWindow);
 
+                    for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii) {
+                        XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 0);
+                        XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 0);
+                        XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 0);
+                    }
 
-	        }else{
-                  XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_MainWindow);
-
-		  for(size_t iii = 0; iii < xCheckListCopilotWidget.size(); ++iii){
-                    XPSetWidgetProperty(xCheckListCopilotWidget[iii], xpProperty_CaptionLit, 0);
-                    XPSetWidgetProperty(xCheckListTextWidget[iii], xpProperty_CaptionLit, 0);
-                    XPSetWidgetProperty(xCheckListTextAWidget[iii], xpProperty_CaptionLit, 0);
-		  }
-
-                  //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 0);
-
-		}
+                    //XPSetWidgetProperty(xCheckListCopilotInfoWidget, xpProperty_CaptionLit, 0);
+                }
         }
 
         if (inMessage == xpMsg_PushButtonPressed)
@@ -1127,7 +1126,6 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                     XPHideWidget(setupWidget);
                 }
         }
-
 
 	return 0;
 }
@@ -1179,9 +1177,12 @@ bool create_checklist(unsigned int size, const char *title,
     int x2, y2;
     int screen_w, screen_h;
 
-    xcvr_title = title;
-    XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
-
+    if (VersionXP > 11200) {
+        xcvr_title = title;
+        #if XPLM301
+        XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
+        #endif
+    }
 
     h = (5+18+(size*20)) + 50;
 
@@ -1237,15 +1238,20 @@ bool create_checklist(unsigned int size, const char *title,
 
     xcvr_width = w;
     xcvr_height = h;
-
     int left, top, right, bottom;
-    XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
 
-    right = left + xcvr_width;
-    bottom = top - xcvr_height;
+    if (VersionXP > 11200) {
+        XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
 
-    XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
-    XPLMBringWindowToFront(xcvr_g_window);
+        right = left + xcvr_width;
+        bottom = top - xcvr_height;
+
+        XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+        mouse_down_hide = 0;
+        mouse_down_previous = 0;
+        mouse_down_check_item = 0;
+        mouse_down_next = 0;
+    }
 
     XPLMGetScreenSize(&screen_w, &screen_h);
     if (w > screen_w/2) {
@@ -1391,6 +1397,15 @@ bool create_checklist(unsigned int size, const char *title,
 
       }
 */
+     if (VersionXP > 11200) {
+         XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+         mouse_down_hide = 0;
+         mouse_down_previous = 0;
+         mouse_down_check_item = 0;
+         mouse_down_next = 0;
+         XPLMBringWindowToFront(xcvr_g_window);
+     }
+
      int bw = w / 2 - 10;
      xChecklistPreviousButton = XPCreateWidget(WindowCentre-bw, y2+40, WindowCentre-5, y2+10,
                                 1,
@@ -1632,11 +1647,13 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             else {
                 XPShowWidget(xCheckListWidget);
             }
-            if (XPLMGetWindowIsVisible(xcvr_g_window)) {
-                XPLMSetWindowIsVisible(xcvr_g_window,0);
-            }
-            else {
-                XPLMSetWindowIsVisible(xcvr_g_window,1);
+            if (VersionXP > 11200) {
+                if (XPLMGetWindowIsVisible(xcvr_g_window)) {
+                    XPLMSetWindowIsVisible(xcvr_g_window,0);
+                }
+                else {
+                    XPLMSetWindowIsVisible(xcvr_g_window,1);
+                }
             }
             break;
         }
