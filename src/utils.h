@@ -41,6 +41,7 @@ extern int mouse_down_next;
 
 extern int vr_is_enabled;
 
+extern void put_xcvr_gui_window_in_front();
 
 #ifdef __cplusplus
 }

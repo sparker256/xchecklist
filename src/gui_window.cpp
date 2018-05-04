@@ -416,6 +416,7 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
                 if(item_checked(checkable)){
                   check_item(checkable);
                 }
+                put_xcvr_gui_window_in_front();
             }
 
             else if (coord_in_rect(xcvr_x, xcvr_y, g_hide_button_lbrt))
@@ -432,6 +433,7 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
                 sprintf(scratch_buffer, "Previous button has been clicked\n");
                 XPLMDebugString(scratch_buffer);
                 prev_checklist();
+                put_xcvr_gui_window_in_front();
             }
 
 
@@ -441,6 +443,7 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
                 sprintf(scratch_buffer, "Next button has been clicked\n");
                 XPLMDebugString(scratch_buffer);
                 next_checklist(true);
+                put_xcvr_gui_window_in_front();
             }
 
             for (int iii = 0; iii < xcvr_size; ++iii) {

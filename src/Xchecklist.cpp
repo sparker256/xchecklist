@@ -201,6 +201,8 @@ char scratch_buffer1[150];
 
 void xcvr_create_gui_window();
 
+void put_xcvr_gui_window_in_front();
+
 #if XPLM301
 XPLMWindowPositioningMode PositioningMode = NULL;
 #endif
@@ -729,31 +731,11 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
               xcDebug("Xchecklist: if (findChecklist()\n");
               vr_is_enabled = XPLMGetDatai(g_vr_dref);
               xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
-              xcvr_create_gui_window();
-              // if (vr_is_enabled) {
-              //    XPLMSetWindowIsVisible(xcvr_g_window,0);
-              // }
+              if(XPIsWidgetVisible(xCheckListWidget)){
+                  xcvr_create_gui_window();
+              }
           }
       }
-
-      #if XPLM301
-      if(inMsg == XPLM_MSG_WILL_WRITE_PREFS)
-      {
-            xcDebug("Xchecklist: inMsg == XPLM_MSG_WILL_WRITE_PREFS\n");
-            if (findChecklist()) {
-                xcDebug("Xchecklist: if (findChecklist()\n");
-                vr_is_enabled = XPLMGetDatai(g_vr_dref);
-                xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
-                if (XPLMWindowPositioningMode(PositioningMode) == 0) {
-                    xcDebug("Xchecklist: PositioningMode = %d\n", XPLMWindowPositioningMode(PositioningMode));
-                    xcvr_create_gui_window();
-                    // if (vr_is_enabled) {
-                    //    XPLMSetWindowIsVisible(xcvr_g_window,0);
-                    // }
-                }
-            }
-      }
-      #endif
 
   }
 
@@ -819,7 +801,10 @@ void xcvr_create_gui_window() {
         }
     }
     #endif
+}
 
+void put_xcvr_gui_window_in_front() {
+    XPLMBringWindowToFront(xcvr_g_window);
 }
 
 
@@ -1652,7 +1637,12 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPLMSetWindowIsVisible(xcvr_g_window,0);
                 }
                 else {
-                    XPLMSetWindowIsVisible(xcvr_g_window,1);
+                    if (xcvr_g_window == NULL) {
+                        xcvr_create_gui_window();
+                    } else {
+                        XPLMSetWindowIsVisible(xcvr_g_window,1);
+                    }
+
                 }
             }
             break;
