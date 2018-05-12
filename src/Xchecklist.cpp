@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.29 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.30 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -145,11 +145,11 @@ int win_pos_y1 = -1;
 int win_pos_y2 = -1;
 
 const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist exist", \
-                                 "Turn Copilot On", "Voice Prompt", "Auto Hide"};
+                                 "Turn Copilot On", "Voice Prompt", "Auto Hide", "Show Widget", "Show GUI"};
 
 #define SETUP_TEXT_ITEMS (sizeof(setupText) / sizeof(char*))
 
-enum {TRANSLUCENT, SHOW_CHECKLIST, COPILOT_ON, VOICE, AUTO_HIDE};
+enum {TRANSLUCENT, SHOW_CHECKLIST, COPILOT_ON, VOICE, AUTO_HIDE, SHOW_WIDGET, SHOW_GUI};
 bool state[SETUP_TEXT_ITEMS];
 
 bool init_done = false;
@@ -548,7 +548,7 @@ bool save_prefs()
 
     fout<<win_pos_x1<<" "<<win_pos_x2<<" "<<win_pos_y1<<" "<<win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
-        <<state[VOICE]<<" "<<state[AUTO_HIDE]<<std::endl;
+        <<state[VOICE]<<" "<<state[AUTO_HIDE]<<" "<<state[SHOW_WIDGET]<<" "<<state[SHOW_GUI]<<std::endl;
     fout.close();
     xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
     xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
@@ -557,6 +557,8 @@ bool save_prefs()
     xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
     xcDebug("Xchecklist: VOICE: %d\n", state[VOICE]);
     xcDebug("Xchecklist: AUTO_HIDE: %d\n", state[AUTO_HIDE]);
+    xcDebug("Xchecklist: SHOW_WIDGET: %d\n", state[SHOW_WIDGET]);
+    xcDebug("Xchecklist: SHOW_GUI: %d\n", state[SHOW_GUI]);
   }else{
     xcDebug("Xchecklist: Can't open prefs for writing.\n");
     free(prefs);
@@ -577,6 +579,8 @@ bool init_setup()
   state[VOICE] = true;
   voice_state = true;
   state[AUTO_HIDE] = true;
+  state[SHOW_WIDGET] = true;
+  state[SHOW_GUI] = true;
   prefs = pluginPath("Xchecklist.prf");
   if(try_open(prefs, fin)){
     //read new prefs from the fin
@@ -587,7 +591,7 @@ bool init_setup()
 	//Read the window position
 	fin>>win_pos_x1>>win_pos_x2>>win_pos_y1>>win_pos_y2;
 	//Read the rest of setup
-        fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE];
+        fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE]>>state[SHOW_WIDGET]>>state[SHOW_GUI];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
         xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
@@ -595,6 +599,8 @@ bool init_setup()
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
         xcDebug("Xchecklist: VOICE: %d\n", state[VOICE]);
         xcDebug("Xchecklist: AUTO_HIDE: %d\n", state[AUTO_HIDE]);
+        xcDebug("Xchecklist: SHOW_WIDGET: %d\n", state[SHOW_WIDGET]);
+        xcDebug("Xchecklist: SHOW_GUI: %d\n", state[SHOW_GUI]);
 	break;
       default:
     xcDebug("Xchecklist: During Startup unknown preferences version, using defaults.\n");
@@ -628,6 +634,8 @@ bool init_setup()
   printf("COPILOT_ON: %d\n", state[COPILOT_ON]);
   printf("VOICE: %d\n", state[VOICE]);
   printf("AUTO_HIDE: %d\n", state[AUTO_HIDE]);
+  printf("SHOW_WIDGET: %d\n", state[SHOW_WIDGET]);
+  printf("SHOW_GUI: %d\n", state[SHOW_GUI]);
   return true;
 }
 
@@ -731,7 +739,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
               xcDebug("Xchecklist: if (findChecklist()\n");
               vr_is_enabled = XPLMGetDatai(g_vr_dref);
               xcDebug("Xchecklist: vr_is_enabled = %d\n", vr_is_enabled);
-              if(XPIsWidgetVisible(xCheckListWidget)){
+              if((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
+                  xcDebug("Xchecklist: state[SHOW_CHECKLIST] = True\n");
                   xcvr_create_gui_window();
               }
           }
@@ -899,7 +908,9 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
             mouse_down_previous = 0;
             mouse_down_check_item = 0;
             mouse_down_next = 0;
-            xcvr_create_gui_window();
+            if (state[SHOW_GUI]) {
+                xcvr_create_gui_window();
+            }
         }
 
       if (xCheckListWidget == NULL){
@@ -911,7 +922,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
     }
     if (!strcmp((char *) inItemRef, "setup")){
       if (setupWidget == NULL){
-        CreateSetupWidget(400, 550, 215, 200);	//left, top, right, bottom.
+        CreateSetupWidget(400, 550, 215, 250);	//left, top, right, bottom.
       }else{
         if(!XPIsWidgetVisible(setupWidget))
             XPShowWidget(setupWidget);
@@ -984,7 +995,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
                        xpWidgetClass_Caption);
         }
 
-        yOffset = (5+18+(5*25));
+        yOffset = (7+18+(7*25));
 
         setupMoveChecklistWindowDownButton = XPCreateWidget(xx+10, yy-yOffset, xx+5+200, yy-yOffset-20,
                                   1,
@@ -995,7 +1006,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
 
         XPSetWidgetProperty(setupMoveChecklistWindowDownButton, xpProperty_ButtonType, xpPushButton);
 
-        yOffset = (6+18+(6*25));
+        yOffset = (8+18+(8*25));
 
         setupSaveSettingsButton = XPCreateWidget(xx+10, yy-yOffset, xx+5+200, yy-yOffset-20,
                                   1,
@@ -1419,6 +1430,9 @@ printf("Checklist index %d (of %d)\n", index, checklists_count);
      if((!force_show) && (state[SHOW_CHECKLIST] == false)){
        XPHideWidget(xCheckListWidget);
      }
+     if(!state[SHOW_WIDGET]) {
+         XPHideWidget(xCheckListWidget);
+     }
   return true;
 }
 
@@ -1637,12 +1651,13 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPLMSetWindowIsVisible(xcvr_g_window,0);
                 }
                 else {
-                    if (xcvr_g_window == NULL) {
-                        xcvr_create_gui_window();
-                    } else {
-                        XPLMSetWindowIsVisible(xcvr_g_window,1);
+                    if (state[SHOW_GUI]) {
+                        if (xcvr_g_window == NULL) {
+                            xcvr_create_gui_window();
+                        } else {
+                            XPLMSetWindowIsVisible(xcvr_g_window,1);
+                        }
                     }
-
                 }
             }
             break;
