@@ -1,0 +1,50 @@
+# This makefile has been modified to accept
+# external environment variables
+
+
+OS ?= MACOSX
+
+
+ifeq ($(OS), MACOSX)
+CC ?= gcc-4.2
+DEFINES += -DAPL=1 -DIBM=0 -DLIN=0 -DXPLM200
+SDK ?= /Developer/SDKs/MacOSX10.5.sdk
+#ARCH = -arch i386 -mmacosx-version-min=10.5
+ARCH ?= -arch i386 -arch x86_64 -mmacosx-version-min=10.5
+INC += -I../SDK/CHeaders/XPLM
+INC += -I../SDK/CHeaders/Widgets
+INC += -I../SDK/CHeaders/Wrappers
+#INC += -Ihidapi/hidapi
+CFLAGS += -c -pipe $(ARCH) -g -gdwarf-2 -isysroot $(SDK) -Wall -W $(INC)
+CCFLAGS += -c -pipe $(ARCH) -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security --param ssp-buffer-size=4
+CCFLAGS += -fstack-protector -D_FORTIFY_SOURCE=2 -g -gdwarf-2 -isysroot $(SDK)  $(INC) 
+
+LDFLAGS += -headerpad_max_install_names $(ARCH) -flat_namespace -undefined suppress -isysroot $(SDK)
+LDDYNFLAGS += -undefined dynamic_lookup -single_module
+LIBS += -framework AppKit
+TARGET ?= simon_mac
+endif
+
+
+all:simon_mac
+
+
+OBJS = simon.o messages.o
+
+simon_mac: $(OBJS)
+	 $(CC) $(LDFLAGS) $(LDDYNFLAGS) $(OBJS) -o simon_mac $(LIBS)
+	cp simon_mac $(TARGET)
+
+simon.o: simon/simon.m
+	 o64-clang $(CFLAGS) $(SDK) $(INC) $(DEFINES) simon/simon.m -o simon.o 
+
+messages.o: src/messages.c
+	 o64-clang $(CCFLAGS) $(SDK) $(INC) $(DEFINES) -o messages.o src/messages.c
+
+
+
+# %.o: %.c TeensyControls.h Makefile
+#	$(CC) $(CFLAGS) -c $<
+
+clean:
+	rm -f *.o simon_mac
