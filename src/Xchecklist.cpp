@@ -853,42 +853,52 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
     return 0.1f;
   }
 
-
-  int visible = XPIsWidgetVisible(xCheckListWidget);
-  int external = XPLMGetDatai(ext_view);
-
-  //hide the widget only when changing the view to external
-  if(external && (!prev_external_view)){
-    if(visible){
-      XPHideWidget(xCheckListWidget);
-      visible = 0;
-      restore_on_internal = true;
-    }
-  }
-  //show only when back in internal views and we remember to (restore_on_internal).
-  if((!external) && prev_external_view){
-    if((!visible) && restore_on_internal){
-      XPShowWidget(xCheckListWidget);
+  // int visible = XPIsWidgetVisible(xCheckListWidget);
+  int visible;
+  if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET]) && (XPLMGetWindowIsVisible(xcvr_g_window))) {
       visible = 1;
-      restore_on_internal = false;
-    }
+  }
+  else {
+      visible = XPIsWidgetVisible(xCheckListWidget);
   }
 
-  prev_external_view = external;
-  do_processing(visible, state[COPILOT_ON]);
+//  if (state[SHOW_WIDGET]) {
+      // visible = XPIsWidgetVisible(xCheckListWidget);
+      int external = XPLMGetDatai(ext_view);
+      xcDebug("Xchecklist: visible = %d\n", visible);
 
-  bool switchNext = false;
-  if(visible && checklist_finished(&switchNext)){
-    hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
-    if(switchNext){
-      next_checklist(true);
-    }else if(hide_cntr > 30){
-      XPHideWidget(xCheckListWidget);
-    }
-  }else{
-    hide_cntr = 0;
-  }
+      //hide the widget only when changing the view to external
+      if(external && (!prev_external_view)){
+        if(visible){
+          XPHideWidget(xCheckListWidget);
+          visible = 0;
+          restore_on_internal = true;
+        }
+      }
+      //show only when back in internal views and we remember to (restore_on_internal).
+      if((!external) && prev_external_view){
+        if((!visible) && restore_on_internal){
+          XPShowWidget(xCheckListWidget);
+          visible = 1;
+          restore_on_internal = false;
+        }
+      }
 
+      prev_external_view = external;
+      do_processing(visible, state[COPILOT_ON]);
+
+      bool switchNext = false;
+      if(visible && checklist_finished(&switchNext)){
+        hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
+        if(switchNext){
+          next_checklist(true);
+        }else if(hide_cntr > 30){
+          XPHideWidget(xCheckListWidget);
+        }
+      }else{
+        hide_cntr = 0;
+      }
+//  }
   return 0.1f;
 }
 
@@ -911,14 +921,17 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
             if (state[SHOW_GUI]) {
                 xcvr_create_gui_window();
             }
+            xcDebug("Xchecklist: Open Checklist  checkable = %d\n", checkable);
+        }
+        if (state[SHOW_WIDGET]) {
+            if (xCheckListWidget == NULL){
+              create_checklist(pageSize, pageTitle, pageItems, 120, 0, 0);
+            }else{
+              if(!XPIsWidgetVisible(xCheckListWidget))
+                XPShowWidget(xCheckListWidget);
+            }
         }
 
-      if (xCheckListWidget == NULL){
-        create_checklist(pageSize, pageTitle, pageItems, 120, 0, 0);
-      }else{
-        if(!XPIsWidgetVisible(xCheckListWidget))
-          XPShowWidget(xCheckListWidget);
-      }
     }
     if (!strcmp((char *) inItemRef, "setup")){
       if (setupWidget == NULL){
@@ -1430,9 +1443,11 @@ printf("Checklist index %d (of %d)\n", index, checklists_count);
      if((!force_show) && (state[SHOW_CHECKLIST] == false)){
        XPHideWidget(xCheckListWidget);
      }
+
      if(!state[SHOW_WIDGET]) {
          XPHideWidget(xCheckListWidget);
      }
+
   return true;
 }
 
@@ -1607,27 +1622,51 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
         switch((intptr_t)inRefcon){
         case CHECK_ITEM_COMMAND:
             printf ("trying to make check_item to work \n");
-            if (XPIsWidgetVisible(xCheckListWidget)){
-                if(item_checked(checkable)){
+            if (state[SHOW_WIDGET]) {
+                if (XPIsWidgetVisible(xCheckListWidget)) {
+                    if(item_checked(checkable)){
+                      check_item(checkable);
+                    }
+                }else{
+                    XPShowWidget(xCheckListWidget);
+                }
+            }
+            if (state[SHOW_GUI]) {
+                if(item_checked(checkable)) {
                   check_item(checkable);
                 }
-	    }else{
-                XPShowWidget(xCheckListWidget);
-	    }
+            }
+            if (!state[SHOW_WIDGET]) {
+                if (XPIsWidgetVisible(xCheckListWidget)) {
+                    XPHideWidget(xCheckListWidget);
+                }
+            }
             break;
         case NEXT_CHECKLIST_COMMAND:
-            if (XPIsWidgetVisible(xCheckListWidget))
+            if (state[SHOW_WIDGET]) {
+                if (XPIsWidgetVisible(xCheckListWidget))
+                    next_checklist(true);
+                else
+                    XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
+                    XPShowWidget(xCheckListWidget);
+            }
+            if (state[SHOW_GUI]) {
                 next_checklist(true);
-            else
-                XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
-                XPShowWidget(xCheckListWidget);
+            }
+
             break;
         case PREV_CHECKLIST_COMMAND:
-            if (XPIsWidgetVisible(xCheckListWidget))
+            if (state[SHOW_WIDGET]) {
+                if (XPIsWidgetVisible(xCheckListWidget))
+                    prev_checklist();
+                else
+                    XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
+                    XPShowWidget(xCheckListWidget);
+            }
+            if (state[SHOW_GUI]) {
                 prev_checklist();
-            else
-                XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
-                XPShowWidget(xCheckListWidget);
+            }
+
             break;
         case RELOAD_CHECKLIST_COMMAND:
             if (XPIsWidgetVisible(xCheckListWidget)) {
@@ -1640,11 +1679,13 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             }
             break;
         case TOGGLE_CHECKLIST_COMMAND:
-            if (XPIsWidgetVisible(xCheckListWidget)) {
-                XPHideWidget(xCheckListWidget);
-            }
-            else {
-                XPShowWidget(xCheckListWidget);
+            if (state[SHOW_WIDGET]) {
+                if (XPIsWidgetVisible(xCheckListWidget)) {
+                    XPHideWidget(xCheckListWidget);
+                }
+                else {
+                    XPShowWidget(xCheckListWidget);
+                }
             }
             if (VersionXP > 11200) {
                 if (XPLMGetWindowIsVisible(xcvr_g_window)) {

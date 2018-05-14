@@ -411,10 +411,10 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
         {
             if (coord_in_rect(xcvr_x, xcvr_y, g_check_item_button_lbrt)) {
                 mouse_down_check_item = 1;
-                sprintf(scratch_buffer, "Check Item button has been clicked\n");
+                sprintf(scratch_buffer, "Check Item button has been clicked  checkable = %d\n", checkable);
                 XPLMDebugString(scratch_buffer);
-                if(item_checked(checkable)){
-                  check_item(checkable);
+                if(item_checked(checkable)) {
+                    check_item(checkable);
                 }
                 put_xcvr_gui_window_in_front();
             }
