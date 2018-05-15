@@ -853,7 +853,6 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
     return 0.1f;
   }
 
-  // int visible = XPIsWidgetVisible(xCheckListWidget);
   int visible;
   if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET]) && (XPLMGetWindowIsVisible(xcvr_g_window))) {
       visible = 1;
@@ -862,43 +861,40 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
       visible = XPIsWidgetVisible(xCheckListWidget);
   }
 
-//  if (state[SHOW_WIDGET]) {
-      // visible = XPIsWidgetVisible(xCheckListWidget);
-      int external = XPLMGetDatai(ext_view);
-      xcDebug("Xchecklist: visible = %d\n", visible);
+  int external = XPLMGetDatai(ext_view);
 
-      //hide the widget only when changing the view to external
-      if(external && (!prev_external_view)){
-        if(visible){
+  //hide the widget only when changing the view to external
+  if (external && (!prev_external_view)) {
+      if (visible) {
           XPHideWidget(xCheckListWidget);
           visible = 0;
           restore_on_internal = true;
-        }
       }
-      //show only when back in internal views and we remember to (restore_on_internal).
-      if((!external) && prev_external_view){
-        if((!visible) && restore_on_internal){
+  }
+
+  //show only when back in internal views and we remember to (restore_on_internal).
+  if ((!external) && prev_external_view) {
+      if ((!visible) && restore_on_internal) {
           XPShowWidget(xCheckListWidget);
           visible = 1;
           restore_on_internal = false;
-        }
       }
+  }
 
-      prev_external_view = external;
-      do_processing(visible, state[COPILOT_ON]);
+  prev_external_view = external;
+  do_processing(visible, state[COPILOT_ON]);
 
-      bool switchNext = false;
-      if(visible && checklist_finished(&switchNext)){
-        hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
-        if(switchNext){
+  bool switchNext = false;
+  if (visible && checklist_finished(&switchNext)) {
+      hide_cntr = state[AUTO_HIDE] ? (hide_cntr + 1) : 0;
+      if (switchNext) {
           next_checklist(true);
-        }else if(hide_cntr > 30){
+      } else if (hide_cntr > 30) {
           XPHideWidget(xCheckListWidget);
-        }
-      }else{
-        hide_cntr = 0;
       }
-//  }
+  } else {
+      hide_cntr = 0;
+  }
   return 0.1f;
 }
 
@@ -1132,6 +1128,17 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                 if (inParam1 == (intptr_t)setupSaveSettingsButton)
                 {
                     save_prefs();
+                    if (!state[SHOW_WIDGET]) {
+                        if (XPIsWidgetVisible(xCheckListWidget)) {
+                            XPHideWidget(xCheckListWidget);
+                        }
+                    }
+                    if (state[SHOW_WIDGET]) {
+                        if(!XPIsWidgetVisible(xCheckListWidget)){
+                          XPShowWidget(xCheckListWidget);
+                        }
+                    }
+
                     XPHideWidget(setupWidget);
                 }
         }
