@@ -40,6 +40,7 @@ extern int mouse_down_check_item;
 extern int mouse_down_next;
 
 extern int vr_is_enabled;
+extern int is_popped_out;
 
 extern void put_xcvr_gui_window_in_front();
 

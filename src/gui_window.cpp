@@ -101,6 +101,8 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
     int char_height;
     XPLMGetFontDimensions(xplmFont_Proportional, NULL, &char_height, NULL);
 
+    is_popped_out = XPLMWindowIsPoppedOut(xcvr_in_window_id);
+
     int l, t, r, b;
     XPLMGetWindowGeometry(xcvr_in_window_id, &l, &t, &r, &b);
 
@@ -411,8 +413,6 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
         {
             if (coord_in_rect(xcvr_x, xcvr_y, g_check_item_button_lbrt)) {
                 mouse_down_check_item = 1;
-                sprintf(scratch_buffer, "Check Item button has been clicked  checkable = %d\n", checkable);
-                XPLMDebugString(scratch_buffer);
                 if(item_checked(checkable)) {
                     check_item(checkable);
                 }
@@ -422,16 +422,12 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
             else if (coord_in_rect(xcvr_x, xcvr_y, g_hide_button_lbrt))
             {
                 mouse_down_hide = 1;
-                sprintf(scratch_buffer, "Hide button has been clicked\n");
-                XPLMDebugString(scratch_buffer);
                 XPLMSetWindowIsVisible(xcvr_in_window_id, 0);
             }
 
             else if (coord_in_rect(xcvr_x, xcvr_y, g_previous_button_lbrt))
             {
                 mouse_down_previous = 1;
-                sprintf(scratch_buffer, "Previous button has been clicked\n");
-                XPLMDebugString(scratch_buffer);
                 prev_checklist();
                 put_xcvr_gui_window_in_front();
             }
@@ -440,8 +436,6 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
             else if (coord_in_rect(xcvr_x, xcvr_y, g_next_button_lbrt))
             {
                 mouse_down_next = 1;
-                sprintf(scratch_buffer, "Next button has been clicked\n");
-                XPLMDebugString(scratch_buffer);
                 next_checklist(true);
                 put_xcvr_gui_window_in_front();
             }
@@ -450,8 +444,6 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
 
                 if(coord_in_rect(xcvr_x, xcvr_y, g_check_box_lbrt[iii])) // user clicked the pop-in/pop-out button
                 {
-                    sprintf(scratch_buffer, "Clickbox %d clicked \n", iii);
-                    XPLMDebugString(scratch_buffer);
                     if (checked[iii] == 0)
                     {
                         checked[iii] = 1;
