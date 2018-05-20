@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.31 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.32 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -135,6 +135,7 @@ static bool init_setup();
 static bool do_cleanup();
 static bool set_sound(bool enable);
 static bool create_dictionary();
+static bool toggle_gui();
 static int prev_external_view = false;
 static bool restore_on_internal = false;
 
@@ -195,6 +196,7 @@ static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return ((x >=
 int vr_is_enabled = 0;
 int is_popped_out = 0;
 int was_popped_out = 0;
+int toggle_delay = 0;
 int left = 0, top = 0, right = 0, bottom = 0;
 
 int                         VersionXP, VersionSDK;
@@ -240,6 +242,7 @@ PLUGIN_API int XPluginStart(
         sprintf(scratch_buffer1, "Xchecklist: VersionXP = %d  VersionSDK = %d\n", VersionXP, VersionSDK);
         XPLMDebugString(scratch_buffer1);
 
+        XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         XPLMEnableFeature("XPLM_USE_NATIVE_WIDGET_WINDOWS", 1);
 
 // Create our menu
@@ -281,7 +284,11 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(PluginMenu, "Move Window Down", (void *) "window", 1);
         XPLMAppendMenuItem(PluginMenu, "Save Settings", (void *) "settings", 1);
         XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
-
+        if (VersionXP > 11200) {
+            #if IBM
+            XPLMAppendMenuItem(PluginMenu, "Toggle GUI Checklist", (void *) "toggle", 1);
+            #endif
+        }
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
         cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
@@ -696,7 +703,34 @@ bool create_dictionary()
     }
 }
 
-
+bool toggle_gui()
+{
+    #if XPLM301
+    if (XPLMGetWindowIsVisible(xcvr_g_window)) {
+        if (is_popped_out) {
+            was_popped_out = is_popped_out;
+            XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
+        }
+        else {
+            XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
+        }
+        // XPLMDebugString("Xbtn2cmd: Hide from Menu Toggle Window\n");
+        XPLMSetWindowIsVisible(xcvr_g_window,0);
+    }
+    else {
+        if (was_popped_out) {
+            XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowPopOut, 0);
+            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+            XPLMSetWindowIsVisible(xcvr_g_window,1);
+            was_popped_out = 0;
+        }
+        if (!is_popped_out) {
+            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+            XPLMSetWindowIsVisible(xcvr_g_window,1);
+        }
+    }
+    #endif
+}
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inParam)
 {
@@ -921,6 +955,9 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
     }
     if (!strcmp((char *) inItemRef, "dictionary")){
         create_dictionary();
+    }
+    if (!strcmp((char *) inItemRef, "toggle")){
+        toggle_gui();
     }
   }else if((intptr_t)inMenuRef == 1){
     open_checklist((intptr_t)inItemRef);
@@ -1224,14 +1261,14 @@ bool create_checklist(unsigned int size, const char *title,
     int left, top, right, bottom;
 
     if (VersionXP > 11200) {
+        #if XPLM301
         if (is_popped_out) {
             XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
             right = left + xcvr_width;
             bottom = top - (xcvr_height + 20);
             #if LIN
             XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
-            #endif
-            #if IBM
+            #else
             XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
             #endif
         }
@@ -1247,6 +1284,7 @@ bool create_checklist(unsigned int size, const char *title,
         mouse_down_previous = 0;
         mouse_down_check_item = 0;
         mouse_down_next = 0;
+        #endif
 
     }
 
@@ -1371,12 +1409,11 @@ bool create_checklist(unsigned int size, const char *title,
      yOffset = (5+18+(15*20));
 
      if (VersionXP > 11200) {
-
+         #if XPLM301
          if (is_popped_out) {
              #if LIN
              XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
-             #endif
-             #if IBM
+             #else
              XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
              #endif
          }
@@ -1391,6 +1428,7 @@ bool create_checklist(unsigned int size, const char *title,
          mouse_down_check_item = 0;
          mouse_down_next = 0;
          // XPLMBringWindowToFront(xcvr_g_window);
+         #endif
      }
 
      int bw = w / 2 - 10;
@@ -1665,23 +1703,26 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPShowWidget(xCheckListWidget);
                 }
             }
-            if (VersionXP > 11200) {
-                if (XPLMGetWindowIsVisible(xcvr_g_window)) {
-                    if (is_popped_out) {
-                        was_popped_out = is_popped_out;
-                        XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
+            if (state[SHOW_GUI]) {
+                if (VersionXP > 11200) {
+                    #if XPLM301
+                    if (XPLMGetWindowIsVisible(xcvr_g_window)) {
+                        if (is_popped_out) {
+                            XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
+                            XPLMSetWindowIsVisible(xcvr_g_window,0);
+                            was_popped_out = is_popped_out;
+                        }
+                        else {
+                            XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
+                            XPLMSetWindowIsVisible(xcvr_g_window,0);
+                        }
                     }
-                    XPLMSetWindowIsVisible(xcvr_g_window,0);
-                }
-                else {
-                    if (state[SHOW_GUI]) {
+                    else {
                         if (was_popped_out) {
                             XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowPopOut, 0);
-
                             #if LIN
                             XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
-                            #endif
-                            #if IBM
+                            #else
                             XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
                             #endif
 
@@ -1696,7 +1737,8 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                                 XPLMSetWindowIsVisible(xcvr_g_window,1);
                             }
                         }
-                     }
+                    }
+                    #endif
                 }
             }
             break;
