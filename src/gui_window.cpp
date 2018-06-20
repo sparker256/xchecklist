@@ -113,7 +113,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         for (ii = 0; ii < xcvr_size; ++ii) {
 
             // If we have a copilot draw the copilot symbol
-            if (xcvr_copilot_controlled[ii]) {
+            if (xcvr_items[ii].copilot_controlled) {
                 if (vr_is_enabled) {
                     // Draw text for what to be checked.
                     g_copilot_box_lbrt[ii][0] = l;
@@ -139,7 +139,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
             }
 
             // If checkable then draw a checkbox
-            if (!xcvr_item_void[ii]) {
+            if (!xcvr_items[ii].item_void) {
                 // Draw the checkbox box.
                 // Position the button in the upper left of the window (sized to fit the button text)
                 g_check_box_lbrt[ii][0] = l + 16;
@@ -185,7 +185,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
                 // Draw text for what to be checked.
                 g_text_box_lbrt[ii][0] = l + 40;
                 g_text_box_lbrt[ii][3] = t - (line_number * char_height) + 10;
-                g_text_box_lbrt[ii][2] = g_text_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_text[ii], strlen(xcvr_text[ii])); // *just* wide enough to fit the button text
+                g_text_box_lbrt[ii][2] = g_text_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_items[ii].text, strlen(xcvr_items[ii].text)); // *just* wide enough to fit the button text
                 g_text_box_lbrt[ii][1] = g_text_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
 
 
@@ -202,13 +202,13 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
             }
 
-            XPLMDrawString(col_cyan, l + 40, t - line_number * char_height, (char *)xcvr_text[ii], NULL, xplmFont_Proportional);
+            XPLMDrawString(col_cyan, l + 40, t - line_number * char_height, (char *)xcvr_items[ii].text, NULL, xplmFont_Proportional);
 
             if (vr_is_enabled) {
                 // Draw text for the result to be checked
                 g_suffix_box_lbrt[ii][0] = l + xcvr_right_text_start;
                 g_suffix_box_lbrt[ii][3] = t - (line_number * char_height) + 10;
-                g_suffix_box_lbrt[ii][2] = g_suffix_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_suffix[ii], strlen(xcvr_suffix[ii])); // *just* wide enough to fit the button text
+                g_suffix_box_lbrt[ii][2] = g_suffix_box_lbrt[ii][0] + XPLMMeasureString(xplmFont_Proportional, xcvr_items[ii].suffix, strlen(xcvr_items[ii].suffix)); // *just* wide enough to fit the button text
                 g_suffix_box_lbrt[ii][1] = g_suffix_box_lbrt[ii][3] - (1.25f * char_height); // a bit taller than the button text
 
 
@@ -224,7 +224,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
                 glEnd();
             }
 
-            XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_suffix[ii], NULL, xplmFont_Proportional);
+            XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_items[ii].suffix, NULL, xplmFont_Proportional);
 
             line_number = line_number + 2;
         }

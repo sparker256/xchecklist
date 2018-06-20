@@ -46,28 +46,25 @@ static void fixDirSeparator(std::string &mypath)
 {
     //Linux and Win are OK, just Mac needs special treatment...
     (void) mypath;
-
-    /* added XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1); in start so this code is no longer needed.
 #if APL
     //On apple a core foundation "link" is used; this is a crude but
     //  effective way to get a path of it...
     std::replace(mypath.begin(), mypath.end(), ':', '/');
     mypath.insert(0, "/Volumes/");
 #endif
-*/
-
 }
 
 static std::string processPath(char *path, std::string *acf_path = NULL)
 {
     std::string mypath(path);
     fixDirSeparator(mypath);
-        
+
+
     if(acf_path){
       size_t start = mypath.rfind(dirSep) + 1;
       *acf_path = mypath.substr(start, mypath.rfind('.') - start);
     }
-    
+
     //equivalent of dirname(mypath)
     mypath.erase(mypath.rfind(dirSep));
     //printf("PATH: '%s'\n", mypath.c_str());
@@ -102,7 +99,7 @@ char *pluginPath(const char *name)
   //To make sure I don't corrupt XPlane stuff
   std::string myPrefsPath = processPath(path);
   //Add xchecklist.prf to preferences path
-  myPrefsPath += dirSep + "Resources" + dirSep + "plugins" + dirSep + 
+  myPrefsPath += dirSep + "Resources" + dirSep + "plugins" + dirSep +
     "Xchecklist" + dirSep + name;
   //printf("\nPrefs Path to initilize setup  %s \n\n", myPrefsPath.c_str());
   return c_strFromString(myPrefsPath);

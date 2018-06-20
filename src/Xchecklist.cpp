@@ -162,13 +162,12 @@ const char * xcvr_title = ""; // title to be used for the VR window
 int xcvr_width = 0; // width of the widget checklist window
 int xcvr_height = 0; // height of the widget checklist window
 unsigned int xcvr_size = 0; // number of items per checklist page
-int xcvr_copilot_controlled[30]; // do we draw the copilot sysbol
-int xcvr_item_void[30]; // is the item checkable
+checklist_item_desc_t xcvr_items[50];
+
 int xcvr_left_text_start = 0;
-const char * xcvr_text[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
+
 int xcvr_right_text_start = 0;
-const char * xcvr_suffix[] = {"", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", "","", "", "", "", "", ""};
-int xcvr_item_checked[30];
+int xcvr_item_checked[50];
 bool xcvr_g_in_vr = false;
 
 static XPLMWindowID	xcvr_g_window;
@@ -242,7 +241,7 @@ PLUGIN_API int XPluginStart(
         sprintf(scratch_buffer1, "Xchecklist: VersionXP = %d  VersionSDK = %d\n", VersionXP, VersionSDK);
         XPLMDebugString(scratch_buffer1);
 
-        XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
+        // XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         XPLMEnableFeature("XPLM_USE_NATIVE_WIDGET_WINDOWS", 1);
 
 // Create our menu
@@ -803,7 +802,7 @@ void xcvr_create_gui_window() {
         XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
         g_in_vr = vr_is_enabled;
 
-        XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 900); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
+        XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 1200); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
 
         XPLMSetWindowTitle(xcvr_g_window, xcvr_title); }
 
@@ -1347,7 +1346,7 @@ bool create_checklist(unsigned int size, const char *title,
                                          xCheckListWidget,
                                          xpWidgetClass_Caption);
 
-            xcvr_copilot_controlled[i] = items[i].copilot_controlled;
+            xcvr_items[i].copilot_controlled = items[i].copilot_controlled;
 
             if (state[TRANSLUCENT] == true) {
               XPSetWidgetProperty(xCheckListCopilotWidget[i], xpProperty_CaptionLit, 1);
@@ -1364,7 +1363,7 @@ bool create_checklist(unsigned int size, const char *title,
                                         xpWidgetClass_Button);
 
              xcvr_left_text_start = 25;
-             xcvr_item_void[i] = items[i].item_void;
+             xcvr_items[i].item_void = items[i].item_void;
 
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonType, xpRadioButton);
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonBehavior, xpButtonBehaviorCheckBox);
@@ -1378,7 +1377,7 @@ bool create_checklist(unsigned int size, const char *title,
                                       xCheckListWidget,
                                       xpWidgetClass_Caption);
 
-            xcvr_text[i] = items[i].text;
+            xcvr_items[i].text = items[i].text;
 
             if (state[TRANSLUCENT] == true) {
 
@@ -1395,7 +1394,7 @@ bool create_checklist(unsigned int size, const char *title,
                                         xpWidgetClass_Caption);
 
              xcvr_right_text_start = (maxw_1 + 50);
-             xcvr_suffix[i] = items[i].suffix;
+             xcvr_items[i].suffix = items[i].suffix;
 
              if (state[TRANSLUCENT] == true) {
 
@@ -1422,12 +1421,10 @@ bool create_checklist(unsigned int size, const char *title,
              XPLMBringWindowToFront(xcvr_g_window);
          }
 
-         //XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
          mouse_down_hide = 0;
          mouse_down_previous = 0;
          mouse_down_check_item = 0;
          mouse_down_next = 0;
-         // XPLMBringWindowToFront(xcvr_g_window);
          #endif
      }
 
