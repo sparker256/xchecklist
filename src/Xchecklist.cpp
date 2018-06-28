@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.32 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.33 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -757,6 +757,19 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
               }
           }
       }
+      #if XPLM301
+      if(inMsg == XPLM_MSG_ENTERED_VR) {
+          if (findChecklist()) {
+              vr_is_enabled = XPLMGetDatai(g_vr_dref);
+              if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
+                  if (xcvr_g_window) {
+                      xcvr_g_window = NULL;
+                  }
+                  xcvr_create_gui_window();
+              }
+          }
+      }
+      #endif
   }
 
 }
@@ -779,7 +792,7 @@ void xcvr_create_gui_window() {
         params.left = xcvr_global_desktop_bounds[0] + 50;
         params.bottom = xcvr_global_desktop_bounds[1] + 100;
         params.right = xcvr_global_desktop_bounds[0] + 550;
-        params.top = xcvr_global_desktop_bounds[1] + 800;
+        params.top = xcvr_global_desktop_bounds[1] + 500;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;
@@ -1202,7 +1215,6 @@ bool create_checklist(unsigned int size, const char *title,
         XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
         #endif
     }
-
     h = (5+18+(size*20)) + 50;
 
     restore_on_internal = false;
@@ -1276,7 +1288,11 @@ bool create_checklist(unsigned int size, const char *title,
             XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
             right = left + xcvr_width;
             bottom = top - xcvr_height;
-            XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+            if (vr_is_enabled) {
+                XPLMSetWindowGeometryVR(xcvr_g_window, xcvr_width, xcvr_height);
+            } else {
+                XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+            }
         }
 
         mouse_down_hide = 0;
@@ -1284,7 +1300,6 @@ bool create_checklist(unsigned int size, const char *title,
         mouse_down_check_item = 0;
         mouse_down_next = 0;
         #endif
-
     }
 
     XPLMGetScreenSize(&screen_w, &screen_h);
