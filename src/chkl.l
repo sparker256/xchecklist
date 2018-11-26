@@ -1,6 +1,7 @@
 %{
 
   #include <stdlib.h>
+  #include <unistd.h>
   #include <string.h>
   //#include <stdbool.h>
   #include "src/chkl_parser.h"

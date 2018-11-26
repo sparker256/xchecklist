@@ -63,9 +63,9 @@ float light_grey[] = {0.8274, 0.8274, 0.8274, 1.0};
 
 float cyan[] = {0.0, 1.0, 1.0, 1.0};
 
-char * copilot_on = "+";
-char * checkmark_off = "    ";
-char * checkmark_on = " X ";
+char copilot_on[] = "+";
+char checkmark_off[] = "    ";
+char checkmark_on[] = " X ";
 // char * checkmark_on = " \u2714\ ";
 
 
@@ -86,7 +86,7 @@ static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x -
 
 void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 {
-
+    (void) in_refcon;
     XPLMSetGraphicsState(
             0 /* no fog */,
             0 /* 0 texture units */,
@@ -402,7 +402,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
 int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XPLMMouseStatus xcvr_mouse_status, void * in_refcon)
 {
-
+    (void) in_refcon;
     if(xcvr_mouse_status == xplm_MouseDown)
     {
         if(!XPLMIsWindowInFront(xcvr_in_window_id))
@@ -440,7 +440,7 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
                 put_xcvr_gui_window_in_front();
             }
 
-            for (int iii = 0; iii < xcvr_size; ++iii) {
+            for (unsigned int iii = 0; iii < xcvr_size; ++iii) {
 
                 if(coord_in_rect(xcvr_x, xcvr_y, g_check_box_lbrt[iii])) // user clicked the pop-in/pop-out button
                 {

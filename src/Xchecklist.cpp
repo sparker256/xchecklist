@@ -177,10 +177,45 @@ static XPLMWindowID	setup_window;
 void				xcvr_draw(XPLMWindowID in_window_id, void * in_refcon);
 int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon);
 
-int					xcvr_dummy_mouse_handler(XPLMWindowID in_window_id, int x, int y, int is_down, void * in_refcon) { return 0; }
-XPLMCursorStatus	xcvr_dummy_cursor_status_handler(XPLMWindowID in_window_id, int x, int y, void * in_refcon) { return xplm_CursorDefault; }
-int					xcvr_dummy_wheel_handler(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void * in_refcon) { return 0; }
-void				xcvr_dummy_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void * in_refcon, int losing_focus) { }
+int xcvr_dummy_mouse_handler(XPLMWindowID in_window_id, int mouse_x, int mouse_y, int is_down, void * in_refcon)
+{
+  (void) in_window_id;
+  (void) mouse_x;
+  (void) mouse_y;
+  (void) is_down;
+  (void) in_refcon;
+  return 0;
+}
+
+XPLMCursorStatus xcvr_dummy_cursor_status_handler(XPLMWindowID in_window_id, int cursor_x, int cursor_y, void * in_refcon)
+{
+  (void) in_window_id;
+  (void) cursor_x;
+  (void) cursor_y;
+  (void) in_refcon;
+  return xplm_CursorDefault;
+}
+
+int xcvr_dummy_wheel_handler(XPLMWindowID in_window_id, int wheel_x, int wheel_y, int wheel, int clicks, void * in_refcon)
+{
+  (void) in_window_id;
+  (void) wheel_x;
+  (void) wheel_y;
+  (void) wheel;
+  (void) clicks;
+  (void) in_refcon;
+  return 0;
+}
+
+void xcvr_dummy_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void * in_refcon, int losing_focus)
+{
+  (void) in_window_id;
+  (void) key;
+  (void) flags;
+  (void) virtual_key;
+  (void) in_refcon;
+  (void) losing_focus;
+}
 
 XPLMDataRef g_vr_dref;
 static bool g_in_vr = false;
@@ -190,7 +225,13 @@ int mouse_down_previous = 0;
 int mouse_down_check_item = 0;
 int mouse_down_next = 0;
 
-static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return ((x >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
+/*
+static int coord_in_rect(float coord_x, float coord_y, float * bounds_lbrt)
+{
+  return ((coord_x >= bounds_lbrt[0]) && ((coord_x - 20) < bounds_lbrt[2])
+       && (coord_y <  bounds_lbrt[3]) && (coord_y        >= bounds_lbrt[1]));
+}
+*/
 
 int vr_is_enabled = 0;
 int is_popped_out = 0;
@@ -208,7 +249,7 @@ void xcvr_create_gui_window();
 void put_xcvr_gui_window_in_front();
 
 #if XPLM301
-XPLMWindowPositioningMode PositioningMode = NULL;
+XPLMWindowPositioningMode PositioningMode = 0;
 #endif
 
 PLUGIN_API int XPluginStart(
@@ -435,6 +476,7 @@ bool try_open(char *name, std::fstream &fin)
   return false;
 }
 
+/*
 static int limit_coord(int min, int coord, int max)
 {
   if(coord < min){
@@ -471,7 +513,7 @@ static void safe_window_defaults(void)
   fit_interval(0, screen_w, &win_pos_x1, &win_pos_y1, 300);
   fit_interval(0, screen_h-30, &win_pos_y2, &win_pos_x2, 200);
 }
-
+*/
 
 bool save_prefs()
 {
@@ -729,6 +771,7 @@ bool toggle_gui()
         }
     }
     #endif
+    return true;
 }
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inParam)
@@ -1269,29 +1312,29 @@ bool create_checklist(unsigned int size, const char *title,
 
     xcvr_width = w;
     xcvr_height = h;
-    int left, top, right, bottom;
+    int win_left, win_top, win_right, win_bottom;
 
     if (VersionXP > 11200) {
         #if XPLM301
         if (is_popped_out) {
-            XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
-            right = left + xcvr_width;
-            bottom = top - (xcvr_height + 20);
+            XPLMGetWindowGeometryOS(xcvr_g_window, &win_left, &win_top, &win_right, &win_bottom);
+            win_right = win_left + xcvr_width;
+            win_bottom = win_top - (xcvr_height + 20);
             #if LIN
-            XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
+            XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
             #else
-            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+            XPLMSetWindowGeometryOS(xcvr_g_window, win_left, win_top, win_right, win_bottom);
             #endif
         }
 
         else {
-            XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
-            right = left + xcvr_width;
-            bottom = top - xcvr_height;
+            XPLMGetWindowGeometry(xcvr_g_window, &win_left, &win_top, &win_right, &win_bottom);
+            win_right = win_left + xcvr_width;
+            win_bottom = win_top - xcvr_height;
             if (vr_is_enabled) {
                 XPLMSetWindowGeometryVR(xcvr_g_window, xcvr_width, xcvr_height);
             } else {
-                XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+                XPLMSetWindowGeometry(xcvr_g_window, win_left, win_top, win_right, win_bottom);
             }
         }
 
@@ -1426,13 +1469,13 @@ bool create_checklist(unsigned int size, const char *title,
          #if XPLM301
          if (is_popped_out) {
              #if LIN
-             XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
+             XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
              #else
-             XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+             XPLMSetWindowGeometryOS(xcvr_g_window, win_left, win_top, win_right, win_bottom);
              #endif
          }
          else {
-             XPLMSetWindowGeometry(xcvr_g_window, left, top, right, bottom);
+             XPLMSetWindowGeometry(xcvr_g_window, win_left, win_top, win_right, win_bottom);
              XPLMBringWindowToFront(xcvr_g_window);
          }
 
@@ -1488,7 +1531,6 @@ bool check_item(int itemNo)
     xcvr_item_checked[itemNo] = 1;
     return true;
   }
-  xcvr_item_checked[itemNo] = 0;
   return false;
 }
 
@@ -1672,11 +1714,12 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             break;
         case NEXT_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
-                if (XPIsWidgetVisible(xCheckListWidget))
+                if (XPIsWidgetVisible(xCheckListWidget)){
                     next_checklist(true);
-                else
+		}else{
                     XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                     XPShowWidget(xCheckListWidget);
+		}
             }
             if (state[SHOW_GUI]) {
                 next_checklist(true);
@@ -1685,11 +1728,12 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             break;
         case PREV_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
-                if (XPIsWidgetVisible(xCheckListWidget))
+                if (XPIsWidgetVisible(xCheckListWidget)){
                     prev_checklist();
-                else
+	        }else{
                     XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                     XPShowWidget(xCheckListWidget);
+		}
             }
             if (state[SHOW_GUI]) {
                 prev_checklist();
