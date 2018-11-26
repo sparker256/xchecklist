@@ -22,11 +22,11 @@ bool init_speech()
 #if APL
   return init_simon("simon_mac");
 #elif LIN
-  bool res;
-  res = init_simon("simon_lin32");
-  if(!res){
+  #if defined(__x86_64__)
     return init_simon("simon_lin64");
-  }
+  #else
+    return init_simon("simon_lin32");
+  #endif
 #endif
   return active;
 }
