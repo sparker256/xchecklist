@@ -84,6 +84,16 @@ int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, 
 static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x - 10) >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
 
 
+void draw_button(float coords[], int x, int y, int w, int h, float color[], char *label, int char_height)
+{
+  coords[0] = x;      coords[3] = y;
+  coords[2] = x + w;  coords[1] = y - h;
+  glColor4fv(color);
+  glRecti(coords[0], coords[3], coords[2], coords[1]);
+  int tmp = w - XPLMMeasureString(xplmFont_Proportional, label, strlen(label));
+  XPLMDrawString(col_black, x + tmp / 2, y - 1.5 * char_height, label, NULL, xplmFont_Proportional);
+}
+
 void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 {
     (void) in_refcon;
@@ -124,15 +134,8 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                     // Draw the box around our rudimentary button
                     glColor4fv(light_green_60);
-                    glBegin(GL_POLYGON);
-                    {
-                        glVertex2i(g_copilot_box_lbrt[ii][0], g_copilot_box_lbrt[ii][3]);
-                        glVertex2i(g_copilot_box_lbrt[ii][2], g_copilot_box_lbrt[ii][3]);
-                        glVertex2i(g_copilot_box_lbrt[ii][2], g_copilot_box_lbrt[ii][1]);
-                        glVertex2i(g_copilot_box_lbrt[ii][0], g_copilot_box_lbrt[ii][1]);
-                    }
-                    glEnd();
-
+                    glRecti(g_copilot_box_lbrt[ii][0], g_copilot_box_lbrt[ii][3],
+                            g_copilot_box_lbrt[ii][2], g_copilot_box_lbrt[ii][1]);
                 }
 
                 XPLMDrawString(col_cyan, l, t - (line_number * char_height), copilot_on, NULL, xplmFont_Proportional);
@@ -149,26 +152,14 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                 // Draw the box around our rudimentary button
                 glColor4fv(light_grey);
-                glBegin(GL_POLYGON);
-                {
-                    glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3]);
-                    glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][3]);
-                    glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][1]);
-                    glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1]);
-                }
-                glEnd();
+                glRecti(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3],
+                        g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][1]);
 
                 if (xcvr_item_checked[ii])
                 {
                     glColor4fv(widget_green);
-                    glBegin(GL_POLYGON);
-                    {
-                        glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3]);
-                        glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][3]);
-                        glVertex2i(g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][1]);
-                        glVertex2i(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1]);
-                    }
-                    glEnd();
+                    glRecti(g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][3],
+                            g_check_box_lbrt[ii][2], g_check_box_lbrt[ii][1]);
 
                     XPLMDrawString(col_black, g_check_box_lbrt[ii][0], g_check_box_lbrt[ii][1] + 4, (char *)checkmark_on, NULL, xplmFont_Proportional);
                 }
@@ -191,14 +182,8 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                 // Draw the box around our rudimentary button
                 glColor4fv(light_green_60);
-                glBegin(GL_POLYGON);
-                {
-                    glVertex2i(g_text_box_lbrt[ii][0], g_text_box_lbrt[ii][3]);
-                    glVertex2i(g_text_box_lbrt[ii][2], g_text_box_lbrt[ii][3]);
-                    glVertex2i(g_text_box_lbrt[ii][2], g_text_box_lbrt[ii][1]);
-                    glVertex2i(g_text_box_lbrt[ii][0], g_text_box_lbrt[ii][1]);
-                }
-                glEnd();
+                glRecti(g_text_box_lbrt[ii][0], g_text_box_lbrt[ii][3],
+                        g_text_box_lbrt[ii][2], g_text_box_lbrt[ii][1]);
 
             }
 
@@ -214,14 +199,9 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
                 // Draw the box around our rudimentary button
                 glColor4fv(light_green_60);
-                glBegin(GL_POLYGON);
-                {
-                    glVertex2i(g_suffix_box_lbrt[ii][0], g_suffix_box_lbrt[ii][3]);
-                    glVertex2i(g_suffix_box_lbrt[ii][2], g_suffix_box_lbrt[ii][3]);
-                    glVertex2i(g_suffix_box_lbrt[ii][2], g_suffix_box_lbrt[ii][1]);
-                    glVertex2i(g_suffix_box_lbrt[ii][0], g_suffix_box_lbrt[ii][1]);
-                }
-                glEnd();
+                glRecti(g_suffix_box_lbrt[ii][0], g_suffix_box_lbrt[ii][3],
+                        g_suffix_box_lbrt[ii][2], g_suffix_box_lbrt[ii][1]);
+
             }
 
             XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_items[ii].suffix, NULL, xplmFont_Proportional);
@@ -230,173 +210,41 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         }
 
         // Find out how big to make the buttons so they always fit on the window
-
-
-        // Draw the Hide button
         line_number = line_number;
-        const char * hide_btn_label = "Hide";
+        typedef enum {HIDE_LABEL, IN_FRONT_LABEL, PREVIOUS_LABEL, CHECK_ITEM_LABEL, NEXT_LABEL, SENTINEL_LABEL} label_names;
+        const char *labels[] = {"Hide", "In Front", "Previous", "Check Item", "Next", ""};
 
-        // 0 left, 1 bottom, 2 right, 3 top
-        // Position the button in the upper left of the window (sized to fit the button text)
-        g_hide_button_lbrt[0] = l + (xcvr_width / 3) + 10;
-        g_hide_button_lbrt[3] = t - (line_number * char_height);
-        g_hide_button_lbrt[2] = g_hide_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, hide_btn_label, strlen(hide_btn_label) + 9); // *just* wide enough to fit the button text
-        g_hide_button_lbrt[1] = g_hide_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
-
-        // Draw the box around our rudimentary button
-        if (mouse_down_hide) {
-            glColor4fv(light_green);
+        int max_label_w = 0;
+        int tmp;
+        for(int lab = HIDE_LABEL; lab < SENTINEL_LABEL; ++lab){
+          tmp = XPLMMeasureString(xplmFont_Proportional, (char *)labels[lab], strlen(labels[lab]));
+          if(tmp > max_label_w){
+            max_label_w = tmp;
+          }
         }
-        else {
-           glColor4fv(pail_green);
-        }
-        glBegin(GL_POLYGON);
-        {
-            glVertex2i(g_hide_button_lbrt[0], g_hide_button_lbrt[3]);
-            glVertex2i(g_hide_button_lbrt[2], g_hide_button_lbrt[3]);
-            glVertex2i(g_hide_button_lbrt[2], g_hide_button_lbrt[1]);
-            glVertex2i(g_hide_button_lbrt[0], g_hide_button_lbrt[1]);
-        }
-        glEnd();
+       
+        const int c_TEXT2BORDER = 10;
+        const int c_BUTTON2BORDER = 100;
+ 
+        int button_w = max_label_w + 2 * c_TEXT2BORDER;
+        int button_h = 2.5 * char_height;
+        int spaces = ((xcvr_width - 2 * c_BUTTON2BORDER) - 3 * button_w) / 2;
 
-        // Draw the text on the previous button.
-        // 0 left, 1 bottom, 2 right, 3 top
-        g_hide_button_lbrt[0] = g_hide_button_lbrt[0] + 20;
-        XPLMDrawString(col_black, g_hide_button_lbrt[0], g_hide_button_lbrt[1] + 8, (char *)hide_btn_label, NULL, xplmFont_Proportional);
+        draw_button(g_hide_button_lbrt, l + c_BUTTON2BORDER + button_w + spaces, t - (line_number * char_height),
+                    button_w, button_h, mouse_down_hide ? light_green : pail_green, (char *)labels[HIDE_LABEL], char_height);
 
+        draw_button(g_in_front_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + spaces), t - (line_number * char_height),
+                    button_w, button_h, XPLMIsWindowInFront(xcvr_in_window_id) ? light_green : pail_green, (char *)labels[IN_FRONT_LABEL], char_height);
 
-        // Draw the In Front box
-        line_number = line_number;
-        const char * in_front_btn_label = "In Front";
-        int in_front = XPLMIsWindowInFront(xcvr_in_window_id);
-
-        // 0 left, 1 bottom, 2 right, 3 top
-        // Position the button in the upper left of the window (sized to fit the button text)
-        g_in_front_button_lbrt[0] = l + (2 * (xcvr_width / 3)) + 20;
-        g_in_front_button_lbrt[3] = t - (line_number * char_height);
-        g_in_front_button_lbrt[2] = g_in_front_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, in_front_btn_label, strlen(in_front_btn_label) + 5); // *just* wide enough to fit the button text
-        g_in_front_button_lbrt[1] = g_in_front_button_lbrt[3] - (2.00f * char_height); // a bit taller than the button text
-
-        // Draw the box around our rudimentary button
-        if (in_front) {
-            glColor4fv(light_green);
-        }
-        else {
-           glColor4fv(pail_green);
-        }
-        glBegin(GL_POLYGON);
-        {
-            glVertex2i(g_in_front_button_lbrt[0], g_in_front_button_lbrt[3]);
-            glVertex2i(g_in_front_button_lbrt[2], g_in_front_button_lbrt[3]);
-            glVertex2i(g_in_front_button_lbrt[2], g_in_front_button_lbrt[1]);
-            glVertex2i(g_in_front_button_lbrt[0], g_in_front_button_lbrt[1]);
-        }
-        glEnd();
-
-        // Draw the text on the previous button.
-        // 0 left, 1 bottom, 2 right, 3 top
-        g_in_front_button_lbrt[0] = g_in_front_button_lbrt[0] + 10;
-        XPLMDrawString(col_black, g_in_front_button_lbrt[0], g_in_front_button_lbrt[1] + 8, (char *)in_front_btn_label, NULL, xplmFont_Proportional);
-
-
-
-
-
-        // Draw the Previous button
         line_number = line_number + 3;
-        const char * previous_btn_label = "Previous";
+        draw_button(g_previous_button_lbrt, l + c_BUTTON2BORDER, t - (line_number * char_height),
+                    button_w, button_h, mouse_down_previous ? light_green : pail_green, (char *)labels[PREVIOUS_LABEL], char_height);
 
-        // 0 left, 1 bottom, 2 right, 3 top
-        // Position the button in the upper left of the window (sized to fit the button text)
-        g_previous_button_lbrt[0] = l;
-        g_previous_button_lbrt[3] = t - (line_number * char_height);
-        g_previous_button_lbrt[2] = g_previous_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, previous_btn_label, strlen(previous_btn_label) +5); // *just* wide enough to fit the button text
-        g_previous_button_lbrt[1] = g_previous_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
+        draw_button(g_check_item_button_lbrt, l + c_BUTTON2BORDER + button_w + spaces, t - (line_number * char_height),
+                    button_w, button_h, mouse_down_check_item ? light_green : pail_green, (char *)labels[CHECK_ITEM_LABEL], char_height);
 
-        // Draw the box around our rudimentary button
-        if (mouse_down_previous) {
-            glColor4fv(light_green);
-        }
-        else {
-           glColor4fv(pail_green);
-        }
-        glBegin(GL_POLYGON);
-        {
-            glVertex2i(g_previous_button_lbrt[0], g_previous_button_lbrt[3]);
-            glVertex2i(g_previous_button_lbrt[2], g_previous_button_lbrt[3]);
-            glVertex2i(g_previous_button_lbrt[2], g_previous_button_lbrt[1]);
-            glVertex2i(g_previous_button_lbrt[0], g_previous_button_lbrt[1]);
-        }
-        glEnd();
-
-        // Draw the text on the previous button.
-        // 0 left, 1 bottom, 2 right, 3 top
-        g_previous_button_lbrt[0] = g_previous_button_lbrt[0] + 15;
-        XPLMDrawString(col_black, g_previous_button_lbrt[0], g_previous_button_lbrt[1] + 12, (char *)previous_btn_label, NULL, xplmFont_Proportional);
-
-
-        // Draw the Check Item button
-        const char * check_item_btn_label = "Check Item";
-
-        // 0 left, 1 bottom, 2 right, 3 top
-        // Position the button in between the previous and next buttons
-        g_check_item_button_lbrt[0] = l + (xcvr_width / 3) + 10;
-        g_check_item_button_lbrt[3] = t - (line_number * char_height);
-        g_check_item_button_lbrt[2] = g_check_item_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, check_item_btn_label, strlen(check_item_btn_label) + 3); // *just* wide enough to fit the button text
-        g_check_item_button_lbrt[1] = g_check_item_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
-
-        // Draw the box around our rudimentary button
-        if (mouse_down_check_item) {
-            glColor4fv(light_green);
-        }
-        else {
-           glColor4fv(pail_green);
-        }
-        glBegin(GL_POLYGON);
-        {
-            glVertex2i(g_check_item_button_lbrt[0], g_check_item_button_lbrt[3]);
-            glVertex2i(g_check_item_button_lbrt[2], g_check_item_button_lbrt[3]);
-            glVertex2i(g_check_item_button_lbrt[2], g_check_item_button_lbrt[1]);
-            glVertex2i(g_check_item_button_lbrt[0], g_check_item_button_lbrt[1]);
-        }
-        glEnd();
-
-        // Draw the text on the check item button.
-        // 0 left, 1 bottom, 2 right, 3 top
-        g_check_item_button_lbrt[0] = g_check_item_button_lbrt[0] + 10;
-        XPLMDrawString(col_black, g_check_item_button_lbrt[0], g_check_item_button_lbrt[1] + 12, (char *)check_item_btn_label, NULL, xplmFont_Proportional);
-
-
-        // Draw the Next button
-        const char * next_btn_label = "Next";
-
-        // Position the button in the upper left of the window (sized to fit the button text)
-        g_next_button_lbrt[0] = l + (2 * (xcvr_width / 3)) + 20;
-        g_next_button_lbrt[3] = t - (line_number * char_height);
-        g_next_button_lbrt[2] = g_next_button_lbrt[0] + XPLMMeasureString(xplmFont_Proportional, next_btn_label, strlen(next_btn_label) + 9); // *just* wide enough to fit the button text
-        g_next_button_lbrt[1] = g_next_button_lbrt[3] - (3.00f * char_height); // a bit taller than the button text
-
-        // Draw the box around our rudimentary button
-        //float green2[] = {0.0, 1.0, 0.0, 1.0};
-        if (mouse_down_next) {
-            glColor4fv(light_green);
-        }
-        else {
-           glColor4fv(pail_green);
-        }
-        glBegin(GL_POLYGON);
-        {
-            glVertex2i(g_next_button_lbrt[0], g_next_button_lbrt[3]);
-            glVertex2i(g_next_button_lbrt[2], g_next_button_lbrt[3]);
-            glVertex2i(g_next_button_lbrt[2], g_next_button_lbrt[1]);
-            glVertex2i(g_next_button_lbrt[0], g_next_button_lbrt[1]);
-        }
-        glEnd();
-
-        // Draw the text for the next button.
-        g_next_button_lbrt[0] = g_next_button_lbrt[0] + 25;
-        XPLMDrawString(col_black, g_next_button_lbrt[0], g_next_button_lbrt[1] + 12, (char *)next_btn_label, NULL, xplmFont_Proportional);
-
+        draw_button(g_next_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + spaces), t - (line_number * char_height),
+                    button_w, button_h, mouse_down_next ? light_green : pail_green, (char *)labels[NEXT_LABEL], char_height);
 }
 
 
