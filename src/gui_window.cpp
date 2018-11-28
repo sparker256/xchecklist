@@ -69,8 +69,6 @@ char checkmark_on[] = " X ";
 // char * checkmark_on = " \u2714\ ";
 
 
-int checked [25];
-
 int line_number = 2;
 
 
@@ -81,7 +79,8 @@ int					xcvr_handle_mouse(XPLMWindowID in_window_id, int x, int y, int is_down, 
 
 
 // bounds_lbrt  0 left,  1 bottom,  2 right,  3 top
-static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x - 10) >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
+//static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return (((x - 10) >= bounds_lbrt[0]) && ((x - 20) < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
+static int	coord_in_rect(float x, float y, float * bounds_lbrt)  { return ((x >= bounds_lbrt[0]) && (x < bounds_lbrt[2]) && (y < bounds_lbrt[3]) && (y >= bounds_lbrt[1])); }
 
 
 void draw_button(float coords[], int x, int y, int w, int h, float color[], char *label, int char_height)
@@ -214,36 +213,25 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         typedef enum {HIDE_LABEL, IN_FRONT_LABEL, PREVIOUS_LABEL, CHECK_ITEM_LABEL, NEXT_LABEL, SENTINEL_LABEL} label_names;
         const char *labels[] = {"Hide", "In Front", "Previous", "Check Item", "Next", ""};
 
-        int max_label_w = 0;
-        int tmp;
-        for(int lab = HIDE_LABEL; lab < SENTINEL_LABEL; ++lab){
-          tmp = XPLMMeasureString(xplmFont_Proportional, (char *)labels[lab], strlen(labels[lab]));
-          if(tmp > max_label_w){
-            max_label_w = tmp;
-          }
-        }
-       
-        const int c_TEXT2BORDER = 10;
-        const int c_BUTTON2BORDER = 100;
- 
-        int button_w = max_label_w + 2 * c_TEXT2BORDER;
+        const int c_BUTTON2BORDER = 20;
+        const int c_BUTTON2BUTTON = 20;
+        int button_w = (xcvr_width - 2 * (c_BUTTON2BORDER + c_BUTTON2BUTTON)) / 3;
         int button_h = 2.5 * char_height;
-        int spaces = ((xcvr_width - 2 * c_BUTTON2BORDER) - 3 * button_w) / 2;
 
-        draw_button(g_hide_button_lbrt, l + c_BUTTON2BORDER + button_w + spaces, t - (line_number * char_height),
+        draw_button(g_hide_button_lbrt, l + c_BUTTON2BORDER + button_w + c_BUTTON2BUTTON, t - (line_number * char_height),
                     button_w, button_h, mouse_down_hide ? light_green : pail_green, (char *)labels[HIDE_LABEL], char_height);
 
-        draw_button(g_in_front_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + spaces), t - (line_number * char_height),
+        draw_button(g_in_front_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + c_BUTTON2BUTTON), t - (line_number * char_height),
                     button_w, button_h, XPLMIsWindowInFront(xcvr_in_window_id) ? light_green : pail_green, (char *)labels[IN_FRONT_LABEL], char_height);
 
         line_number = line_number + 3;
         draw_button(g_previous_button_lbrt, l + c_BUTTON2BORDER, t - (line_number * char_height),
                     button_w, button_h, mouse_down_previous ? light_green : pail_green, (char *)labels[PREVIOUS_LABEL], char_height);
 
-        draw_button(g_check_item_button_lbrt, l + c_BUTTON2BORDER + button_w + spaces, t - (line_number * char_height),
+        draw_button(g_check_item_button_lbrt, l + c_BUTTON2BORDER + button_w + c_BUTTON2BUTTON, t - (line_number * char_height),
                     button_w, button_h, mouse_down_check_item ? light_green : pail_green, (char *)labels[CHECK_ITEM_LABEL], char_height);
 
-        draw_button(g_next_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + spaces), t - (line_number * char_height),
+        draw_button(g_next_button_lbrt, l + c_BUTTON2BORDER + 2 * (button_w + c_BUTTON2BUTTON), t - (line_number * char_height),
                     button_w, button_h, mouse_down_next ? light_green : pail_green, (char *)labels[NEXT_LABEL], char_height);
 }
 
@@ -289,17 +277,11 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
             }
 
             for (unsigned int iii = 0; iii < xcvr_size; ++iii) {
-
-                if(coord_in_rect(xcvr_x, xcvr_y, g_check_box_lbrt[iii])) // user clicked the pop-in/pop-out button
+                if((iii == (unsigned int)checkable) && coord_in_rect(xcvr_x, xcvr_y, g_check_box_lbrt[iii])) // user clicked the pop-in/pop-out button
                 {
-                    if (checked[iii] == 0)
-                    {
-                        checked[iii] = 1;
-                    }
-                    else
-                    {
-                       checked[iii] = 0;
-                    }
+                  if(item_checked(checkable)) {
+                    check_item(checkable);
+                  }
                 }
             }
 

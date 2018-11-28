@@ -1337,7 +1337,6 @@ bool create_checklist(unsigned int size, const char *title,
                 XPLMSetWindowGeometry(xcvr_g_window, win_left, win_top, win_right, win_bottom);
             }
         }
-
         mouse_down_hide = 0;
         mouse_down_previous = 0;
         mouse_down_check_item = 0;
@@ -1467,6 +1466,7 @@ bool create_checklist(unsigned int size, const char *title,
 
      if (VersionXP > 11200) {
          #if XPLM301
+         XPLMSetWindowResizingLimits(xcvr_g_window, win_right - win_left, win_top - win_bottom,  win_right - win_left, win_top - win_bottom);
          if (is_popped_out) {
              #if LIN
              XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
