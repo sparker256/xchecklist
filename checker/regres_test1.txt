@@ -123,6 +123,27 @@ sw_item:<111>Closer than function test:checklist/test/int_dref1:{checklist/test/
 #!#<112>checklist/test/array_int_dref1[4] 14
 sw_item:<112>Equality test with array datarefs:checklist/test/array_int_dref1[4]:{checklist/test/array_int_dref1[4]}
 
+#!#<113>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<113>Closer than function test:+1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<114>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<114>Closer than function test:-1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-2
+#!#<115>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<115>Closer than function test:1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<116>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<116>Closer than function test:1.4:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)+0.4
+#!#<117>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<117>Closer than function test:+1.:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<118>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<118>Closer than function test:.3:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-0.7
+#!#<119>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<119>Closer than function test:-.6:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-1.6
+#!#<120>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<120>Closer than function test:2E-1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-0.8
+#!#<121>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<121>Closer than function test:.3e2:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)+29
+#!#<122>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<122>Closer than function test:+1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+
 
 sw_checklist:Condition combinations
 #!#<200>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 43:checklist/test/float_dref1 42, checklist/test/int_dref1 43:checklist/test/float_dref1 43
