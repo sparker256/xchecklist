@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.33 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.34 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -1466,7 +1466,11 @@ bool create_checklist(unsigned int size, const char *title,
 
      if (VersionXP > 11200) {
          #if XPLM301
-         XPLMSetWindowResizingLimits(xcvr_g_window, win_right - win_left, win_top - win_bottom,  win_right - win_left, win_top - win_bottom);
+         if (!g_in_vr) {
+             // VR is unhappy with this so will only let it be used when not in VR.
+             // In VR because the window is transparent there are no resize handles so it is not a issue there.
+             XPLMSetWindowResizingLimits(xcvr_g_window, win_right - win_left, win_top - win_bottom,  win_right - win_left, win_top - win_bottom);
+         }
          if (is_popped_out) {
              #if LIN
              XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
