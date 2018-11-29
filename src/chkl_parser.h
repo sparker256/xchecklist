@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-
+#include <unistd.h>
 #include "interface.h"
 
 typedef enum {XC_NOT, XC_EQ, XC_LT, XC_LE, XC_GT, XC_GE, XC_IN, XC_HYST,
@@ -207,9 +207,9 @@ class dataref_op : public dataref_t {
 class dataref_dsc : public dataref_t{
   friend std::ostream& operator<<(std::ostream &output, const dataref_dsc& d);
  public:
-  dataref_dsc(dataref_name *dr, value *val);
-  dataref_dsc(dataref_name *dr, operation_t *o, value *val);
-  dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in = true);
+  dataref_dsc(value *dr, value *val);
+  dataref_dsc(value *dr, operation_t *o, value *val);
+  dataref_dsc(value *dr, value *v1, value *v2, bool plain_in = true);
   virtual ~dataref_dsc();
   virtual bool registerDsc();
   virtual void reset_trig(){state = NONE;};
@@ -217,7 +217,7 @@ class dataref_dsc : public dataref_t{
   virtual void print(std::ostream &output)const{output << *this;};
  private:
   bool checkTrig();
-  dataref_name *data_ref;
+  value *data_ref;
   value *val1;
   value *val2;
   operation_t op;

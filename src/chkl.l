@@ -47,6 +47,8 @@ DOT                     \.
 AND                     &&
 NUMBER                  [0-9]+
 
+CONSTANT                [+-]?[0-9]*\.?[0-9]*[eE]?[+-]?[0-9]*
+
 %%
 sw_checklist                 {isVoid = false; return(TOKEN_CHECKLIST);}
 sw_item                      {isVoid = false; return(TOKEN_ITEM);}
@@ -95,6 +97,7 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
                              }
 <NUM>[a-zA-Z][a-zA-Z0-9_]+   {
                                chkllval.str = strdup(yytext);
+                               //fprintf(stderr, "\nNSTRING:'%s'\n", yytext);
                                return(TOKEN_STRING);
                              }
 <NUM>\(double\)              {return(TOKEN_TO_DOUBLE);}
@@ -124,6 +127,11 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
                                return(TOKEN_STRING);
                              }
 
+<DREF>{CONSTANT}             {
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\n Number: %s\n", yytext);
+                               return(TOKEN_NUMBER);
+                             }
 <DREF>{DATAREF}              {
                                chkllval.str=strdup(yytext);
                                //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);

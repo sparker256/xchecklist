@@ -81,13 +81,12 @@
 %token TOKEN_ERR
 
 %type <chkl> checklist;
-%type <dref_name> dataref_name;
 %type <dref> dataref dataref_expr dataref_term dataref_prim;
 %type <op> operation;
 %type <lbl> spec_string;
 %type <op> colsize;
 %type <item> show item_void item_info item item_remark;
-%type <val> number primary p_term term expression;
+%type <val> dataref_name number primary p_term term expression;
 %type <plist> param_list
 
 %%
@@ -273,7 +272,12 @@ dataref_name:   TOKEN_STRING {
                     free($1);
                     expect_number();
                   }
-                | TOKEN_STRING TOKEN_LEFT_BRACKET TOKEN_STRING TOKEN_RIGHT_BRACKET{
+                | TOKEN_NUMBER {
+                    $$ = new number($1, "", "");
+                    free($1);
+                    expect_number();
+                  }
+                | TOKEN_STRING TOKEN_LEFT_BRACKET TOKEN_NUMBER TOKEN_RIGHT_BRACKET{
                     $$ = new dataref_name($1, $3);
                     free($1);
                     free($3);

@@ -308,7 +308,7 @@ bool dataref_name::get_value(double &d)const
   return true;
 }
 
-dataref_dsc::dataref_dsc(dataref_name *dr, value *val)
+dataref_dsc::dataref_dsc(value *dr, value *val)
 {
   data_ref = dr;
   val1 = val;
@@ -323,7 +323,7 @@ dataref_dsc::dataref_dsc(dataref_name *dr, value *val)
   }
 }
 
-dataref_dsc::dataref_dsc(dataref_name *dr, operation_t *o, value *val)
+dataref_dsc::dataref_dsc(value *dr, operation_t *o, value *val)
 {
   state = NONE;
   data_ref = dr;
@@ -339,7 +339,7 @@ dataref_dsc::dataref_dsc(dataref_name *dr, operation_t *o, value *val)
   }
 }
 
-dataref_dsc::dataref_dsc(dataref_name *dr, value *v1, value *v2, bool plain_in)
+dataref_dsc::dataref_dsc(value *dr, value *v1, value *v2, bool plain_in)
 {
   state = NONE;
   data_ref = dr;
