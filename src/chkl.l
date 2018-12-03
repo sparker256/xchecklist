@@ -20,7 +20,7 @@
 %x NUM DREF VOID VOID1
 
 EOL                     (\r|\n|\n\r|\r\n)
-STRING                                [^\n\r:|]+
+STRING                                [^\n\r:|\xef]+
 VOIDSTRING                        [^\n\r|]+
 VOIDSTRING1                        [^\n\r]+
 DATAREF                                [^\n\r:|\[\]\(\)&]+
@@ -49,7 +49,10 @@ NUMBER                  [0-9]+
 
 CONSTANT                [+-]?[0-9]*\.?[0-9]*[eE]?[+-]?[0-9]*
 
+BOM_UTF8                \xef\xbb\xbf
+
 %%
+{BOM_UTF8}                   {}
 sw_checklist                 {isVoid = false; return(TOKEN_CHECKLIST);}
 sw_item                      {isVoid = false; return(TOKEN_ITEM);}
 sw_iteminfo                  {isVoid = false; return(TOKEN_ITEMINFO);}

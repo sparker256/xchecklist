@@ -1058,9 +1058,11 @@ bool show_item::getDesc(checklist_item_desc_t &desc)
  *   - bit 1 - verbosely evaluate expressions
  */
 
+static int errors_found;
 
 bool parse_clist(const std::string &fname, int debug)
 {
+  errors_found = 0;
   if((chklin=fopen(fname.c_str(), "r")) != NULL){
     parsed_file = strdup(fname.c_str());
 
@@ -1074,9 +1076,12 @@ bool parse_clist(const std::string &fname, int debug)
     free(parsed_file);
     parsed_file = NULL;
     chkllineno = 1;
-    if(res == 0){
+    if((res == 0) && (errors_found == 0)){
         xcDebug("Xchecklist: Checklist read OK!\n");
-        return(true);
+        return true;
+    }else{
+      xcDebug("Xchecklist: %d errors found!\n", errors_found);
+      return false;
     }
   }
   xcDebug("Xchecklist: Error encountered while reading Checklist!\n");
@@ -1087,6 +1092,7 @@ void chklerror(char const *s)
 {
   xcErr("Xchecklist: %s in file %s, line %d near '%s'\n",
           s, parsed_file, chkllineno, chkltext);
+  ++errors_found;
 }
 
 
