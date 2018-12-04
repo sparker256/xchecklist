@@ -331,16 +331,6 @@ primary:        number
 
 number:         TOKEN_NUMBER
                   {$$ = new number($1, "", ""); free($1);}
-                | TOKEN_NUMBER TOKEN_FRAC
-                  {$$ = new number($1, $2, ""); free($1); free($2);}
-                | TOKEN_NUMBER TOKEN_FRAC TOKEN_EXPONENT
-                  {$$ = new number($1, $2, $3); free($1); free($2); free($3);}
-                | TOKEN_NUMBER TOKEN_EXPONENT
-                  {$$ = new number($1, "", $2); free($1); free($2);}
-                | TOKEN_FRAC TOKEN_EXPONENT
-                  {$$ = new number("", $1, $2); free($1); free($2);}
-                | TOKEN_FRAC
-                  {$$ = new number("", $1, ""); free($1);}
 ;
 
 param_list:    param_list TOKEN_COMA expression

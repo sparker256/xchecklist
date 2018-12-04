@@ -45,7 +45,8 @@ POS_DIF                 \+>
 NEG_DIF                 -<
 DOT                     \.
 AND                     &&
-NUMBER                  [0-9]+
+NUMBER                  [0-9]
+SIGN                    [+-]
 
 CONSTANT                [+-]?[0-9]*\.?[0-9]*[eE]?[+-]?[0-9]*
 
@@ -111,17 +112,37 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
                               chkllval.str[len - 2] = '\0';
                               return(TOKEN_DREF);
                              }
-<NUM>{NUMBER}                {
+<DREF>{SIGN}?{NUMBER}+       {
                                chkllval.str=strdup(yytext);
                                return(TOKEN_NUMBER);
                              }
-<NUM>{DOT}{NUMBER}           {
+<DREF>{SIGN}?{NUMBER}*{DOT}{NUMBER}* {
                                chkllval.str=strdup(yytext);
-                               return(TOKEN_FRAC);
+                               return(TOKEN_NUMBER);
                              }
-<NUM>[eE][+-]?{NUMBER}       {
+<DREF>{SIGN}?{NUMBER}+[eE]{SIGN}?{NUMBER}+ {
                                chkllval.str=strdup(yytext);
-                               return(TOKEN_EXPONENT);
+                               return(TOKEN_NUMBER);
+                             }
+<DREF>{SIGN}?{NUMBER}*{DOT}{NUMBER}+[eE][+-]?{NUMBER}+ {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
+                             }
+<NUM,DREF>{NUMBER}+          {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
+                             }
+<NUM,DREF>{NUMBER}*{DOT}{NUMBER}* {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
+                             }
+<NUM,DREF>{NUMBER}+[eE]{SIGN}?{NUMBER}+ {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
+                             }
+<NUM,DREF>{NUMBER}*{DOT}{NUMBER}+[eE][+-]?{NUMBER}+ {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_NUMBER);
                              }
 <NUM>[a-zA-Z][a-zA-Z0-9_]+   {
                                chkllval.str = strdup(yytext);
@@ -154,12 +175,6 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
                                chkllval.str=strdup(yytext);
                                //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
                                return(TOKEN_STRING);
-                             }
-
-<DREF>{CONSTANT}             {
-                               chkllval.str=strdup(yytext);
-                               //fprintf(stderr, "\n Number: %s\n", yytext);
-                               return(TOKEN_NUMBER);
                              }
 <DREF>{DATAREF}              {
                                chkllval.str=strdup(yytext);
