@@ -8,7 +8,9 @@
   #include "chkl_yacc.h"
   #include "src/utils.h"
 
-  static bool isVoid = false;
+  typedef enum {STATE_CMD, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
+  static t_state state = STATE_CMD;
+  static bool open_paren = false;
 
 %}
 %option noyywrap
@@ -17,12 +19,10 @@
 %option nodefault
 %option warn
 
-%x NUM DREF VOID VOID1
+%x DESC NUM DREF VOID VOID1
 
 EOL                     (\r|\n|\n\r|\r\n)
-STRING                                [^\n\r:|\xef]+
-VOIDSTRING                        [^\n\r|]+
-VOIDSTRING1                        [^\n\r]+
+STRING                                [^\n\r:|]+
 DATAREF                                [^\n\r:|\[\]\(\)&]+
 COLON                   :
 LBRACKET                \[
@@ -53,16 +53,41 @@ BOM_UTF8                \xef\xbb\xbf
 
 %%
 {BOM_UTF8}                   {}
-sw_checklist                 {isVoid = false; return(TOKEN_CHECKLIST);}
-sw_item                      {isVoid = false; return(TOKEN_ITEM);}
-sw_iteminfo                  {isVoid = false; return(TOKEN_ITEMINFO);}
-sw_itemvoid                  {isVoid = true;  return(TOKEN_ITEMVOID);}
-sw_show                      {isVoid = false; BEGIN(DREF); return(TOKEN_SHOW);}
-sw_rcolsize                  {isVoid = false; return(TOKEN_RCOLSIZE);}
-sw_remark                    {isVoid = false; return(TOKEN_REMARK);}
-sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
+sw_checklist                 {return(TOKEN_CHECKLIST);}
+sw_item                      {return(TOKEN_ITEM);}
+sw_iteminfo                  {return(TOKEN_ITEMINFO);}
+sw_itemvoid                  {return(TOKEN_ITEMVOID);}
+sw_show                      {state = STATE_DESC; return(TOKEN_SHOW);}
+sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
+sw_remark                    {return(TOKEN_REMARK);}
+sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 
-<*>{COLON}                   {if(isVoid){BEGIN(VOID);} return(TOKEN_COLON);}
+<*>{COLON}                   {
+                               if(!open_paren){
+                                 //fprintf(stderr, ":\n");
+                                 switch(state){
+                                   case STATE_CMD:
+                                     BEGIN(DESC);
+                                     state = STATE_DESC;
+                                     //fprintf(stderr, "  STATE -> DESC\n");
+                                     break;
+                                   case STATE_DESC:
+                                     BEGIN(DREF);
+                                     state = STATE_DREF;
+                                     //fprintf(stderr, "    STATE -> DREF\n");
+                                     break;
+                                   case STATE_DREF:
+                                     BEGIN(NUM);
+                                     state = STATE_EXPR;
+                                     //fprintf(stderr, "      STATE -> EXPR\n");
+                                     break;
+                                   case STATE_EXPR:
+                                     //Intentionaly empty
+                                     break;
+                                 }
+                               }
+                               return(TOKEN_COLON);
+                             }
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
 <NUM>{LT}{EQ}                {return(TOKEN_LE);}
@@ -108,23 +133,24 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
 <NUM>\(int\)                 {return(TOKEN_TO_INT);}
 <NUM>,                       {return(TOKEN_COMA);}
 
-<INITIAL,NUM,DREF>{PIPE}     {return(TOKEN_PIPE);}
+<DESC,NUM,DREF>{PIPE}        {return(TOKEN_PIPE);}
 <DREF>{OR}                   {return(TOKEN_OR);}
 <DREF>{AND}                  {return(TOKEN_AND);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
 <DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
-<DREF,NUM>{LPAREN}           {return(TOKEN_LEFT_PARENTHESIS);}
-<DREF,NUM>{RPAREN}           {return(TOKEN_RIGHT_PARENTHESIS);}
-<*>^[[:blank:]]+#[^\r\n]*    {}
-<*>#[^\r\n]*                 {}
+<DREF,NUM>{LPAREN}           {open_paren = true; return(TOKEN_LEFT_PARENTHESIS);}
+<DREF,NUM>{RPAREN}           {open_paren = false; return(TOKEN_RIGHT_PARENTHESIS);}
+<*>#[^\r\n]*                 /*eat comments*/
 <*>{EOL}                     {
                                BEGIN(INITIAL);
-                               isVoid = false;
+                               state = STATE_CMD;
+                               //fprintf(stderr, "STATE -> CMD\n");
+                               open_paren = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }
 <*>[[:blank:]]+              /*eat whitespaces*/
-{STRING}                     {
+<DESC>{STRING}               {
                                chkllval.str=strdup(yytext);
                                //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
                                return(TOKEN_STRING);
@@ -140,41 +166,9 @@ sw_continue[[:blank:]]*      {isVoid = false; return(TOKEN_CONTINUE);}
                                //fprintf(stderr, "\nDSTRING:'%s'\n", yytext);
                                return(TOKEN_STRING);
                              }
-<VOID>{VOIDSTRING}           {
-                               chkllval.str=strdup(yytext);
-                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
-                               return(TOKEN_STRING);
-                             }
-<VOID>{PIPE}                 {
-                               BEGIN(VOID1);
-                               return(TOKEN_PIPE);
-                             }
-<VOID1>{VOIDSTRING1}         {//ugly cludge
-                               chkllval.str=strdup(yytext);
-                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
-                               return(TOKEN_STRING);
-                             }
 <*>.                         {
                                xcDebug("XChecklist: Unmatched character '%s' at line %d!\n",
                                  chkltext, chkllineno);
                              }
 %%
-
-void expect_number()
-{
-  BEGIN(NUM);
-  //fprintf(stderr, ">>>>>>>>>Expect number\n");
-}
-
-void expect_dataref()
-{
-  BEGIN(DREF);
-  //fprintf(stderr, ">>>>>>>>>Expect dataref\n");
-}
-
-void expect_nothing()
-{
-  BEGIN(INITIAL);
-  //fprintf(stderr, ">>>>>>>>>Expect nothing\n");
-}
 

@@ -9,9 +9,6 @@
   class checklist;
   class checklist_binder;
   extern void start_error_recovery();
-  extern void expect_number();
-  extern void expect_dataref();
-  extern void expect_nothing();
 
   checklist *empty_checklist(class checklist_binder **cb)
   {
@@ -91,9 +88,7 @@
 
 %%
 input:                /* empty */
-                      | input line{
-                          expect_nothing();
-                        }
+                      | input line
 ;
 
 line:                checklist{
@@ -224,18 +219,15 @@ colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
 spec_string:    TOKEN_STRING{
                     $$ = new item_label($1);
                     free($1);
-                    expect_dataref();
                   }
                 | TOKEN_STRING TOKEN_PIPE{
                     $$ = new item_label($1);
                     free($1);
-                    expect_dataref();
                   }
                 | TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
                     $$ = new item_label($1, $3);
                     free($1);
                     free($3);
-                    expect_dataref();
                   }
 ;
 dataref_expr:   dataref_expr TOKEN_OR dataref_term {
@@ -255,33 +247,30 @@ dataref_prim:   dataref
 ;
 dataref:        dataref_name TOKEN_COLON operation expression {
                     $$ = new dataref_dsc($1, (operation_t*)$3, $4);
-                    delete $3;expect_dataref();
+                    delete $3;
                   }
                 | dataref_name TOKEN_COLON expression {
-                    $$ = new dataref_dsc($1, $3);expect_dataref();
+                    $$ = new dataref_dsc($1, $3);
                   }
                 | dataref_name TOKEN_COLON expression TOKEN_PIPE expression {
-                    $$ = new dataref_dsc($1, $3, $5);expect_dataref();
+                    $$ = new dataref_dsc($1, $3, $5);
                   }
                 | dataref_name TOKEN_COLON expression TOKEN_COLON expression {
-                    $$ = new dataref_dsc($1, $3, $5, false);expect_dataref();
+                    $$ = new dataref_dsc($1, $3, $5, false);
                   }
 ;
 dataref_name:   TOKEN_STRING {
                     $$ = new dataref_name($1);
                     free($1);
-                    expect_number();
                   }
                 | TOKEN_NUMBER {
                     $$ = new number($1, "", "");
                     free($1);
-                    expect_number();
                   }
                 | TOKEN_STRING TOKEN_LEFT_BRACKET TOKEN_NUMBER TOKEN_RIGHT_BRACKET{
                     $$ = new dataref_name($1, $3);
                     free($1);
                     free($3);
-                    expect_number();
                   }
 ;
 
