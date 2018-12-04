@@ -405,14 +405,18 @@ bool spoken(float elapsed){(void)elapsed;return true;}
 bool walkthrough_checklists()
 {
   while(1){
-    std::cout << cl->get_title() << std::endl;
-    while(!cl->work());
+    if(cl != NULL){
+      std::cout << cl->get_title() << std::endl;
+      while(!cl->work());
 
-    //to allow sw_show
-    if(cl->work(false)){
-      if(!next_checklist(true)){
-        break;
+      //to allow sw_show
+      if(cl->work(false)){
+        if(!next_checklist(true)){
+          break;
+        }
       }
+    }else{
+      break;
     }
   }
   xcSummary();

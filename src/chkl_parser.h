@@ -280,7 +280,7 @@ class remark_item:public checklist_item{
 
 class chk_item:public checklist_item{
   public:
-    chk_item(item_label *l, dataref_t *d, bool ch);
+    chk_item(item_label *l, dataref_t *d, bool ch, bool silent = false);
     virtual ~chk_item();
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
@@ -291,6 +291,7 @@ class chk_item:public checklist_item{
     item_label *label;
     dataref_t *dataref;
     bool checkable;
+    bool dont_speak;
     //bool check_state;
 };
 

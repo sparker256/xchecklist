@@ -72,13 +72,14 @@
 %token TOKEN_OR
 %token TOKEN_EQ
 %token TOKEN_EOF
-%token <str> TOKEN_STRING TOKEN_FRAC TOKEN_EXPONENT TOKEN_NUMBER
+%token <str> TOKEN_STRING TOKEN_NUMBER
 %token TOKEN_REMARK
 %token TOKEN_CONTINUE
+%token TOKEN_SILENCE
 %token TOKEN_ERR
 
 %type <chkl> checklist;
-%type <dref> dataref dataref_expr dataref_term dataref_prim;
+%type <dref> dataref dataref_expr dataref_expr_both dataref_term dataref_prim;
 %type <op> operation;
 %type <lbl> spec_string;
 %type <op> colsize;
@@ -156,20 +157,29 @@ checklist:        TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                   }
 ;
 
-item:                TOKEN_ITEM TOKEN_COLON spec_string {
+item:           TOKEN_ITEM TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, true);
                   }
                 | TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
                     $$ = new chk_item($3, NULL, true);
                   }
-                | TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
+                | TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr_both{
                     $$ = new chk_item($3, $5, true);
+                  }
+                | TOKEN_SILENCE TOKEN_ITEM TOKEN_COLON spec_string {
+                    $$ = new chk_item($4, NULL, true, true);
+                  }
+                | TOKEN_SILENCE TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON{
+                    $$ = new chk_item($4, NULL, true, true);
+                  }
+                | TOKEN_SILENCE TOKEN_ITEM TOKEN_COLON spec_string TOKEN_COLON dataref_expr_both{
+                    $$ = new chk_item($4, $6, true, true);
                   }
 ;
 item_info:        TOKEN_ITEMINFO TOKEN_COLON spec_string {
                     $$ = new chk_item($3, NULL, true);
                   }
-                | TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr{
+                | TOKEN_ITEMINFO TOKEN_COLON spec_string TOKEN_COLON dataref_expr_both{
                     $$ = new chk_item($3, $5, false);
                   }
 ;
@@ -195,11 +205,11 @@ item_remark:    TOKEN_REMARK TOKEN_COLON TOKEN_STRING{
                     free($3);
                   }
 ;
-show:                TOKEN_SHOW TOKEN_COLON dataref_expr{
+show:                TOKEN_SHOW TOKEN_COLON dataref_expr_both{
                     $$ = new show_item($3);
                   }
 ;
-continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING TOKEN_COLON dataref_expr{
+continue:       TOKEN_CONTINUE TOKEN_COLON TOKEN_STRING TOKEN_COLON dataref_expr_both{
                     current_checklist->add_continue_flag($3, $5);
                     free($3);
                   }
@@ -229,6 +239,12 @@ spec_string:    TOKEN_STRING{
                     free($1);
                     free($3);
                   }
+;
+dataref_expr_both: dataref_expr
+                |  TOKEN_COLON expression operation expression {
+                    $$ = new dataref_dsc($2, (operation_t*)$3, $4);
+                    delete $3;
+                }
 ;
 dataref_expr:   dataref_expr TOKEN_OR dataref_term {
                   $$ = new dataref_op($1, XC_OR, $3);

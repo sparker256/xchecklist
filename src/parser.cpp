@@ -615,11 +615,12 @@ remark_item::remark_item(std::string s)
   text = s;
 }
 
-chk_item::chk_item(item_label *l, dataref_t *d, bool ch)
+chk_item::chk_item(item_label *l, dataref_t *d, bool ch, bool silent)
 {
   label = l;
   dataref = d;
   checkable = ch;
+  dont_speak = silent;
 }
 
 chk_item::~chk_item()
@@ -786,7 +787,7 @@ bool chk_item::do_processing(bool copilotOn)
     switch(state){
     case INACTIVE:
         elapsed = 0.0f;
-        if(speech_active()){
+        if(speech_active() && !dont_speak){
             label->say_label();
             state = SAY_LABEL;
         }else{
@@ -808,8 +809,8 @@ bool chk_item::do_processing(bool copilotOn)
     case PROCESSING:
         elapsed = 0;
         if(checked ||
-           (copilotOn && (dataref != NULL) && dataref->trigered())){
-          if(speech_active()){
+           (!dont_speak && (copilotOn && (dataref != NULL) && dataref->trigered()))){
+          if(speech_active() && !dont_speak){
             label->say_suffix();
             state = SAY_SUFFIX;
           }else{

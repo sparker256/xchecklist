@@ -158,6 +158,13 @@ sw_item:<202>Condition combination (or, second true):(checklist/test/float_dref1
 #!#<203>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 46,checklist/test/int_dref1 46
 sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:46)||(checklist/test/int_dref1:46)
 
+sw_checklist:New expressions
+#!#<210>checklist/test/float_dref1 42,checklist/test/int_dref1 44:checklist/test/int_dref1 42
+sw_item:<210>New expressions test::{checklist/test/float_dref1} = {checklist/test/int_dref1}
+#!#<211>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/int_dref1 44
+sw_item:<211>New expressions test::{checklist/test/float_dref1} ! {checklist/test/int_dref1}
+
+
 sw_checklist:Varia:Varia
 #?#f checklist/test/show_int1 0
 sw_show:checklist/test/show_int1:1
@@ -194,9 +201,9 @@ sw_checklist:We don't go to Ravneholm
 sw_item:If you see this, something is wrong
 
 sw_checklist:C3:C3m
-sw_item:Item C3
+@sw_item:Item C3
 sw_continue
 
 sw_checklist:C4:C4m
-sw_item:Item C4
+@sw_item:Item C4
 

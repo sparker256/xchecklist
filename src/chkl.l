@@ -51,9 +51,11 @@ SIGN                    [+-]
 CONSTANT                [+-]?[0-9]*\.?[0-9]*[eE]?[+-]?[0-9]*
 
 BOM_UTF8                \xef\xbb\xbf
+SILENCER                ^@
 
 %%
 {BOM_UTF8}                   {}
+SILENCER                     {return(TOKEN_SILENCE);}
 sw_checklist                 {return(TOKEN_CHECKLIST);}
 sw_item                      {return(TOKEN_ITEM);}
 sw_iteminfo                  {return(TOKEN_ITEMINFO);}
