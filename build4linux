@@ -9,7 +9,11 @@ mkdir -p release/Xchecklist/win_x64 &&
 mkdir -p release/Xchecklist/mac_x64 &&
 qmake -spec win32-g++ Xchecklist.pro && qmake -set CROSS_COMPILE x86_64-w64-mingw32- && make &&
 cp plugin/release/win.xpl1.dll release/Xchecklist/64/win.xpl &&
-cp checker/release/checker.exe release/Checker/win_checker_64bit.exe
+cp checker/release/checker.exe release/Checker/win_checker_64bit.exe &&
+cp checker/clist.txt release/Checker/clist.txt &&
+cp checker/regres_test1.txt release/Checker/regres_test1.txt &&
+cp docs/XchecklistUserManual.pdf release/XchecklistUserManual.pdf &&
+cp ChangeLog.txt release/ChangeLog.txt
 if [ $? != 0 ] ; then
   exit
 fi
