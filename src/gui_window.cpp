@@ -216,7 +216,7 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         const int c_BUTTON2BORDER = 20;
         const int c_BUTTON2BUTTON = 20;
         int button_w = (xcvr_width - 2 * (c_BUTTON2BORDER + c_BUTTON2BUTTON)) / 3;
-        int button_h = 2.5 * char_height;
+        int button_h = 2.25 * char_height;
 
         draw_button(g_hide_button_lbrt, l + c_BUTTON2BORDER + button_w + c_BUTTON2BUTTON, t - (line_number * char_height),
                     button_w, button_h, mouse_down_hide ? light_green : pail_green, (char *)labels[HIDE_LABEL], char_height);
