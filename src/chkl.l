@@ -51,11 +51,11 @@ SIGN                    [+-]
 CONSTANT                [+-]?[0-9]*\.?[0-9]*[eE]?[+-]?[0-9]*
 
 BOM_UTF8                \xef\xbb\xbf
-SILENCER                ^@
+SILENCER                @
 
 %%
 {BOM_UTF8}                   {}
-SILENCER                     {return(TOKEN_SILENCE);}
+{SILENCER}                   {return(TOKEN_SILENCE);}
 sw_checklist                 {return(TOKEN_CHECKLIST);}
 sw_item                      {return(TOKEN_ITEM);}
 sw_iteminfo                  {return(TOKEN_ITEMINFO);}
@@ -93,9 +93,11 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
                              }
 
 <NUM>{NEQ}                   {return(TOKEN_NE);}
+<NUM>!=                      {return(TOKEN_NE);}
 <NUM>{LT}{EQ}                {return(TOKEN_LE);}
 <NUM>{GT}{EQ}                {return(TOKEN_GE);}
 <NUM>{EQ}                    {return(TOKEN_EQ);}
+<NUM>==                      {return(TOKEN_EQ);}
 <NUM>{LT}                    {return(TOKEN_LT);}
 <NUM>{GT}                    {return(TOKEN_GT);}
 <NUM>{POS_DIF}               {return(TOKEN_POS_DIF);}
@@ -157,8 +159,8 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 <NUM>,                       {return(TOKEN_COMA);}
 
 <DESC,NUM,DREF>{PIPE}        {return(TOKEN_PIPE);}
-<DREF>{OR}                   {return(TOKEN_OR);}
-<DREF>{AND}                  {return(TOKEN_AND);}
+<DREF,NUM>\|\|               {return(TOKEN_OR);}
+<DREF,NUM>&&                 {return(TOKEN_AND);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
 <DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
 <DREF,NUM>{LPAREN}           {open_paren = true; return(TOKEN_LEFT_PARENTHESIS);}

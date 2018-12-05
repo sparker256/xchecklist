@@ -79,8 +79,8 @@
 %token TOKEN_ERR
 
 %type <chkl> checklist;
-%type <dref> dataref dataref_expr dataref_expr_both dataref_term dataref_prim;
-%type <op> operation;
+%type <dref> dataref dataref_expr dataref_expr_both dataref_term dataref_prim rel_primary rel_term rel_expr;
+%type <op> rel_operation;
 %type <lbl> spec_string;
 %type <op> colsize;
 %type <item> show item_void item_info item item_remark;
@@ -241,7 +241,21 @@ spec_string:    TOKEN_STRING{
                   }
 ;
 dataref_expr_both: dataref_expr
-                |  TOKEN_COLON expression operation expression {
+                |  TOKEN_COLON rel_expr {
+                  $$ = $2;
+                }
+;
+rel_expr:       rel_expr TOKEN_OR rel_term {
+                  $$ = new dataref_op($1, XC_OR, $3);
+                }
+                | rel_term
+;
+rel_term:       rel_term TOKEN_AND rel_primary {
+                  $$ = new dataref_op($1, XC_AND, $3);
+                }
+                | rel_primary
+;
+rel_primary:    TOKEN_LEFT_PARENTHESIS expression rel_operation expression TOKEN_RIGHT_PARENTHESIS {
                     $$ = new dataref_dsc($2, (operation_t*)$3, $4);
                     delete $3;
                 }
@@ -261,7 +275,7 @@ dataref_prim:   dataref
                     $$ = $2;
                 }
 ;
-dataref:        dataref_name TOKEN_COLON operation expression {
+dataref:        dataref_name TOKEN_COLON rel_operation expression {
                     $$ = new dataref_dsc($1, (operation_t*)$3, $4);
                     delete $3;
                   }
@@ -290,7 +304,7 @@ dataref_name:   TOKEN_STRING {
                   }
 ;
 
-operation:      TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
+rel_operation:  TOKEN_NE {$$ = (int *)new operation_t(XC_NOT);}
                 | TOKEN_LT {$$ = (int *)new operation_t(XC_LT);}
                 | TOKEN_GT {$$ = (int *)new operation_t(XC_GT);}
                 | TOKEN_LE {$$ = (int *)new operation_t(XC_LE);}

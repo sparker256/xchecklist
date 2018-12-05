@@ -160,9 +160,12 @@ sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:4
 
 sw_checklist:New expressions
 #!#<210>checklist/test/float_dref1 42,checklist/test/int_dref1 44:checklist/test/int_dref1 42
-sw_item:<210>New expressions test::{checklist/test/float_dref1} = {checklist/test/int_dref1}
+sw_item:<210>New expressions test::({checklist/test/float_dref1} == {checklist/test/int_dref1})
 #!#<211>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/int_dref1 44
-sw_item:<211>New expressions test::{checklist/test/float_dref1} ! {checklist/test/int_dref1}
+sw_item:<211>New expressions test::({checklist/test/float_dref1} != {checklist/test/int_dref1})
+#!#<212>checklist/test/float_dref1 42,checklist/test/array_int_dref1[4] 42:checklist/test/array_int_dref1[4] 14,checklist/test/float_dref1 43
+sw_item:<212>New expressions test::({checklist/test/float_dref1} != 42) && ({checklist/test/array_int_dref1[4]} == 14)
+
 
 
 sw_checklist:Varia:Varia
