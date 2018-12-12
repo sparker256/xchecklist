@@ -1,0 +1,19 @@
+Here is the list of commands to build Xchecklist using cmake.
+
+
+cd repo directory
+
+cd src
+
+mkdir build
+
+cd build
+
+cmake ..
+
+make
+
+
+some other commands that may help
+
+If you are in the src directory and already have a build directory "rm -r build/*" will clean out the build directory.
