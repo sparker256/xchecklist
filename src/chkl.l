@@ -5,7 +5,7 @@
   #include <string.h>
   //#include <stdbool.h>
   #include "chkl_parser.h"
-  #include "chkl_yacc.h"
+  #include "chkl_yacc.hpp"
   #include "utils.h"
 
   typedef enum {STATE_CMD, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;

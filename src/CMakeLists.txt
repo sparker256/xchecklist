@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Widgets")
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Wrappers")
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/XPLM")
+include_directories("${CMAKE_SOURCE_DIR}")
 
 
 # Specify library search locations.
@@ -72,49 +73,13 @@ endif ()
 # Runs flex and bison
 find_package(BISON)
 find_package(FLEX)
+BISON_TARGET(Parser chkl.y ${CMAKE_CURRENT_BINARY_DIR}/chkl_yacc.cpp COMPILE_FLAGS "-v -p chkl -r state")
+FLEX_TARGET(Scanner chkl.l ${CMAKE_CURRENT_BINARY_DIR}/chkl_lex.cpp)
+ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
 
-# these commands are from the qmake makefile.
-# Need to find a way to execute these commands here.
-# yacc -d -p chkl -b chkl ../src/chkl.y
-# rm -f chkl_yacc.h chkl_yacc.cpp
-# mv -f chkl.tab.h chkl_yacc.h
-# mv -f chkl.tab.c chkl_yacc.cpp
-
-add_custom_command(
-	OUTPUT ${CMAKE_SOURCE_DIR}/chkl.tab.c
-	OUTPUT ${CMAKE_SOURCE_DIR}/chkl.tab.h
-	COMMAND yacc -d -p chkl -b chkl ${CMAKE_SOURCE_DIR}/chkl.y
-#	COMMAND rm -f chkl_yacc.h chkl_yacc.cpp
-#	COMMAND mv -f chkl.tab.h chkl_yacc.h
-#	COMMAND mv -f chkl.tab.c chkl_yacc.cpp
-)
-
-# this is creating the chkl.tab.c and chkl.tab.h but in the root of the build folder.
-# I need to find a way to move them to the src folder
-add_custom_target(chkl_tab_source ALL DEPENDS ${CMAKE_SOURCE_DIR}/chkl.tab.c)
-add_custom_target(chkl_tab_header ALL DEPENDS ${CMAKE_SOURCE_DIR}/chkl.tab.h)
 message (STATUS "CMAKE_SOURCE_DIR = " )
 
-
-# these commands are from the qmake makefile.
-# Need to find a way to execute these commands here.
-# flex -Pchkl ../src/chkl.l
-# rm -f chkl_lex.cpp
-# mv -f lex.chkl.c chkl_lex.cpp
-
-add_custom_command(
-	OUTPUT ${CMAKE_SOURCE_DIR}/lex.chkl.c
-	COMMAND flex -P chkl ${CMAKE_SOURCE_DIR}/chkl.l
-#	COMMAND rm -f chkl_lex.cpp
-#	COMMAND mv -f lex.chkl.c chkl_lex.cpp
-)
-
-# this is creating the lex.chkl.c but in the root of the build folder.
-# I need to find a way to move them to the src folder
-add_custom_target(chkl_lex_source ALL DEPENDS ${CMAKE_SOURCE_DIR}/lex.chkl.c)
-
-
-list(APPEND XCHECKLIST_SRCS chkl_yacc.cpp chkl_lex.cpp chkl_yacc.h)
+list(APPEND XCHECKLIST_SRCS ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
 
 add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
 

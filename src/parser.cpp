@@ -122,7 +122,7 @@ number::number(std::string i, std::string d, std::string e)
   }
   frexpf(value, &exp); // get exponent...
 */
-};
+}
 
 bool number::get_value(double &d)const
 {
