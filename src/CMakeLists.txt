@@ -69,7 +69,18 @@ elseif (UNIX)
 
 endif ()
 
-add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
+# Runs flex and bison
+find_package(BISON)
+find_package(FLEX)
+
+bison_target(Parser chkl.y ${CMAKE_SOURCE_DIR}/chkl_yacc.cpp)
+flex_target(Scanner chkl.l ${CMAKE_SOURCE_DIR}/chkl_lex.cpp)
+add_flex_bison_dependency(Scanner Parser)
+
+list(APPEND XCHECKLIST_SRCS ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
+
+# add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
+add_library(Xchecklist SHARED ${XCHECKLIST_SRCS} ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
 
 target_compile_features(Xchecklist PUBLIC cxx_std_11)
 
@@ -85,21 +96,6 @@ find_package(OpenGL REQUIRED)  # apt install freeglut3-dev
 find_library(OPENAL_LIBRARY NAMES openal OpenAL OpenAL32)  # apt install libopenal-dev
 find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
 target_link_libraries(Xchecklist ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLUT_LIBRARY})
-
-
-# Runs flex and bison
-# For some reason this is not being told to create the objects
-# From https://github.com/lucasb-eyer/flex-bison-indentation/blob/master/CMakeLists.txt
-
-find_package(BISON)
-find_package(FLEX)
-bison_target(Parser chkl.y ${CMAKE_SOURCE_DIR}/chkl_yacc.cpp)
-flex_target(Scanner chkl.l ${CMAKE_SOURCE_DIR}/chkl_lex.cpp)
-add_flex_bison_dependency(Scanner Parser)
-list(APPEND XCHECKLIST_SRCS ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
-
-message ("XCHECKLIST_SRCS" = ${XCHECKLIST_SRCS})
-
 
 
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
