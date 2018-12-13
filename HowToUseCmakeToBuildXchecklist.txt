@@ -17,3 +17,5 @@ make
 some other commands that may help
 
 If you are in the src directory and already have a build directory "rm -r build/*" will clean out the build directory.
+
+For make to be verbose use "make VERBOSE=1"
