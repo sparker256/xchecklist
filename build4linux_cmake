@@ -10,9 +10,21 @@ mkdir -p release/Xchecklist/mac_x64
 
 ./make_flex_and_bison
 
-cd src && rm -r build/* && cd build &&
-cmake .. && make VERBOSE=1 &&
+cd src
+rm -r build/*
+cd build
+cmake ..
+make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/Xchecklist.xpl release/Xchecklist/lin_x64/
+
+cd src
+rm -r build/*
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-x86-64.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xbtn2cmd_plugin_builder/xbtn2cmd
+cp src/build/Xchecklist.xpl release/Xchecklist/win_x64/
 
 #
 

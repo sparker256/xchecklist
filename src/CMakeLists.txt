@@ -80,14 +80,20 @@ find_package(FLEX)
 # mv -f chkl.tab.h chkl_yacc.h
 # mv -f chkl.tab.c chkl_yacc.cpp
 
-# add_custom_command(
-#	COMMAND echo "Hello world"
-#	COMMAND yacc -d -p chkl -b chkl ${CMAKE_SOURCE_DIR}/chkl.y
+add_custom_command(
+	OUTPUT ${CMAKE_SOURCE_DIR}/chkl.tab.c
+	OUTPUT ${CMAKE_SOURCE_DIR}/chkl.tab.h
+	COMMAND yacc -d -p chkl -b chkl ${CMAKE_SOURCE_DIR}/chkl.y
 #	COMMAND rm -f chkl_yacc.h chkl_yacc.cpp
 #	COMMAND mv -f chkl.tab.h chkl_yacc.h
 #	COMMAND mv -f chkl.tab.c chkl_yacc.cpp
-#	OUTPUT ${CMAKE_SOURCE_DIR}/test.txt
-#)
+)
+
+# this is creating the chkl.tab.c and chkl.tab.h but in the root of the build folder.
+# I need to find a way to move them to the src folder
+add_custom_target(chkl_tab_source ALL DEPENDS ${CMAKE_SOURCE_DIR}/chkl.tab.c)
+add_custom_target(chkl_tab_header ALL DEPENDS ${CMAKE_SOURCE_DIR}/chkl.tab.h)
+message (STATUS "CMAKE_SOURCE_DIR = " )
 
 
 # these commands are from the qmake makefile.
@@ -96,12 +102,17 @@ find_package(FLEX)
 # rm -f chkl_lex.cpp
 # mv -f lex.chkl.c chkl_lex.cpp
 
-#add_custom_command(
-#	COMMAND flex -Pchkl ../src/chkl.l
+add_custom_command(
+	OUTPUT ${CMAKE_SOURCE_DIR}/lex.chkl.c
+	COMMAND flex -P chkl ${CMAKE_SOURCE_DIR}/chkl.l
 #	COMMAND rm -f chkl_lex.cpp
 #	COMMAND mv -f lex.chkl.c chkl_lex.cpp
-#	OUTPUT ${CMAKE_SOURCE_DIR}/test.txt
-#)
+)
+
+# this is creating the lex.chkl.c but in the root of the build folder.
+# I need to find a way to move them to the src folder
+add_custom_target(chkl_lex_source ALL DEPENDS ${CMAKE_SOURCE_DIR}/lex.chkl.c)
+
 
 list(APPEND XCHECKLIST_SRCS chkl_yacc.cpp chkl_lex.cpp chkl_yacc.h)
 
@@ -120,7 +131,7 @@ endif ()
 find_package(OpenGL REQUIRED)  # apt install freeglut3-dev
 find_library(OPENAL_LIBRARY NAMES openal OpenAL OpenAL32)  # apt install libopenal-dev
 find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
-target_link_libraries(Xchecklist ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLUT_LIBRARY})
+# target_link_libraries(Xchecklist ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLUT_LIBRARY})
 
 
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
