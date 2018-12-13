@@ -1,7 +1,7 @@
 %{
   #include <stdio.h>
   #include <string.h>
-  #include "src/chkl_parser.h"
+  #include "chkl_parser.h"
   extern FILE* yyin;
   int yylex (void);
   void yyerror (char const *);
