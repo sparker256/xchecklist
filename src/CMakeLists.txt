@@ -59,13 +59,13 @@ add_compile_options(-O3 -fPIC)
 list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y)
 
 if (WIN32)
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp speech_sapi.cpp)
+	list(APPEND XCHECKLIST_SRCS speech_sapi.cpp)
 
 elseif (APPLE)
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp messages.c whisperer.c speech_mac.c)
+	list(APPEND XCHECKLIST_SRCS messages.c whisperer.c speech_mac.c)
 
 elseif (UNIX)
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp messages.c whisperer.c speech_mac.c)
+	list(APPEND XCHECKLIST_SRCS messages.c whisperer.c speech_mac.c)
 
 endif ()
 
