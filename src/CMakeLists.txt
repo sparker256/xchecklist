@@ -73,14 +73,39 @@ endif ()
 find_package(BISON)
 find_package(FLEX)
 
-bison_target(Parser chkl.y ${CMAKE_SOURCE_DIR}/chkl_yacc.cpp)
-flex_target(Scanner chkl.l ${CMAKE_SOURCE_DIR}/chkl_lex.cpp)
-add_flex_bison_dependency(Scanner Parser)
+# these commands are from the qmake makefile.
+# Need to find a way to execute these commands here.
+# yacc -d -p chkl -b chkl ../src/chkl.y
+# rm -f chkl_yacc.h chkl_yacc.cpp
+# mv -f chkl.tab.h chkl_yacc.h
+# mv -f chkl.tab.c chkl_yacc.cpp
 
-list(APPEND XCHECKLIST_SRCS ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
+# add_custom_command(
+#	COMMAND echo "Hello world"
+#	COMMAND yacc -d -p chkl -b chkl ${CMAKE_SOURCE_DIR}/chkl.y
+#	COMMAND rm -f chkl_yacc.h chkl_yacc.cpp
+#	COMMAND mv -f chkl.tab.h chkl_yacc.h
+#	COMMAND mv -f chkl.tab.c chkl_yacc.cpp
+#	OUTPUT ${CMAKE_SOURCE_DIR}/test.txt
+#)
 
-# add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
-add_library(Xchecklist SHARED ${XCHECKLIST_SRCS} ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
+
+# these commands are from the qmake makefile.
+# Need to find a way to execute these commands here.
+# flex -Pchkl ../src/chkl.l
+# rm -f chkl_lex.cpp
+# mv -f lex.chkl.c chkl_lex.cpp
+
+#add_custom_command(
+#	COMMAND flex -Pchkl ../src/chkl.l
+#	COMMAND rm -f chkl_lex.cpp
+#	COMMAND mv -f lex.chkl.c chkl_lex.cpp
+#	OUTPUT ${CMAKE_SOURCE_DIR}/test.txt
+#)
+
+list(APPEND XCHECKLIST_SRCS chkl_yacc.cpp chkl_lex.cpp chkl_yacc.h)
+
+add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
 
 target_compile_features(Xchecklist PUBLIC cxx_std_11)
 

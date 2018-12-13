@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+
+cd src
+
+yacc -d -p chkl -b chkl chkl.y
+rm -f chkl_yacc.h chkl_yacc.cpp
+mv -f chkl.tab.h chkl_yacc.h
+mv -f chkl.tab.c chkl_yacc.cpp
+
+
+flex -P chkl chkl.l
+rm -f chkl_lex.cpp
+mv -f lex.chkl.c chkl_lex.cpp
+
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist 
+
+#
+
