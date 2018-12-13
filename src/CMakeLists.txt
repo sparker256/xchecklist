@@ -21,6 +21,10 @@ include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Wrappers")
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/XPLM")
 include_directories("${CMAKE_SOURCE_DIR}")
 
+if (WIN32)
+	include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
+endif ()
+
 
 # Specify library search locations.
 if (WIN32)
