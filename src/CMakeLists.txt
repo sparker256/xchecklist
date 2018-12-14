@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Widgets")
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Wrappers")
 include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/XPLM")
+include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
 include_directories("${CMAKE_SOURCE_DIR}")
 
 if (WIN32)
@@ -29,6 +30,7 @@ endif ()
 # Specify library search locations.
 if (WIN32)
     list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Win")
+	list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
 elseif (APPLE)
     list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Mac")
 elseif (UNIX)
@@ -102,15 +104,23 @@ find_library(OPENAL_LIBRARY NAMES openal OpenAL OpenAL32)  # apt install libopen
 find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
 # target_link_libraries(Xchecklist ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLUT_LIBRARY})
 
-
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
 if (WIN32 OR APPLE)
-# if (WIN32)
     find_library(XPLM_LIBRARY NAMES XPLM XPLM_64.lib)
 	find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets_64.lib)
-    target_link_libraries(Xchecklist ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY})
 endif ()
 
+# Find Windows Speech API
+if (WIN32)
+	find_library(SAPI_LIBRARY NAMES sapi.lib SetupAPI.Lib) 
+endif ()
+
+# create target libraries for Windows or Mac
+if (WIN32)
+	target_link_libraries(Xchecklist ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY} ${SAPI_LIBRARY})
+elseif (APPLE)
+	target_link_libraries(Xchecklist ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY})
+endif ()
 
 # Link library for dynamic loading of shared objects on UNIX systems.
 if (UNIX)

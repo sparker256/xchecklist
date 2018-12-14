@@ -4,8 +4,8 @@
 # ./xp11_xchecklist_plugin_builder/xchecklist/buildGithubXchecklistOnLinux_cmake
 
 cd xp11_xchecklist_plugin_builder/xchecklist &&
-./build4linux_cmake
-
+# ./build4linux_cmake
+./build4_lin_win_mac_cmake
 
 # ./build4linux
 # ./MakeMacOnLinux
