@@ -78,7 +78,7 @@ endif ()
 find_package(BISON)
 find_package(FLEX)
 BISON_TARGET(Parser chkl.y ${CMAKE_CURRENT_BINARY_DIR}/chkl_yacc.cpp COMPILE_FLAGS "-v -p chkl -r state")
-FLEX_TARGET(Scanner chkl.l ${CMAKE_CURRENT_BINARY_DIR}/chkl_lex.cpp)
+FLEX_TARGET(Scanner chkl.l ${CMAKE_CURRENT_BINARY_DIR}/chkl_lex.cpp COMPILE_FLAGS "-P chkl")
 ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
 
 message (STATUS "CMAKE_SOURCE_DIR = " )
@@ -132,7 +132,7 @@ endif ()
 
 if (WIN32)
     # Unlike OS X and Linux we build standard libraries statically since X-Plane does not provide them.
-    target_link_libraries(Xchecklist -static-libgcc -static-libstdc++ opengl32)
+    target_link_libraries(Xchecklist -static-libgcc -static-libstdc++ opengl32 sapi)
     # MSYS2 for some reason always links against winpthread, so we have to work around it by statically linking the
     # entire plugin. This allows building the plugin nativaly on Windows.
     target_link_libraries(Xchecklist -static)

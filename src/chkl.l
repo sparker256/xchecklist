@@ -19,7 +19,7 @@
 %option nodefault
 %option warn
 
-%x DESC NUM DREF VOID VOID1
+%x DESC NUM DREF
 
 EOL                     (\r|\n|\n\r|\r\n)
 STRING                                [^\n\r:|]+
