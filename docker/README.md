@@ -1,6 +1,6 @@
-# Xbtn2cmd cross-compiling environment
+# Xchecklist cross-compiling environment
 
-Scripts in this directory provide an easy way to build Xbtn2cmd for Windows,
+Scripts in this directory provide an easy way to build Xchecklist for Windows,
 Linux and OS X in a reproducible way. This is useful when you want to verify
 that your changes work (or at least compile) for all supported platforms
 without manually setting up three independent build environments.
@@ -20,9 +20,9 @@ free of all the extra compilers and libraries for all platforms.
 
 Let's assume we're in a root directory of Git repository:
 
-    $ cd $Xbtn2cmd_REPO
+    $ cd $Xchecklist_REPO
 
-Build Xbtn2cmd binaries for all platforms:
+Build Xchecklist binaries for all platforms:
 
     $ (cd docker; make)
     $ ls src/build-*/*.xpl
