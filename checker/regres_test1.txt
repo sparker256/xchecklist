@@ -158,6 +158,9 @@ sw_item:<202>Condition combination (or, second true):(checklist/test/float_dref1
 #!#<203>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 46,checklist/test/int_dref1 46
 sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:46)||(checklist/test/int_dref1:46)
 
+#!#<204>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 47,checklist/test/int_dref1 46
+sw_item:<204>Condition combination (or, both true):(checklist/test/float_dref1:>46)||(checklist/test/int_dref1:46)
+
 sw_checklist:New expressions
 #!#<210>checklist/test/float_dref1 42,checklist/test/int_dref1 44:checklist/test/int_dref1 42
 sw_item:<210>New expressions test::({checklist/test/float_dref1} == {checklist/test/int_dref1})

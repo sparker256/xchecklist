@@ -5,13 +5,13 @@
   #include <string.h>
   //#include <stdbool.h>
   #include "chkl_parser.h"
-  #include "chkl_yacc.hpp"
+  #include "chkl_yacc.h"
   #include "utils.h"
 
   typedef enum {STATE_CMD, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
   static t_state state = STATE_CMD;
   static bool open_paren = false;
-
+  static bool dref_still = false;
 %}
 %option noyywrap
 %option nounput
@@ -66,7 +66,7 @@ sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 
 <*>{COLON}                   {
-                               if(!open_paren){
+                               //if(!open_paren){
                                  //fprintf(stderr, ":\n");
                                  switch(state){
                                    case STATE_CMD:
@@ -82,13 +82,13 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
                                    case STATE_DREF:
                                      BEGIN(NUM);
                                      state = STATE_EXPR;
+                                     dref_still = open_paren;
                                      //fprintf(stderr, "      STATE -> EXPR\n");
                                      break;
                                    case STATE_EXPR:
-                                     //Intentionaly empty
                                      break;
                                  }
-                               }
+                               //}
                                return(TOKEN_COLON);
                              }
 
@@ -164,13 +164,21 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
 <DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
 <DREF,NUM>{LPAREN}           {open_paren = true; return(TOKEN_LEFT_PARENTHESIS);}
-<DREF,NUM>{RPAREN}           {open_paren = false; return(TOKEN_RIGHT_PARENTHESIS);}
+<DREF,NUM>{RPAREN}           {
+                               open_paren = false;
+                               if(dref_still){
+                                 state = STATE_DREF;
+                                 BEGIN(DREF);
+                               }
+                               return(TOKEN_RIGHT_PARENTHESIS);
+                             }
 <*>#[^\r\n]*                 /*eat comments*/
 <*>{EOL}                     {
                                BEGIN(INITIAL);
                                state = STATE_CMD;
                                //fprintf(stderr, "STATE -> CMD\n");
                                open_paren = false;
+                               dref_still = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }

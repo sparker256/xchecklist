@@ -79,7 +79,7 @@ endif ()
 # Runs flex and bison
 find_package(BISON)
 find_package(FLEX)
-BISON_TARGET(Parser chkl.y ${CMAKE_CURRENT_BINARY_DIR}/chkl_yacc.cpp COMPILE_FLAGS "-v -p chkl -r state")
+BISON_TARGET(Parser chkl.y ${CMAKE_CURRENT_BINARY_DIR}/chkl_yacc.cpp COMPILE_FLAGS "-v -p chkl -r state" DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/chkl_yacc.h)
 FLEX_TARGET(Scanner chkl.l ${CMAKE_CURRENT_BINARY_DIR}/chkl_lex.cpp COMPILE_FLAGS "-P chkl")
 ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
 
