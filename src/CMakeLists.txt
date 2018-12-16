@@ -8,6 +8,8 @@
 cmake_minimum_required(VERSION 3.9)
 project(Xchecklist VERSION 1.3.4 DESCRIPTION "Xchecklist X-Plane plugin")
 
+option(SDK2 "Build with SDK2" OFF)
+
 # By default, use optimized release configuration.
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
@@ -40,7 +42,12 @@ endif ()
 # message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})
 
 # Enable all X-Plane SDK APIs up to the newest version.
-add_definitions(-DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1)
+if (SDK2)
+	add_definitions(-DXPLM200=1)
+else ()
+	add_definitions(-DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1)
+endif ()
+
 # Define platform macros.
 add_definitions(-DAPL=$<BOOL:${APPLE}> -DIBM=$<BOOL:${WIN32}> -DLIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>)
 
@@ -63,7 +70,11 @@ add_compile_options(-O3 -fPIC)
 
 # X-Plane plugin
 # FIXME: Split this into individual targets.
-list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y)
+if (SDK2)
+	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp chkl.l chkl.y)
+else ()
+	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y)
+endif ()
 
 if (WIN32)
 	list(APPEND XCHECKLIST_SRCS speech_sapi.cpp)
@@ -161,21 +172,18 @@ elseif (UNIX)
 endif ()
 
 
-# set_target_properties(Xchecklist PROPERTIES PREFIX "")
-# if (WIN32)
-#    set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "win")
-# elseif (APPLE)
-#    set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "mac")
-# elseif (UNIX)
-#    set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "lin")
-# endif ()
-# set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")
-
-
-set_target_properties(Xchecklist PROPERTIES PREFIX "")
-set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "Xchecklist")
-set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")
-
-
-
-
+if (SDK2)
+	if (WIN32)
+		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "win")
+	elseif (APPLE)
+		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "mac")
+	elseif (UNIX)
+		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "lin")
+	endif ()
+	set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")
+	
+else ()
+	set_target_properties(Xchecklist PROPERTIES PREFIX "")
+	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "Xchecklist")
+	set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")	
+endif ()
