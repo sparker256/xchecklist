@@ -77,6 +77,9 @@
 %token TOKEN_CONTINUE
 %token TOKEN_SILENCE
 %token TOKEN_ERR
+%token TOKEN_COLOUR_DEF
+%token TOKEN_COLOUR_NAME
+%token TOKEN_BACKSLASH
 
 %type <chkl> checklist;
 %type <dref> dataref dataref_expr dataref_expr_both dataref_term dataref_prim rel_primary rel_term rel_expr;
@@ -86,7 +89,7 @@
 %type <item> show item_void item_info item item_remark;
 %type <val> dataref_name number primary p_term term expression;
 %type <plist> param_list
-
+%type <str> coloured_string coloured_string_element;
 %%
 input:                /* empty */
                       | input line
@@ -137,12 +140,15 @@ line:                checklist{
                     delete($1);
                   }
                 | continue
+                | TOKEN_COLOUR_DEF TOKEN_COLON TOKEN_STRING TOKEN_COLON colour_rgb
                 | error {
                     yyclearin;
                     yyerrok;
                   }
 ;
 
+colour_rgb:       TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER
+;
 checklist:        TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3);
                     printf("New checklist def '%s'!\n", $3);
@@ -226,19 +232,32 @@ colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
                     free($3);
                   }
 ;
-spec_string:    TOKEN_STRING{
+spec_string:    coloured_string{
                     $$ = new item_label($1);
                     free($1);
                   }
-                | TOKEN_STRING TOKEN_PIPE{
+                | coloured_string TOKEN_PIPE{
                     $$ = new item_label($1);
                     free($1);
                   }
-                | TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
+                | coloured_string TOKEN_PIPE coloured_string{
                     $$ = new item_label($1, $3);
                     free($1);
                     free($3);
                   }
+;
+coloured_string : coloured_string coloured_string_element {
+                    $$ = $2;
+                  }
+                | coloured_string_element
+;
+coloured_string_element: TOKEN_COLOUR_NAME TOKEN_STRING {
+                           $$ = $2;
+                         }
+                       | TOKEN_BACKSLASH TOKEN_STRING {
+                           $$ = $2;
+                         }
+                       | TOKEN_STRING
 ;
 dataref_expr_both: dataref_expr
                 |  TOKEN_COLON rel_expr {

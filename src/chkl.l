@@ -11,6 +11,7 @@
   typedef enum {STATE_CMD, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
   static t_state state = STATE_CMD;
   static bool open_paren = false;
+  static bool is_colour = false;
 
 %}
 %option noyywrap
@@ -19,11 +20,12 @@
 %option nodefault
 %option warn
 
-%x DESC NUM DREF VOID VOID1
+%x DESC NUM DREF CDESC
 
 EOL                     (\r|\n|\n\r|\r\n)
-STRING                                [^\n\r:|]+
-DATAREF                                [^\n\r:|\[\]\(\)&]+
+STRING                  [^\n\r:|]+
+COLOURED_STRING         [^\n\r:|\\]+
+DATAREF                 [^\n\r:|\[\]\(\)&]+
 COLON                   :
 LBRACKET                \[
 RBRACKET                \]
@@ -64,20 +66,45 @@ sw_show                      {state = STATE_DESC; return(TOKEN_SHOW);}
 sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
 sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
+sw_define_colour             {is_colour = true; return(TOKEN_COLOUR_DEF);}
+sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
 
+
+
+<CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
+<CDESC>{COLOURED_STRING}     {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_STRING);
+                             }
+<CDESC>\\{COLOURED_STRING}\\ {
+                               size_t len = strlen(yytext);
+                               chkllval.str=strdup(yytext + 1);
+                               chkllval.str[len - 2] = '\0';
+                               return(TOKEN_COLOUR_NAME);
+                             }
 <*>{COLON}                   {
                                if(!open_paren){
                                  //fprintf(stderr, ":\n");
                                  switch(state){
                                    case STATE_CMD:
-                                     BEGIN(DESC);
-                                     state = STATE_DESC;
+                                     if(is_colour){
+                                       BEGIN(CDESC);
+                                     }else{
+                                       BEGIN(DESC);
+                                     }
                                      //fprintf(stderr, "  STATE -> DESC\n");
+                                     state = STATE_DESC;
                                      break;
                                    case STATE_DESC:
-                                     BEGIN(DREF);
-                                     state = STATE_DREF;
-                                     //fprintf(stderr, "    STATE -> DREF\n");
+                                     if(is_colour){
+                                       BEGIN(NUM);
+                                       state = STATE_EXPR;
+                                       //fprintf(stderr, "    STATE -> EXPR\n");
+                                     }else{
+                                       BEGIN(DREF);
+                                       state = STATE_DREF;
+                                       //fprintf(stderr, "    STATE -> DREF\n");
+                                     }
                                      break;
                                    case STATE_DREF:
                                      BEGIN(NUM);
@@ -158,7 +185,7 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 <NUM>\(int\)                 {return(TOKEN_TO_INT);}
 <NUM>,                       {return(TOKEN_COMA);}
 
-<DESC,NUM,DREF>{PIPE}        {return(TOKEN_PIPE);}
+<*>{PIPE}                    {return(TOKEN_PIPE);}
 <DREF,NUM>\|\|               {return(TOKEN_OR);}
 <DREF,NUM>&&                 {return(TOKEN_AND);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
@@ -171,6 +198,7 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
                                state = STATE_CMD;
                                //fprintf(stderr, "STATE -> CMD\n");
                                open_paren = false;
+                               is_colour = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }
