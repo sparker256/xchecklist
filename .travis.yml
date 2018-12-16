@@ -12,3 +12,8 @@ before_install:
   - (cd docker; make .image)
 script:
   - (cd docker; make $TARGET_PLATFORM)
+# whitelist
+branches:
+  only:
+    - master
+    - cmake
