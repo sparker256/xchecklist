@@ -71,7 +71,20 @@ cp src/build/libmac.xpl release/Xchecklist/64/mac.xpl
 
 # Building for X_Plane 9
 
+cd src
+rm -r build/*
+cd build
+cmake CC="gcc -m32" CXX="g++ -m32" -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-32bit_Linux.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/liblin.xpl release/Xchecklist/lin.xpl
 
+cd src
+rm -r build/*
+cd build
+cmake -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-i686.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/libwin.xpl release/Xchecklist/win.xpl
 exec $SHELL
 #
-ls

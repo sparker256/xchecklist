@@ -9,6 +9,20 @@ cmake_minimum_required(VERSION 3.9)
 project(Xchecklist VERSION 1.3.4 DESCRIPTION "Xchecklist X-Plane plugin")
 
 option(SDK2 "Build with SDK2" OFF)
+option(32BIT "Build with 32 Bit" OFF)
+
+if (32BIT)
+	if (UNIX)
+		message ("32BIT option is on")
+		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
+		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
+		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
+		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
+		find_library(DL_LIBRARY dl)
+		message(STATUS DL_LIBRARY = ${DL_LIBRARY})
+	endif ()
+endif()
+
 
 # By default, use optimized release configuration.
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -32,14 +46,18 @@ endif ()
 # Specify library search locations.
 if (WIN32)
     list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Win")
-	list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
+	if (32BIT)
+		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib")
+	else ()
+		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
+	endif ()
 elseif (APPLE)
     list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Mac")
 elseif (UNIX)
 
 endif ()
 
-# message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})
+message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})
 
 # Enable all X-Plane SDK APIs up to the newest version.
 if (SDK2)
