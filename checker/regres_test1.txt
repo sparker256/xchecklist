@@ -214,5 +214,5 @@ sw_continue
 sw_checklist:C4:C4m
 @sw_item:Item C4
 sw_item_c:\red\Red item|\blue\Blue item
-sw_item_c:Default colour \green\green colour\\back to default 
+sw_item_c:Default colour \green\green colour \\back to default 
 

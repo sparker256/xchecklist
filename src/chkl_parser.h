@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <iostream>
 #include <map>
 #include <unistd.h>
@@ -25,6 +26,18 @@ extern char* chkltext;
 extern int chkllineno;
 extern int chkldebug;
 extern FILE* chklin;
+
+
+class coloured_string{
+  std::list<std::pair<std::string, std::string *>> cs;
+  std::string whole;
+ public:
+  coloured_string(std::string str, std::string *colour = NULL);
+  void append(coloured_string *str);
+  void append(std::string str, std::string *colour);
+  const char *c_str()const{return whole.c_str();};
+  bool empty()const{return whole.empty();};
+};
 
 class checklist_item{
   friend std::ostream& operator<<(std::ostream &output, const checklist_item& s);
@@ -228,14 +241,14 @@ class dataref_dsc : public dataref_t{
 class item_label{
   friend std::ostream& operator<<(std::ostream &output, const item_label& l);
  public:
-  item_label(std::string label_left, std::string label_right);
-  item_label(std::string label_left);
+  item_label(coloured_string *label_left, coloured_string *label_right);
+  item_label(coloured_string *label_left);
   bool getDesc(checklist_item_desc_t &desc);
   void say_label();
   void say_suffix();
  private:
-  std::string label;
-  std::string suffix;
+  coloured_string *label;
+  coloured_string *suffix;
 };
 
 class show_item: public checklist_item{
@@ -254,28 +267,28 @@ class show_item: public checklist_item{
 
 class void_item:public checklist_item{
   public:
-    void_item(std::string s);
-    void_item(std::string s, std::string s1);
+    void_item(coloured_string *s);
+    void_item(coloured_string *s, coloured_string *s1);
     virtual ~void_item(){};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate(){return false;};
     virtual bool do_processing(bool copilotOn){(void) copilotOn; return false;};
   private:
-    std::string text;
-    std::string text1;
+    coloured_string *text;
+    coloured_string *text1;
 };
 
 class remark_item:public checklist_item{
   public:
-    remark_item(std::string s);
+    remark_item(coloured_string *s);
     virtual ~remark_item(){};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
     virtual bool do_processing(bool copilotOn);
   private:
-    std::string text;
+    coloured_string *text;
 };
 
 class chk_item:public checklist_item{

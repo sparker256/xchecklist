@@ -231,9 +231,9 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
 
 std::ostream& operator<<(std::ostream &output, const item_label& l)
 {
-  output<<l.label.c_str();
-  if(!l.suffix.empty()){
-    output<<"    "<<l.suffix.c_str();
+  output<<l.label->c_str();
+  if(!l.suffix->empty()){
+    output<<"    "<<l.suffix->c_str();
   }
   return output;
 }
@@ -251,12 +251,12 @@ void show_item::print(std::ostream &output)const
 
 void void_item::print(std::ostream &output)const
 {
-  output<<"SW_VOID: "<<text.c_str()<<" "<<text1.c_str()<<std::endl;
+  output<<"SW_VOID: "<<text->c_str()<<" "<<text1->c_str()<<std::endl;
 }
 
 void remark_item::print(std::ostream &output)const
 {
-  output<<"SW_REMARK: "<<text.c_str()<<std::endl;
+  output<<"SW_REMARK: "<<text->c_str()<<std::endl;
 }
 
 void chk_item::print(std::ostream &output)const
@@ -572,45 +572,45 @@ bool dataref_dsc::trigered()
 
 
 
-item_label::item_label(std::string label_left, std::string label_right)
+item_label::item_label(coloured_string *label_left, coloured_string *label_right)
 {
   label = label_left;
   suffix = label_right;
 }
 
-item_label::item_label(std::string label_left)
+item_label::item_label(coloured_string *label_left)
 {
   label = label_left;
-  suffix = "CHECK";
+  suffix = new coloured_string("CHECK");
 }
 
 void item_label::say_label()
 {
     if(voice_state) {
-        say(label.c_str());
+        say(label->c_str());
     }
 }
 
 void item_label::say_suffix()
 {
    if(voice_state) {
-      say(suffix.c_str());
+      say(suffix->c_str());
    }
 }
 
-void_item::void_item(std::string s)
+void_item::void_item(coloured_string *s)
 {
   text = s;
-  text1 = "";
+  text1 = new coloured_string("");
 }
 
-void_item::void_item(std::string s, std::string s1)
+void_item::void_item(coloured_string *s, coloured_string *s1)
 {
   text = s;
   text1 = s1;
 }
 
-remark_item::remark_item(std::string s)
+remark_item::remark_item(coloured_string *s)
 {
   text = s;
 }
@@ -846,7 +846,7 @@ bool remark_item::do_processing(bool copilotOn)
         elapsed = 0.0f;
         if(speech_active()){
             if(voice_state) {
-              say(text.c_str());
+              say(text->c_str());
             }
             state = SAY_LABEL;
         }else{
@@ -1005,8 +1005,8 @@ bool checklist_binder::free_checklist_names(int all_checklists, int menu_size, c
 
 bool void_item::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = text.c_str();
-  desc.suffix = text1.c_str();
+  desc.text = text->c_str();
+  desc.suffix = text1->c_str();
   desc.info_only = true;
   desc.item_void = true;
   desc.copilot_controlled = false;
@@ -1015,7 +1015,7 @@ bool void_item::getDesc(checklist_item_desc_t &desc)
 
 bool remark_item::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = text.c_str();
+  desc.text = text->c_str();
   desc.suffix = (char *)"";
   desc.info_only = true;
   desc.item_void = true;
@@ -1025,9 +1025,9 @@ bool remark_item::getDesc(checklist_item_desc_t &desc)
 
 bool item_label::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = label.c_str();
-  if(!suffix.empty()){
-    desc.suffix = suffix.c_str();
+  desc.text = label->c_str();
+  if(!suffix->empty()){
+    desc.suffix = suffix->c_str();
   }else{
     desc.suffix = "CHECK";
   }
@@ -1367,4 +1367,25 @@ void value::cast(double &val)const
     val = (float)val;
   }
 }
+
+coloured_string::coloured_string(std::string str, std::string *colour)
+{
+  cs.push_back(std::pair<std::string, std::string *>(str, colour));
+  whole += str;
+}
+
+void coloured_string::append(coloured_string *str)
+{
+  std::list<std::pair<std::string, std::string *>>::const_iterator i;
+  for(i = cs.begin(); i != cs.end(); ++i){
+    str->append(i->first, i->second);
+  }
+}
+
+void coloured_string::append(std::string str, std::string *colour)
+{
+  cs.push_back(make_pair(str, colour));
+  whole += str;
+}
+
 

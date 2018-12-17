@@ -27,6 +27,7 @@
 
 %union {
   char *str;
+  class coloured_string *c_str;
   class checklist *chkl;
   class dataref_name *dref_name;
   class dataref_t *dref;
@@ -78,7 +79,7 @@
 %token TOKEN_SILENCE
 %token TOKEN_ERR
 %token TOKEN_COLOUR_DEF
-%token TOKEN_COLOUR_NAME
+%token <str>TOKEN_COLOUR_NAME
 %token TOKEN_BACKSLASH
 
 %type <chkl> checklist;
@@ -89,7 +90,7 @@
 %type <item> show item_void item_info item item_remark;
 %type <val> dataref_name number primary p_term term expression;
 %type <plist> param_list
-%type <str> coloured_string coloured_string_element;
+%type <c_str> coloured_string coloured_string_element;
 %%
 input:                /* empty */
                       | input line
@@ -189,26 +190,21 @@ item_info:        TOKEN_ITEMINFO TOKEN_COLON spec_string {
                     $$ = new chk_item($3, $5, false);
                   }
 ;
-item_void:      TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING TOKEN_PIPE TOKEN_STRING{
+item_void:      TOKEN_ITEMVOID TOKEN_COLON coloured_string TOKEN_PIPE coloured_string{
                     $$ = new void_item($3, $5);
-                    free($3);
-                    free($5);
                   }
-                | TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING TOKEN_PIPE{
+                | TOKEN_ITEMVOID TOKEN_COLON coloured_string TOKEN_PIPE{
                     $$ = new void_item($3);
-                    free($3);
                   }
-                | TOKEN_ITEMVOID TOKEN_COLON TOKEN_STRING{
+                | TOKEN_ITEMVOID TOKEN_COLON coloured_string{
                     $$ = new void_item($3);
-                    free($3);
                   }
                 | TOKEN_ITEMVOID TOKEN_COLON{
-                    $$ = new void_item("");
+                    $$ = new void_item(new coloured_string(""));
                   }
 ;
-item_remark:    TOKEN_REMARK TOKEN_COLON TOKEN_STRING{
+item_remark:    TOKEN_REMARK TOKEN_COLON coloured_string{
                     $$ = new remark_item($3);
-                    free($3);
                   }
 ;
 show:                TOKEN_SHOW TOKEN_COLON dataref_expr_both{
@@ -234,30 +230,34 @@ colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
 ;
 spec_string:    coloured_string{
                     $$ = new item_label($1);
-                    free($1);
                   }
                 | coloured_string TOKEN_PIPE{
                     $$ = new item_label($1);
-                    free($1);
                   }
                 | coloured_string TOKEN_PIPE coloured_string{
                     $$ = new item_label($1, $3);
-                    free($1);
-                    free($3);
                   }
 ;
 coloured_string : coloured_string coloured_string_element {
-                    $$ = $2;
+                    $2->append($1);
+                    free($2);
+                    $$ = $1;
                   }
                 | coloured_string_element
 ;
 coloured_string_element: TOKEN_COLOUR_NAME TOKEN_STRING {
-                           $$ = $2;
+                           $$ = new coloured_string($2, new std::string($1));
+                           free($1);
+                           free($2);
                          }
                        | TOKEN_BACKSLASH TOKEN_STRING {
-                           $$ = $2;
+                           $$ = new coloured_string($2, new std::string(""));
+                           free($2);
                          }
-                       | TOKEN_STRING
+                       | TOKEN_STRING {
+                           $$ = new coloured_string($1);
+                           free($1);
+                         }
 ;
 dataref_expr_both: dataref_expr
                 |  TOKEN_COLON rel_expr {
