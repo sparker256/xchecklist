@@ -141,14 +141,18 @@ line:                checklist{
                     delete($1);
                   }
                 | continue
-                | TOKEN_COLOUR_DEF TOKEN_COLON TOKEN_STRING TOKEN_COLON colour_rgb
+                | TOKEN_COLOUR_DEF TOKEN_COLON TOKEN_STRING TOKEN_COLON 
+                  TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER {
+                    p.add_colour($3, $5, $7, $9);
+                    free($3);
+                    free($5);
+                    free($7);
+                    free($9);
+                  }
                 | error {
                     yyclearin;
                     yyerrok;
                   }
-;
-
-colour_rgb:       TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER TOKEN_COMA TOKEN_NUMBER
 ;
 checklist:        TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     $$ = new class checklist($3);
@@ -240,18 +244,22 @@ spec_string:    coloured_string{
 ;
 coloured_string : coloured_string coloured_string_element {
                     $2->append($1);
-                    free($2);
+                    delete($2);
                     $$ = $1;
                   }
                 | coloured_string_element
 ;
 coloured_string_element: TOKEN_COLOUR_NAME TOKEN_STRING {
-                           $$ = new coloured_string($2, new std::string($1));
+                           std::string *tmp = new std::string($1);
+                           $$ = new coloured_string($2, tmp);
+                           delete(tmp);
                            free($1);
                            free($2);
                          }
                        | TOKEN_BACKSLASH TOKEN_STRING {
-                           $$ = new coloured_string($2, new std::string(""));
+                           std::string *tmp = new std::string("");
+                           $$ = new coloured_string($2, tmp);
+                           delete(tmp);
                            free($2);
                          }
                        | TOKEN_STRING {

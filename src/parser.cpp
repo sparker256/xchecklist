@@ -29,6 +29,8 @@ checklist *current_checklist;
 char *parsed_file;
 static bool debug_expr_eval;
 
+palette p;
+
 bool checklist_item::check()
 {
   if(state == PROCESSING){
@@ -1370,22 +1372,88 @@ void value::cast(double &val)const
 
 coloured_string::coloured_string(std::string str, std::string *colour)
 {
-  cs.push_back(std::pair<std::string, std::string *>(str, colour));
+  unsigned long idx = 0;
+  if(colour != NULL){
+    // have coloured string
+    if(colour->size() > 0){
+      //Have coloured string
+      idx = p.get_colour_index(*colour);
+      colour_stack.push_back(idx);
+    }else{
+      if(colour_stack.size() > 0){
+        colour_stack.pop_back();
+      }
+      unsigned long tmp = colour_stack.size();
+      if(tmp > 0){
+        idx = colour_stack.at(tmp - 1);
+      }
+    }
+  }
+  cs.push_back(make_pair(str, idx));
   whole += str;
 }
 
 void coloured_string::append(coloured_string *str)
 {
-  std::list<std::pair<std::string, std::string *>>::const_iterator i;
+  std::vector<std::pair<std::string, unsigned long>>::const_iterator i;
   for(i = cs.begin(); i != cs.end(); ++i){
     str->append(i->first, i->second);
   }
 }
 
-void coloured_string::append(std::string str, std::string *colour)
+void coloured_string::append(std::string str, unsigned long idx)
 {
-  cs.push_back(make_pair(str, colour));
+  cs.push_back(make_pair(str, idx));
   whole += str;
 }
 
+static float clamp_colour(const float c, const std::string name, const char *component)
+{
+  if(c < 0.0f){
+    xcWarn("Component %s of colour %s is lower than zero.\n", component, name.c_str());
+    return 0.0f;
+  }
+  if(c > 1.0f){
+    xcWarn("Component %s of colour %s is higher than one.\n", component, name.c_str());
+    return 1.0f;
+  }
+  return c;
+}
+
+palette::palette()
+{
+  t_rgb def = {.r = 1.0, .g = 1.0, .b = 1.0};
+  colours.push_back(def);
+}
+
+void palette::add_colour(const std::string name, const std::string r, const std::string g, const std::string b)
+{
+  t_rgb def = {.r = clamp_colour(fromString<float>(r), name, "r"),
+               .g = clamp_colour(fromString<float>(g), name, "g"),
+               .b = clamp_colour(fromString<float>(b), name, "b")};
+  colours.push_back(def);
+  colour_names.insert(make_pair(name, colours.size()));
+}
+
+unsigned long palette::get_colour_index(const std::string name)
+{
+  std::map<const std::string, unsigned long>::const_iterator i;
+  i = colour_names.find(name);
+  if(i == colour_names.end()){
+    xcWarn("Unknown colour %s requested.\n", name.c_str());
+    return 0;
+  }
+  return i->second;
+}
+
+void palette::get_colour(unsigned long index, float rgb[])
+{
+  if(index >= colours.size()){
+    rgb[0] = rgb[1] = rgb[2] = 1.0;
+  }
+
+  rgb[0] = colours[index].r;
+  rgb[1] = colours[index].g;
+  rgb[2] = colours[index].b;
+}
 

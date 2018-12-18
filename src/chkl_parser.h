@@ -27,14 +27,28 @@ extern int chkllineno;
 extern int chkldebug;
 extern FILE* chklin;
 
+typedef struct {float r; float g; float b;} t_rgb;
+
+class palette{
+  std::map<const std::string, unsigned long> colour_names;
+  std::vector<t_rgb> colours;
+ public:
+  palette();
+  void add_colour(const std::string name, const std::string r, const std::string g, const std::string b);
+  unsigned long get_colour_index(const std::string name);
+  void get_colour(unsigned long index, float rgb[]);
+};
+
+extern palette p;
 
 class coloured_string{
-  std::list<std::pair<std::string, std::string *>> cs;
+  std::vector<std::pair<std::string, unsigned long>> cs;
+  std::vector<unsigned long> colour_stack;
   std::string whole;
  public:
   coloured_string(std::string str, std::string *colour = NULL);
   void append(coloured_string *str);
-  void append(std::string str, std::string *colour);
+  void append(std::string str, unsigned long idx);
   const char *c_str()const{return whole.c_str();};
   bool empty()const{return whole.empty();};
 };
@@ -243,6 +257,7 @@ class item_label{
  public:
   item_label(coloured_string *label_left, coloured_string *label_right);
   item_label(coloured_string *label_left);
+  ~item_label(){if(label) delete label; if(suffix) delete suffix;};
   bool getDesc(checklist_item_desc_t &desc);
   void say_label();
   void say_suffix();
@@ -269,7 +284,7 @@ class void_item:public checklist_item{
   public:
     void_item(coloured_string *s);
     void_item(coloured_string *s, coloured_string *s1);
-    virtual ~void_item(){};
+    virtual ~void_item(){if(text) delete text; if(text1) delete text1;};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate(){return false;};
@@ -282,7 +297,7 @@ class void_item:public checklist_item{
 class remark_item:public checklist_item{
   public:
     remark_item(coloured_string *s);
-    virtual ~remark_item(){};
+    virtual ~remark_item(){if(text) delete text;};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
