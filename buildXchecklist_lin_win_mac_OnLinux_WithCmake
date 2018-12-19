@@ -22,32 +22,38 @@ cd build
 cmake ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/Xchecklist.xpl release/Xchecklist/lin_x64/
+cp build/src/Xchecklist.xpl release/Xchecklist/lin_x64/
 
+:'
 
 rm -r build/*
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-x86-64.cmake ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/Xchecklist.xpl release/Xchecklist/win_x64/
+cp build/src/Xchecklist.xpl release/Xchecklist/win_x64/
 
+'
 
 rm -r build/*
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-ubuntu-osxcross-10.11.cmake ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/Xchecklist.xpl release/Xchecklist/mac_x64/
+cp build/src/Xchecklist.xpl release/Xchecklist/mac_x64/
+
 
 # Building for X-Plane 10
+
 
 rm -r build/*
 cd build
 cmake -DSDK2=ON ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/liblin.xpl release/Xchecklist/64/lin.xpl
+cp build/src/liblin.xpl release/Xchecklist/64/lin.xpl
+
+:'
 
 cd src
 rm -r build/*
@@ -57,24 +63,28 @@ make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
 cp src/build/libwin.xpl release/Xchecklist/64/win.xpl
 
+'
 
 rm -r build/*
 cd build
 cmake -DSDK2=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-ubuntu-osxcross-10.11.cmake ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/libmac.xpl release/Xchecklist/64/mac.xpl
+cp build/src/libmac.xpl release/Xchecklist/64/mac.xpl
+
+
 
 # Building for X_Plane 9
 
 
 rm -r build/*
 cd build
-cmake CC="gcc -m32" CXX="g++ -m32" -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-32bit_Linux.cmake ..
+cmake CC= -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-32bit_Linux.cmake ..
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
-cp build/liblin.xpl release/Xchecklist/lin.xpl
+cp build/src/liblin.xpl release/Xchecklist/lin.xpl
 
+:'
 
 rm -r build/*
 cd build
@@ -82,5 +92,15 @@ cmake -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_build
 make VERBOSE=1
 cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
 cp build/libwin.xpl release/Xchecklist/win.xpl
+
+'
+
+rm -r build/*
+cd build
+cmake -DSDK2=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-32bit_ubuntu-osxcross-10.11.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp build/src/libmac.xpl release/Xchecklist/mac.xpl
+
 exec $SHELL
 #

@@ -118,7 +118,7 @@ list(APPEND XCHECKLIST_SRCS ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
 
 add_library(Xchecklist SHARED ${XCHECKLIST_SRCS})
 
-target_compile_features(Xchecklist PUBLIC cxx_std_11)
+# target_compile_features(Xchecklist PUBLIC cxx_std_11)
 
 if (APPLE)
     # X-Plane supports OS X 10.10+, so this should ensure FlyWithLua can run on
@@ -151,12 +151,6 @@ elseif (APPLE)
 	target_link_libraries(Xchecklist ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY})
 endif ()
 
-# Link library for dynamic loading of shared objects on UNIX systems.
-if (UNIX)
-    find_library(DL_LIBRARY dl)
-    target_link_libraries(Xchecklist ${DL_LIBRARY})
-endif ()
-
 # Link OS X core system libraries.
 if (APPLE)
     find_library(IOKIT_LIBRARY IOKit)
@@ -179,14 +173,15 @@ elseif (APPLE)
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist "-exported_symbols_list ../../Xchecklist.sym_mac")
+    target_link_libraries(Xchecklist "-exported_symbols_list ../../src/Xchecklist.sym_mac")
 	target_link_libraries(Xchecklist "-framework XPLM -framework XPWidgets -ldl")
 elseif (UNIX)
     # Specify additional runtime search laths for dynamically-linked libraries.
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist -Wl,--version-script -Wl,../../Xchecklist.sym)
+    target_link_libraries(Xchecklist -Wl,--version-script -Wl,../../src/Xchecklist.sym)
+    target_link_libraries(Xchecklist -ldl)
 endif ()
 
 

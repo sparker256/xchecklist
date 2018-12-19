@@ -29,6 +29,8 @@ checklist *current_checklist;
 char *parsed_file;
 static bool debug_expr_eval;
 
+palette p;
+
 bool checklist_item::check()
 {
   if(state == PROCESSING){
@@ -122,7 +124,7 @@ number::number(std::string i, std::string d, std::string e)
   }
   frexpf(value, &exp); // get exponent...
 */
-}
+};
 
 bool number::get_value(double &d)const
 {
@@ -231,9 +233,9 @@ std::ostream& operator<<(std::ostream &output, const dataref_dsc& d)
 
 std::ostream& operator<<(std::ostream &output, const item_label& l)
 {
-  output<<l.label.c_str();
-  if(!l.suffix.empty()){
-    output<<"    "<<l.suffix.c_str();
+  output<<l.label->c_str();
+  if(!l.suffix->empty()){
+    output<<"    "<<l.suffix->c_str();
   }
   return output;
 }
@@ -251,12 +253,12 @@ void show_item::print(std::ostream &output)const
 
 void void_item::print(std::ostream &output)const
 {
-  output<<"SW_VOID: "<<text.c_str()<<" "<<text1.c_str()<<std::endl;
+  output<<"SW_VOID: "<<text->c_str()<<" "<<text1->c_str()<<std::endl;
 }
 
 void remark_item::print(std::ostream &output)const
 {
-  output<<"SW_REMARK: "<<text.c_str()<<std::endl;
+  output<<"SW_REMARK: "<<text->c_str()<<std::endl;
 }
 
 void chk_item::print(std::ostream &output)const
@@ -572,45 +574,45 @@ bool dataref_dsc::trigered()
 
 
 
-item_label::item_label(std::string label_left, std::string label_right)
+item_label::item_label(coloured_string *label_left, coloured_string *label_right)
 {
   label = label_left;
   suffix = label_right;
 }
 
-item_label::item_label(std::string label_left)
+item_label::item_label(coloured_string *label_left)
 {
   label = label_left;
-  suffix = "CHECK";
+  suffix = new coloured_string("CHECK");
 }
 
 void item_label::say_label()
 {
     if(voice_state) {
-        say(label.c_str());
+        say(label->c_str());
     }
 }
 
 void item_label::say_suffix()
 {
    if(voice_state) {
-      say(suffix.c_str());
+      say(suffix->c_str());
    }
 }
 
-void_item::void_item(std::string s)
+void_item::void_item(coloured_string *s)
 {
   text = s;
-  text1 = "";
+  text1 = new coloured_string("");
 }
 
-void_item::void_item(std::string s, std::string s1)
+void_item::void_item(coloured_string *s, coloured_string *s1)
 {
   text = s;
   text1 = s1;
 }
 
-remark_item::remark_item(std::string s)
+remark_item::remark_item(coloured_string *s)
 {
   text = s;
 }
@@ -846,7 +848,7 @@ bool remark_item::do_processing(bool copilotOn)
         elapsed = 0.0f;
         if(speech_active()){
             if(voice_state) {
-              say(text.c_str());
+              say(text->c_str());
             }
             state = SAY_LABEL;
         }else{
@@ -1005,8 +1007,8 @@ bool checklist_binder::free_checklist_names(int all_checklists, int menu_size, c
 
 bool void_item::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = text.c_str();
-  desc.suffix = text1.c_str();
+  desc.text = text->c_str();
+  desc.suffix = text1->c_str();
   desc.info_only = true;
   desc.item_void = true;
   desc.copilot_controlled = false;
@@ -1015,7 +1017,7 @@ bool void_item::getDesc(checklist_item_desc_t &desc)
 
 bool remark_item::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = text.c_str();
+  desc.text = text->c_str();
   desc.suffix = (char *)"";
   desc.info_only = true;
   desc.item_void = true;
@@ -1025,9 +1027,9 @@ bool remark_item::getDesc(checklist_item_desc_t &desc)
 
 bool item_label::getDesc(checklist_item_desc_t &desc)
 {
-  desc.text = label.c_str();
-  if(!suffix.empty()){
-    desc.suffix = suffix.c_str();
+  desc.text = label->c_str();
+  if(!suffix->empty()){
+    desc.suffix = suffix->c_str();
   }else{
     desc.suffix = "CHECK";
   }
@@ -1366,5 +1368,92 @@ void value::cast(double &val)const
     //std::cout << "Cast to float" << std::endl;
     val = (float)val;
   }
+}
+
+coloured_string::coloured_string(std::string str, std::string *colour)
+{
+  unsigned long idx = 0;
+  if(colour != NULL){
+    // have coloured string
+    if(colour->size() > 0){
+      //Have coloured string
+      idx = p.get_colour_index(*colour);
+      colour_stack.push_back(idx);
+    }else{
+      if(colour_stack.size() > 0){
+        colour_stack.pop_back();
+      }
+      unsigned long tmp = colour_stack.size();
+      if(tmp > 0){
+        idx = colour_stack.at(tmp - 1);
+      }
+    }
+  }
+  cs.push_back(make_pair(str, idx));
+  whole += str;
+}
+
+void coloured_string::append(coloured_string *str)
+{
+  std::vector<std::pair<std::string, unsigned long> >::const_iterator i;
+  for(i = cs.begin(); i != cs.end(); ++i){
+    str->append(i->first, i->second);
+  }
+}
+
+void coloured_string::append(std::string str, unsigned long idx)
+{
+  cs.push_back(make_pair(str, idx));
+  whole += str;
+}
+
+static float clamp_colour(const float c, const std::string name, const char *component)
+{
+  if(c < 0.0f){
+    xcWarn("Component %s of colour %s is lower than zero.\n", component, name.c_str());
+    return 0.0f;
+  }
+  if(c > 1.0f){
+    xcWarn("Component %s of colour %s is higher than one.\n", component, name.c_str());
+    return 1.0f;
+  }
+  return c;
+}
+
+palette::palette()
+{
+  t_rgb def = {.r = 1.0, .g = 1.0, .b = 1.0};
+  colours.push_back(def);
+}
+
+void palette::add_colour(const std::string name, const std::string r, const std::string g, const std::string b)
+{
+  t_rgb def = {.r = clamp_colour(fromString<float>(r), name, "r"),
+               .g = clamp_colour(fromString<float>(g), name, "g"),
+               .b = clamp_colour(fromString<float>(b), name, "b")};
+  colours.push_back(def);
+  colour_names.insert(make_pair(name, colours.size()));
+}
+
+unsigned long palette::get_colour_index(const std::string name)
+{
+  std::map<const std::string, unsigned long>::const_iterator i;
+  i = colour_names.find(name);
+  if(i == colour_names.end()){
+    xcWarn("Unknown colour %s requested.\n", name.c_str());
+    return 0;
+  }
+  return i->second;
+}
+
+void palette::get_colour(unsigned long index, float rgb[])
+{
+  if(index >= colours.size()){
+    rgb[0] = rgb[1] = rgb[2] = 1.0;
+  }
+
+  rgb[0] = colours[index].r;
+  rgb[1] = colours[index].g;
+  rgb[2] = colours[index].b;
 }
 

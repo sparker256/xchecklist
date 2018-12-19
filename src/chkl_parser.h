@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <iostream>
 #include <map>
 #include <unistd.h>
@@ -25,6 +26,32 @@ extern char* chkltext;
 extern int chkllineno;
 extern int chkldebug;
 extern FILE* chklin;
+
+typedef struct {float r; float g; float b;} t_rgb;
+
+class palette{
+  std::map<const std::string, unsigned long> colour_names;
+  std::vector<t_rgb> colours;
+ public:
+  palette();
+  void add_colour(const std::string name, const std::string r, const std::string g, const std::string b);
+  unsigned long get_colour_index(const std::string name);
+  void get_colour(unsigned long index, float rgb[]);
+};
+
+extern palette p;
+
+class coloured_string{
+  std::vector<std::pair<std::string, unsigned long> > cs;
+  std::vector<unsigned long> colour_stack;
+  std::string whole;
+ public:
+  coloured_string(std::string str, std::string *colour = NULL);
+  void append(coloured_string *str);
+  void append(std::string str, unsigned long idx);
+  const char *c_str()const{return whole.c_str();};
+  bool empty()const{return whole.empty();};
+};
 
 class checklist_item{
   friend std::ostream& operator<<(std::ostream &output, const checklist_item& s);
@@ -228,14 +255,15 @@ class dataref_dsc : public dataref_t{
 class item_label{
   friend std::ostream& operator<<(std::ostream &output, const item_label& l);
  public:
-  item_label(std::string label_left, std::string label_right);
-  item_label(std::string label_left);
+  item_label(coloured_string *label_left, coloured_string *label_right);
+  item_label(coloured_string *label_left);
+  ~item_label(){if(label) delete label; if(suffix) delete suffix;};
   bool getDesc(checklist_item_desc_t &desc);
   void say_label();
   void say_suffix();
  private:
-  std::string label;
-  std::string suffix;
+  coloured_string *label;
+  coloured_string *suffix;
 };
 
 class show_item: public checklist_item{
@@ -254,28 +282,28 @@ class show_item: public checklist_item{
 
 class void_item:public checklist_item{
   public:
-    void_item(std::string s);
-    void_item(std::string s, std::string s1);
-    virtual ~void_item(){};
+    void_item(coloured_string *s);
+    void_item(coloured_string *s, coloured_string *s1);
+    virtual ~void_item(){if(text) delete text; if(text1) delete text1;};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate(){return false;};
     virtual bool do_processing(bool copilotOn){(void) copilotOn; return false;};
   private:
-    std::string text;
-    std::string text1;
+    coloured_string *text;
+    coloured_string *text1;
 };
 
 class remark_item:public checklist_item{
   public:
-    remark_item(std::string s);
-    virtual ~remark_item(){};
+    remark_item(coloured_string *s);
+    virtual ~remark_item(){if(text) delete text;};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
     virtual bool do_processing(bool copilotOn);
   private:
-    std::string text;
+    coloured_string *text;
 };
 
 class chk_item:public checklist_item{
