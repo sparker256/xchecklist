@@ -41,6 +41,7 @@ class palette{
 
 extern palette p;
 
+
 class coloured_string{
   std::vector<std::pair<std::string, unsigned long>> cs;
   std::vector<unsigned long> colour_stack;
@@ -49,9 +50,14 @@ class coloured_string{
   coloured_string(std::string str, std::string *colour = NULL);
   void append(coloured_string *str);
   void append(std::string str, unsigned long idx);
+  void resolve_colours();
   const char *c_str()const{return whole.c_str();};
   bool empty()const{return whole.empty();};
+  int get_pieces()const{return cs.size();};
+  const char *get_piece(int i, float *rgb)const;
 };
+
+
 
 class checklist_item{
   friend std::ostream& operator<<(std::ostream &output, const checklist_item& s);

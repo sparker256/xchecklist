@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "XPLMDataAccess.h"
 
+
 typedef struct{
   //Text of the checklist item
   const char *text;
@@ -15,6 +16,8 @@ typedef struct{
   bool info_only;
   //True if the item is only a "label"
   bool item_void;
+  void *c_text;
+  void *c_suffix;
 }checklist_item_desc_t;
 
 typedef enum{

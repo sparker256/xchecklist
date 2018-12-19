@@ -1,7 +1,7 @@
 %{
   #include <stdio.h>
   #include <string.h>
-  #include "src/chkl_parser.h"
+  #include "chkl_parser.h"
   extern FILE* yyin;
   int yylex (void);
   void yyerror (char const *);
@@ -195,12 +195,16 @@ item_info:        TOKEN_ITEMINFO TOKEN_COLON spec_string {
                   }
 ;
 item_void:      TOKEN_ITEMVOID TOKEN_COLON coloured_string TOKEN_PIPE coloured_string{
+                    $3->resolve_colours();
+                    $5->resolve_colours();
                     $$ = new void_item($3, $5);
                   }
                 | TOKEN_ITEMVOID TOKEN_COLON coloured_string TOKEN_PIPE{
+                    $3->resolve_colours();
                     $$ = new void_item($3);
                   }
                 | TOKEN_ITEMVOID TOKEN_COLON coloured_string{
+                    $3->resolve_colours();
                     $$ = new void_item($3);
                   }
                 | TOKEN_ITEMVOID TOKEN_COLON{
@@ -208,6 +212,7 @@ item_void:      TOKEN_ITEMVOID TOKEN_COLON coloured_string TOKEN_PIPE coloured_s
                   }
 ;
 item_remark:    TOKEN_REMARK TOKEN_COLON coloured_string{
+                    $3->resolve_colours();
                     $$ = new remark_item($3);
                   }
 ;
@@ -233,12 +238,16 @@ colsize:        TOKEN_RCOLSIZE TOKEN_COLON TOKEN_STRING{
                   }
 ;
 spec_string:    coloured_string{
+                    $1->resolve_colours();
                     $$ = new item_label($1);
                   }
                 | coloured_string TOKEN_PIPE{
+                    $1->resolve_colours();
                     $$ = new item_label($1);
                   }
                 | coloured_string TOKEN_PIPE coloured_string{
+                    $1->resolve_colours();
+                    $3->resolve_colours();
                     $$ = new item_label($1, $3);
                   }
 ;
