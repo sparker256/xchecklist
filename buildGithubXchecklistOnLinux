@@ -1,12 +1,11 @@
 #!/bin/bash
 #
 # How to run
-# ./X-Plane_Github_Plugins/xchecklist/buildGithubXchecklistOnLinux
+# ./xp11_xchecklist_plugin_builder/xchecklist/buildGithubXchecklistOnLinux
 
-cd X-Plane_Github_Plugins/xchecklist &&
+cd xp11_xchecklist_plugin_builder/xchecklist &&
 ./build4linux
 ./MakeMacOnLinux
-# ssh -v Bills-Mac-Pro-Yos.local ". ~/.bash_profile && cd X-Plane_Github_Plugins/xchecklist && git pull && ./build4mac"
 exec $SHELL
 #
 
