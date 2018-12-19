@@ -32,27 +32,27 @@ endif ()
 set(CMAKE_CXX_STANDARD 14)
 
 # Set include directories used by our code and dependencies.
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Widgets")
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Wrappers")
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/XPLM")
-include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
+include_directories("../../SDK/CHeaders/Widgets")
+include_directories("../../SDK/CHeaders/Wrappers")
+include_directories("../../SDK/CHeaders/XPLM")
+include_directories("../../SDK/WinSDK/Include")
 include_directories("${CMAKE_SOURCE_DIR}")
 
 if (WIN32)
-	include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
+	include_directories("../../SDK/WinSDK/Include")
 endif ()
 
 
 # Specify library search locations.
 if (WIN32)
-    list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Win")
+    list(APPEND CMAKE_LIBRARY_PATH "../../SDK/Libraries/Win")
 	if (32BIT)
-		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib")
+		list(APPEND CMAKE_LIBRARY_PATH "../../WinSDK/Lib")
 	else ()
-		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
+		list(APPEND CMAKE_LIBRARY_PATH "../../WinSDK/Lib/x64")
 	endif ()
 elseif (APPLE)
-    list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Mac")
+    list(APPEND CMAKE_FRAMEWORK_PATH "../../SDK/Libraries/Mac")
 elseif (UNIX)
 
 endif ()
@@ -179,14 +179,14 @@ elseif (APPLE)
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist "-exported_symbols_list ${CMAKE_SOURCE_DIR}/Xchecklist.sym_mac")
+    target_link_libraries(Xchecklist "-exported_symbols_list ../../Xchecklist.sym_mac")
 	target_link_libraries(Xchecklist "-framework XPLM -framework XPWidgets -ldl")
 elseif (UNIX)
     # Specify additional runtime search laths for dynamically-linked libraries.
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist -Wl,--version-script -Wl,${CMAKE_SOURCE_DIR}/Xchecklist.sym)
+    target_link_libraries(Xchecklist -Wl,--version-script -Wl,../../Xchecklist.sym)
 endif ()
 
 
