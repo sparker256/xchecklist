@@ -31,6 +31,10 @@
 # For the test to run, execute the checker on this file with added parameter 4:
 #  ./checker regres_test1.txt 4
 
+sw_define_colour:red:1.0,0.0,0.0
+sw_define_colour:green:0.0,1.0,0.0
+sw_define_colour:blue:1.0,0.0,1.0
+
 
 sw_checklist:Basic operations
 #?#i checklist/test/int_dref1 40
@@ -212,4 +216,6 @@ sw_continue
 
 sw_checklist:C4:C4m
 @sw_item:Item C4
+sw_item_c:\red\Red item|\blue\Blue item
+sw_item_c:Default colour \green\green colour \\back to default 
 

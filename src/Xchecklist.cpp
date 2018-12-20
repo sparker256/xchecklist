@@ -39,6 +39,8 @@
 #include "interface.h"
 #include "speech.h"
 #include "utils.h"
+#include "plugin_dl.h"
+#include "gui_window.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -259,7 +261,7 @@ PLUGIN_API int XPluginStart(
 {
         int		PluginSubMenuItem;
 	int             ChecklistsSubMenuItem;
-
+        loadFunctions();
          xcDebug("Xchecklist: ver " VERSION_NUMBER "\n");
 
         /* First set up our plugin info. */
@@ -372,6 +374,15 @@ PLUGIN_API int XPluginStart(
         // so go ahead an disable us!
         return (g_vr_dref != NULL), 1;
 }
+
+bool isVREnabled()
+{
+  if(!g_vr_dref){
+    return false;
+  }
+  return XPLMGetDatai(g_vr_dref);
+}
+
 
 PLUGIN_API void	XPluginStop(void)
 {
@@ -746,11 +757,10 @@ bool create_dictionary()
 
 bool toggle_gui()
 {
-    #if XPLM301
     if (XPLMGetWindowIsVisible(xcvr_g_window)) {
         if (is_popped_out) {
             was_popped_out = is_popped_out;
-            XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
+            XPLMGetWindowGeometryOS_ptr(xcvr_g_window, &left, &top, &right, &bottom);
         }
         else {
             XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
@@ -760,17 +770,16 @@ bool toggle_gui()
     }
     else {
         if (was_popped_out) {
-            XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowPopOut, 0);
-            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+            XPLMSetWindowPositioningMode_ptr(xcvr_g_window, xplm_WindowPopOut, 0);
+            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
             XPLMSetWindowIsVisible(xcvr_g_window,1);
             was_popped_out = 0;
         }
         if (!is_popped_out) {
-            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
             XPLMSetWindowIsVisible(xcvr_g_window,1);
         }
     }
-    #endif
     return true;
 }
 
@@ -794,7 +803,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
 
       if(inMsg == XPLM_MSG_SCENERY_LOADED) {
           if (findChecklist()) {
-              vr_is_enabled = XPLMGetDatai(g_vr_dref);
+              vr_is_enabled = isVREnabled();
               if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
                   xcvr_create_gui_window();
               }
@@ -803,7 +812,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
       #if XPLM301
       if(inMsg == XPLM_MSG_ENTERED_VR) {
           if (findChecklist()) {
-              vr_is_enabled = XPLMGetDatai(g_vr_dref);
+              vr_is_enabled = isVREnabled();
               if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
                   if (xcvr_g_window) {
                       xcvr_g_window = NULL;
@@ -820,7 +829,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inP
 
 void xcvr_create_gui_window() {
 
-    vr_is_enabled = XPLMGetDatai(g_vr_dref);
+    vr_is_enabled = isVREnabled();
     xcDebug("Xchecklist:In xcvr_create_gui_window() function vr_is_enabled = %d\n", vr_is_enabled);
 
     #if XPLM301
@@ -828,7 +837,7 @@ void xcvr_create_gui_window() {
         // We're not guaranteed that the main monitor's lower left is at (0, 0)...
         // we'll need to query for the global desktop bounds!
         int xcvr_global_desktop_bounds[4]; // left, bottom, right, top
-        XPLMGetScreenBoundsGlobal(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
+        XPLMGetScreenBoundsGlobal_ptr(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
 
         XPLMCreateWindow_t params;
         params.structSize = sizeof(params);
@@ -854,18 +863,18 @@ void xcvr_create_gui_window() {
 
         xcvr_g_window = XPLMCreateWindowEx(&params);
 
-        // vr_is_enabled = XPLMGetDatai(g_vr_dref);
-        XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+        // vr_is_enabled = isVREnabled();
+        XPLMSetWindowPositioningMode_ptr(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
         g_in_vr = vr_is_enabled;
 
-        XPLMSetWindowResizingLimits(xcvr_g_window, 200, 200, 700, 1200); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
+        XPLMSetWindowResizingLimits_ptr(xcvr_g_window, 200, 200, 700, 1200); // Limit resizing our window: maintain a minimum width/height of 200 boxels and a max width/height of 500
 
-        XPLMSetWindowTitle(xcvr_g_window, xcvr_title); }
+        XPLMSetWindowTitle_ptr(xcvr_g_window, xcvr_title); }
 
     else XPLMSetWindowIsVisible(xcvr_g_window,1);
     if (vr_is_enabled) {
         if (XPLMWindowPositioningMode(PositioningMode) == 0) {
-            XPLMSetWindowPositioningMode(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+            XPLMSetWindowPositioningMode_ptr(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
             g_in_vr = vr_is_enabled;
         }
     }
@@ -1088,16 +1097,14 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
 
         // Register our setup widget handler
         XPAddWidgetCallback(setupWidget, xSetupHandler);
-        #if XPLM301
-        setup_window = XPGetWidgetUnderlyingWindow(setupWidget);
-        #endif
-
-        XPLMSetWindowIsVisible(setup_window, 1);
-        vr_is_enabled = XPLMGetDatai(g_vr_dref);
-
-        #if XPLM301
-        XPLMSetWindowPositioningMode(setup_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
-        #endif
+        if(XPGetWidgetUnderlyingWindow_ptr){
+          setup_window = XPGetWidgetUnderlyingWindow_ptr(setupWidget);
+          XPLMSetWindowIsVisible(setup_window, 1);
+        }
+        if(XPLMSetWindowPositioningMode_ptr){
+          vr_is_enabled = isVREnabled();
+          XPLMSetWindowPositioningMode_ptr(setup_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
+        }
 }
 
 bool set_sound(bool enable)
@@ -1244,6 +1251,56 @@ int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t
   return 0;
 }
 
+typedef struct{
+  char *str;
+  float rgb[3];
+  int len;
+} t_c_str;
+ 
+typedef std::vector<t_c_str> t_c_string;
+
+std::map<XPWidgetID, t_c_string> captionsMap;
+int cntr = 0;
+int coloured_caption_callback(
+                                XPWidgetMessage inMessage,
+                                XPWidgetID      inWidget,
+                                intptr_t        inParam1,
+                                intptr_t        inParam2)
+{
+  (void) inParam1;
+  (void) inParam2;
+  int x_c, y_c;
+  if(inMessage == xpMsg_Draw){
+    XPGetWidgetGeometry(inWidget, &x_c, NULL, NULL, &y_c);
+    std::map<XPWidgetID, t_c_string>::iterator i = captionsMap.find(inWidget);
+    if(i != captionsMap.end()){
+      for(t_c_string::iterator str = i->second.begin(); str != i->second.end(); ++str){
+        if(cntr++ < 10 ) printf("Going to print: %s\n", str->str);
+        XPLMDrawString(str->rgb, x_c, y_c + 5, str->str, NULL, xplmFont_Proportional);
+        x_c += str->len;
+      }
+    }
+    if(cntr < 10) printf("\n");
+    return 1;
+  }
+  return 0; // message not accepted
+}
+
+
+t_c_string coloured_string_process(coloured_string *cs)
+{
+  int pieces = cs->get_pieces();
+  t_c_string res;
+  t_c_str tcs;
+  for(int i = 0; i < pieces; ++i){
+    tcs.str = strdup(cs->get_piece(i, tcs.rgb));
+    tcs.len = XPLMMeasureString(xplmFont_Proportional, tcs.str, strlen(tcs.str));
+    printf("Dupped \"%s\" (%g, %g, %g)\n", tcs.str, tcs.rgb[0], tcs.rgb[1], tcs.rgb[2]);
+    res.push_back(tcs);
+  }
+  return res;
+}
+
 bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show)
@@ -1252,11 +1309,9 @@ bool create_checklist(unsigned int size, const char *title,
     int x2, y2;
     int screen_w, screen_h;
 
-    if (VersionXP > 11200) {
+    if (XPLMSetWindowTitle_ptr) {
         xcvr_title = title;
-        #if XPLM301
-        XPLMSetWindowTitle(xcvr_g_window, xcvr_title);
-        #endif
+        XPLMSetWindowTitle_ptr(xcvr_g_window, xcvr_title);
     }
     h = (5+18+(size*20)) + 50;
 
@@ -1276,6 +1331,13 @@ bool create_checklist(unsigned int size, const char *title,
     xCheckListCheckWidget.clear();
     xCheckListTextWidget.clear();
     xCheckListTextAWidget.clear();
+    
+    for(std::map<XPWidgetID, t_c_string>::iterator c = captionsMap.begin(); c != captionsMap.end(); ++c){
+      for(t_c_string::iterator str = c->second.begin(); str != c->second.end(); ++str){
+        free(str->str);
+      }
+    }
+    captionsMap.clear();
 
     checkable = 0;
     if (xCheckListWidget != NULL) {
@@ -1314,16 +1376,15 @@ bool create_checklist(unsigned int size, const char *title,
     xcvr_height = h;
     int win_left, win_top, win_right, win_bottom;
 
-    if (VersionXP > 11200) {
-        #if XPLM301
+    if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowGeometryOS_ptr && XPLMSetWindowGeometryVR_ptr) {
         if (is_popped_out) {
-            XPLMGetWindowGeometryOS(xcvr_g_window, &win_left, &win_top, &win_right, &win_bottom);
+            XPLMGetWindowGeometryOS_ptr(xcvr_g_window, &win_left, &win_top, &win_right, &win_bottom);
             win_right = win_left + xcvr_width;
             win_bottom = win_top - (xcvr_height + 20);
             #if LIN
-            XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
+            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
             #else
-            XPLMSetWindowGeometryOS(xcvr_g_window, win_left, win_top, win_right, win_bottom);
+            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, win_left, win_top, win_right, win_bottom);
             #endif
         }
 
@@ -1332,7 +1393,7 @@ bool create_checklist(unsigned int size, const char *title,
             win_right = win_left + xcvr_width;
             win_bottom = win_top - xcvr_height;
             if (vr_is_enabled) {
-                XPLMSetWindowGeometryVR(xcvr_g_window, xcvr_width, xcvr_height);
+                XPLMSetWindowGeometryVR_ptr(xcvr_g_window, xcvr_width, xcvr_height);
             } else {
                 XPLMSetWindowGeometry(xcvr_g_window, win_left, win_top, win_right, win_bottom);
             }
@@ -1341,7 +1402,6 @@ bool create_checklist(unsigned int size, const char *title,
         mouse_down_previous = 0;
         mouse_down_check_item = 0;
         mouse_down_next = 0;
-        #endif
     }
 
     XPLMGetScreenSize(&screen_w, &screen_h);
@@ -1427,12 +1487,23 @@ bool create_checklist(unsigned int size, const char *title,
              XPSetWidgetProperty(xCheckListCheckWidget[i], xpProperty_ButtonState, 0);
 
             // Create the description section for checklist item widget
-            xCheckListTextWidget[i] = XPCreateWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
-                                      1,	// Visible
-                                      items[i].text,// desc
-                                      0,		// root
-                                      xCheckListWidget,
-                                      xpWidgetClass_Caption);
+            if(items[i].c_text != NULL){
+              xCheckListTextWidget[i] = XPCreateCustomWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
+                                        1,	// Visible
+                                        items[i].text,// desc
+                                        0,		// root
+                                        xCheckListWidget,
+                                        coloured_caption_callback);
+              captionsMap.insert(make_pair(xCheckListTextWidget[i], 
+                                           coloured_string_process(static_cast<coloured_string *>(items[i].c_text))));
+            }else{
+              xCheckListTextWidget[i] = XPCreateWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
+                                        1,	// Visible
+                                        items[i].text,// desc
+                                        0,		// root
+                                        xCheckListWidget,
+                                        xpWidgetClass_Caption);
+            }
 
             xcvr_items[i].text = items[i].text;
 
@@ -1443,12 +1514,24 @@ bool create_checklist(unsigned int size, const char *title,
              }
 
              // Create the action for a checklist item widget   **  original x+maxw_1+40
+            if(items[i].c_text != NULL){
+             xCheckListTextAWidget[i] = XPCreateCustomWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
+                                        1,	// Visible
+                                        items[i].suffix,// desc
+                                        0,		// root
+                                        xCheckListWidget,
+                                        coloured_caption_callback);
+              captionsMap.insert(make_pair(xCheckListTextAWidget[i], 
+                                           coloured_string_process(static_cast<coloured_string *>(items[i].c_suffix))));
+            }else{
              xCheckListTextAWidget[i] = XPCreateWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
                                         1,	// Visible
                                         items[i].suffix,// desc
                                         0,		// root
                                         xCheckListWidget,
                                         xpWidgetClass_Caption);
+            }
+
 
              xcvr_right_text_start = (maxw_1 + 50);
              xcvr_items[i].suffix = items[i].suffix;
@@ -1464,18 +1547,17 @@ bool create_checklist(unsigned int size, const char *title,
      // Create a checklist item sction description text widget
      yOffset = (5+18+(15*20));
 
-     if (VersionXP > 11200) {
-         #if XPLM301
+     if (XPLMSetWindowGeometryOS_ptr && XPLMSetWindowResizingLimits_ptr) {
          if (!g_in_vr) {
              // VR is unhappy with this so will only let it be used when not in VR.
              // In VR because the window is transparent there are no resize handles so it is not a issue there.
-             XPLMSetWindowResizingLimits(xcvr_g_window, win_right - win_left, win_top - win_bottom,  win_right - win_left, win_top - win_bottom);
+             XPLMSetWindowResizingLimits_ptr(xcvr_g_window, win_right - win_left, win_top - win_bottom,  win_right - win_left, win_top - win_bottom);
          }
          if (is_popped_out) {
              #if LIN
-             XPLMSetWindowGeometryOS(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
+             XPLMSetWindowGeometryOS_ptr(xcvr_g_window, win_left + ((win_right - win_left) / 2), win_top - ((win_top - win_bottom) /2) + 14, win_right + ((win_right - win_left) / 2), win_bottom - ((win_top - win_bottom) /2) + 14);
              #else
-             XPLMSetWindowGeometryOS(xcvr_g_window, win_left, win_top, win_right, win_bottom);
+             XPLMSetWindowGeometryOS_ptr(xcvr_g_window, win_left, win_top, win_right, win_bottom);
              #endif
          }
          else {
@@ -1487,7 +1569,6 @@ bool create_checklist(unsigned int size, const char *title,
          mouse_down_previous = 0;
          mouse_down_check_item = 0;
          mouse_down_next = 0;
-         #endif
      }
 
      int bw = w / 2 - 10;
@@ -1764,11 +1845,10 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                 }
             }
             if (state[SHOW_GUI]) {
-                if (VersionXP > 11200) {
-                    #if XPLM301
+                if (XPLMGetWindowGeometryOS_ptr) {
                     if (XPLMGetWindowIsVisible(xcvr_g_window)) {
                         if (is_popped_out) {
-                            XPLMGetWindowGeometryOS(xcvr_g_window, &left, &top, &right, &bottom);
+                            XPLMGetWindowGeometryOS_ptr(xcvr_g_window, &left, &top, &right, &bottom);
                             XPLMSetWindowIsVisible(xcvr_g_window,0);
                             was_popped_out = is_popped_out;
                         }
@@ -1779,11 +1859,11 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     }
                     else {
                         if (was_popped_out) {
-                            XPLMSetWindowPositioningMode(xcvr_g_window, xplm_WindowPopOut, 0);
+                            XPLMSetWindowPositioningMode_ptr(xcvr_g_window, xplm_WindowPopOut, 0);
                             #if LIN
-                            XPLMSetWindowGeometryOS(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
+                            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
                             #else
-                            XPLMSetWindowGeometryOS(xcvr_g_window, left, top, right, bottom);
+                            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
                             #endif
 
                             XPLMSetWindowIsVisible(xcvr_g_window,1);
@@ -1798,7 +1878,6 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                             }
                         }
                     }
-                    #endif
                 }
             }
             break;

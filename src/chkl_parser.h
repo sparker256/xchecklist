@@ -41,18 +41,36 @@ class palette{
 
 extern palette p;
 
+<<<<<<< HEAD
 class coloured_string{
   std::vector<std::pair<std::string, unsigned long> > cs;
+=======
+
+class coloured_string{
+  std::vector<std::pair<std::string, unsigned long>> cs;
+>>>>>>> master
   std::vector<unsigned long> colour_stack;
   std::string whole;
  public:
   coloured_string(std::string str, std::string *colour = NULL);
   void append(coloured_string *str);
   void append(std::string str, unsigned long idx);
+<<<<<<< HEAD
   const char *c_str()const{return whole.c_str();};
   bool empty()const{return whole.empty();};
 };
 
+=======
+  void resolve_colours();
+  const char *c_str()const{return whole.c_str();};
+  bool empty()const{return whole.empty();};
+  int get_pieces()const{return cs.size();};
+  const char *get_piece(int i, float *rgb)const;
+};
+
+
+
+>>>>>>> master
 class checklist_item{
   friend std::ostream& operator<<(std::ostream &output, const checklist_item& s);
  public:

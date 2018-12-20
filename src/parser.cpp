@@ -1012,6 +1012,8 @@ bool void_item::getDesc(checklist_item_desc_t &desc)
   desc.info_only = true;
   desc.item_void = true;
   desc.copilot_controlled = false;
+  desc.c_text = text;
+  desc.c_suffix = text1;
   return true;
 }
 
@@ -1022,16 +1024,26 @@ bool remark_item::getDesc(checklist_item_desc_t &desc)
   desc.info_only = true;
   desc.item_void = true;
   desc.copilot_controlled = false;
+  desc.c_text = text;
+  desc.c_suffix = NULL;
   return true;
 }
 
 bool item_label::getDesc(checklist_item_desc_t &desc)
 {
   desc.text = label->c_str();
+<<<<<<< HEAD
   if(!suffix->empty()){
     desc.suffix = suffix->c_str();
+=======
+  desc.c_text = label;
+  if(!suffix->empty()){
+    desc.suffix = suffix->c_str();
+    desc.c_suffix = suffix;
+>>>>>>> master
   }else{
     desc.suffix = "CHECK";
+    desc.c_suffix = NULL;
   }
   return true;
 }
@@ -1378,24 +1390,53 @@ coloured_string::coloured_string(std::string str, std::string *colour)
     if(colour->size() > 0){
       //Have coloured string
       idx = p.get_colour_index(*colour);
+<<<<<<< HEAD
       colour_stack.push_back(idx);
     }else{
-      if(colour_stack.size() > 0){
-        colour_stack.pop_back();
-      }
-      unsigned long tmp = colour_stack.size();
-      if(tmp > 0){
-        idx = colour_stack.at(tmp - 1);
-      }
+=======
+    }else{
+      idx = 1;
     }
   }
   cs.push_back(make_pair(str, idx));
   whole += str;
 }
 
+
+void coloured_string::resolve_colours()
+{
+  for(unsigned long i = 0; i < cs.size(); ++i){
+    if(cs[i].second == 1){
+>>>>>>> master
+      if(colour_stack.size() > 0){
+        colour_stack.pop_back();
+      }
+      unsigned long tmp = colour_stack.size();
+      if(tmp > 0){
+<<<<<<< HEAD
+        idx = colour_stack.at(tmp - 1);
+      }
+    }
+  }
+  cs.push_back(make_pair(str, idx));
+  whole += str;
+=======
+        cs[i].second = colour_stack[tmp - 1];
+      }
+    }else{
+      colour_stack.push_back(cs[i].second);
+    }
+  }
+>>>>>>> master
+}
+
 void coloured_string::append(coloured_string *str)
 {
+<<<<<<< HEAD
   std::vector<std::pair<std::string, unsigned long> >::const_iterator i;
+=======
+  std::vector<std::pair<std::string, unsigned long>>::const_iterator i;
+>>>>>>> master
   for(i = cs.begin(); i != cs.end(); ++i){
     str->append(i->first, i->second);
   }
@@ -1404,9 +1445,25 @@ void coloured_string::append(coloured_string *str)
 void coloured_string::append(std::string str, unsigned long idx)
 {
   cs.push_back(make_pair(str, idx));
+<<<<<<< HEAD
   whole += str;
 }
 
+=======
+  colour_stack.push_back(idx);
+  whole += str;
+}
+
+const char *coloured_string::get_piece(int i, float *rgb)const
+{
+  if((i < 0) || ((unsigned long)i > cs.size())){
+    return NULL;
+  }
+  p.get_colour(cs[i].second, rgb);
+  return cs[i].first.c_str();
+}
+
+>>>>>>> master
 static float clamp_colour(const float c, const std::string name, const char *component)
 {
   if(c < 0.0f){
@@ -1422,8 +1479,14 @@ static float clamp_colour(const float c, const std::string name, const char *com
 
 palette::palette()
 {
+<<<<<<< HEAD
   t_rgb def = {.r = 1.0, .g = 1.0, .b = 1.0};
   colours.push_back(def);
+=======
+  t_rgb def = {.r = 152.0 / 255.0, .g = 227.0 / 255.0, .b = 192.0 / 255.0};
+  colours.push_back(def); //0 - default
+  colours.push_back(def); //1 - back through the stack
+>>>>>>> master
 }
 
 void palette::add_colour(const std::string name, const std::string r, const std::string g, const std::string b)
@@ -1432,7 +1495,11 @@ void palette::add_colour(const std::string name, const std::string r, const std:
                .g = clamp_colour(fromString<float>(g), name, "g"),
                .b = clamp_colour(fromString<float>(b), name, "b")};
   colours.push_back(def);
+<<<<<<< HEAD
   colour_names.insert(make_pair(name, colours.size()));
+=======
+  colour_names.insert(make_pair(name, colours.size() - 1));
+>>>>>>> master
 }
 
 unsigned long palette::get_colour_index(const std::string name)
@@ -1449,9 +1516,14 @@ unsigned long palette::get_colour_index(const std::string name)
 void palette::get_colour(unsigned long index, float rgb[])
 {
   if(index >= colours.size()){
+<<<<<<< HEAD
     rgb[0] = rgb[1] = rgb[2] = 1.0;
   }
 
+=======
+    index = 0;
+  }
+>>>>>>> master
   rgb[0] = colours[index].r;
   rgb[1] = colours[index].g;
   rgb[2] = colours[index].b;

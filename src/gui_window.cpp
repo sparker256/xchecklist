@@ -22,8 +22,9 @@
 
 
 
-#include "utils.h"
+#include "gui_window.h"
 #include "interface.h"
+#include "plugin_dl.h"
 
 static float g_check_box_lbrt[25][4]; // left, bottom, right, top
 static float g_copilot_box_lbrt[25][4]; // left, bottom, right, top
@@ -110,7 +111,12 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
     int char_height;
     XPLMGetFontDimensions(xplmFont_Proportional, NULL, &char_height, NULL);
 
-    is_popped_out = XPLMWindowIsPoppedOut(xcvr_in_window_id);
+    if(XPLMWindowIsPoppedOut_ptr){
+      is_popped_out = XPLMWindowIsPoppedOut_ptr(xcvr_in_window_id);
+    }else{
+      // Old windows can't be popped out
+      is_popped_out = 0;
+    }
 
     int l, t, r, b;
     XPLMGetWindowGeometry(xcvr_in_window_id, &l, &t, &r, &b);
