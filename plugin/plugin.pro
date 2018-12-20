@@ -10,11 +10,14 @@ VERSION = 1.0.0
 INCLUDEPATH += ../../SDK/CHeaders/XPLM
 INCLUDEPATH += ../../SDK/CHeaders/Wrappers
 INCLUDEPATH += ../../SDK/CHeaders/Widgets
-INCLUDEPATH += ..
+INCLUDEPATH += ../src
 VPATH = ..
 
-# Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
-DEFINES += XPLM200
+# Defined to use X-Plane SDK 3.0.1 capabilities - no backward compatibility before 11.20
+DEFINES += XPLM301 \
+           XPLM300 \
+           XPLM210 \
+	   XPLM200
 
 win32{
     message(win32)
@@ -97,13 +100,15 @@ HEADERS += ../src/interface.h \
            ../src/chkl_parser.h \
            ../src/speech.h \
            ../src/stdbool.h \
-           ../src/utils.h
+           ../src/utils.h \
+           ../src/gui_window.h
 
 
 SOURCES += ../src/Xchecklist.cpp \
            ../src/interface.cpp \
            ../src/parser.cpp \
-           ../src/utils.cpp
+           ../src/utils.cpp \
+           ../src/gui_window.cpp
 
 LEXSOURCES += ../src/chkl.l
 YACCSOURCES += ../src/chkl.y
