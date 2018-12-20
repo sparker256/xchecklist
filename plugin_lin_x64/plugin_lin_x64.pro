@@ -100,14 +100,19 @@ HEADERS += ../src/interface.h \
            ../src/chkl_parser.h \
            ../src/speech.h \
            ../src/stdbool.h \
-           ../src/utils.h
+           ../src/utils.h \
+           ../src/gui_window.h \
+           ..src/plugin_dl.h
 
 
 SOURCES += ../src/Xchecklist.cpp \
            ../src/interface.cpp \
            ../src/parser.cpp \
            ../src/utils.cpp \
-           ../src/gui_window.cpp
+           ../src/gui_window.cpp \
+           ../src/plugin_dl.c
+
+
 
 LEXSOURCES += ../src/chkl.l
 YACCSOURCES += ../src/chkl.y
