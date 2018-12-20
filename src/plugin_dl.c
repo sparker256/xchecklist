@@ -50,7 +50,7 @@ bool loadFunctions(void)
     if(fun_ptr != NULL){
       *(ptr->fun_ptr) = fun_ptr;
     }else{
-      fprintf(stderr, "Couldn't get address of function '%s'.", ptr->name);
+      fprintf(stderr, "Couldn't get address of function '%s'.\n", ptr->name);
       res = false;
     }
     ++ptr;

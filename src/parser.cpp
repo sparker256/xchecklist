@@ -1413,7 +1413,7 @@ void coloured_string::resolve_colours()
 
 void coloured_string::append(coloured_string *str)
 {
-  std::vector<std::pair<std::string, unsigned long>>::const_iterator i;
+  std::vector<std::pair<std::string, unsigned long> >::const_iterator i;
   for(i = cs.begin(); i != cs.end(); ++i){
     str->append(i->first, i->second);
   }

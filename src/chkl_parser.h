@@ -43,7 +43,7 @@ extern palette p;
 
 
 class coloured_string{
-  std::vector<std::pair<std::string, unsigned long>> cs;
+  std::vector<std::pair<std::string, unsigned long> > cs;
   std::vector<unsigned long> colour_stack;
   std::string whole;
  public:
