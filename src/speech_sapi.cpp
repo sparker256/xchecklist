@@ -1,5 +1,5 @@
 #include "XPLMUtilities.h"
-#include <../src/speech.h>
+#include "speech.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# This script will build Xchecklist for lin, win and mac for XP 11, 19 and 9 using Cmake
+#
+# How to run
+# ./xp11_xchecklist_plugin_builder/xchecklist/buildXchecklist_lin_win_mac_OnLinux_WithCmake
+
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+
+make distclean >/dev/null
+rm -rf release
+mkdir -p release/Checker &&
+mkdir -p release/Xchecklist/64 &&
+mkdir -p release/Xchecklist/lin_x64 &&
+mkdir -p release/Xchecklist/win_x64 &&
+mkdir -p release/Xchecklist/mac_x64
+
+# Building for X-Plane 11
+
+cd src
+rm -r build/*
+cd build
+cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/Xchecklist.xpl release/Xchecklist/lin_x64/
+
+
+cd src
+rm -r build/*
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-x86-64.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/Xchecklist.xpl release/Xchecklist/win_x64/
+
+
+cd src
+rm -r build/*
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-ubuntu-osxcross-10.11.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/Xchecklist.xpl release/Xchecklist/mac_x64/
+
+# Building for X-Plane 10
+
+cd src
+rm -r build/*
+cd build
+cmake -DSDK2=ON ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/liblin.xpl release/Xchecklist/64/lin.xpl
+
+cd src
+rm -r build/*
+cd build
+cmake -DSDK2=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-x86-64.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/libwin.xpl release/Xchecklist/64/win.xpl
+
+cd src
+rm -r build/*
+cd build
+cmake -DSDK2=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-ubuntu-osxcross-10.11.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/libmac.xpl release/Xchecklist/64/mac.xpl
+
+# Building for X_Plane 9
+
+cd src
+rm -r build/*
+cd build
+cmake CC="gcc -m32" CXX="g++ -m32" -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-32bit_Linux.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/liblin.xpl release/Xchecklist/lin.xpl
+
+cd src
+rm -r build/*
+cd build
+cmake -DSDK2=ON -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=~/xp11_xchecklist_plugin_builder/xchecklist/src/Toolchain-mingw-w64-i686.cmake ..
+make VERBOSE=1
+cd /home/bill/xp11_xchecklist_plugin_builder/xchecklist
+cp src/build/libwin.xpl release/Xchecklist/win.xpl
+exec $SHELL
+#

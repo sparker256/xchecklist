@@ -12,6 +12,7 @@ INCLUDEPATH += ../../SDK/CHeaders/XPLM
 INCLUDEPATH += ../../SDK/CHeaders/Wrappers
 INCLUDEPATH += ../../SDK/CHeaders/Widgets
 INCLUDEPATH += ..
+INCLUDEPATH += ../src
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
 DEFINES += XPLM200 CHECKER

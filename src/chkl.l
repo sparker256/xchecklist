@@ -12,7 +12,7 @@
   static t_state state = STATE_CMD;
   static bool open_paren = false;
   static bool is_colour = false;
-
+  static bool dref_still = false;
 %}
 %option noyywrap
 %option nounput
@@ -83,7 +83,7 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                return(TOKEN_COLOUR_NAME);
                              }
 <*>{COLON}                   {
-                               if(!open_paren){
+                               //if(!open_paren){
                                  //fprintf(stderr, ":\n");
                                  switch(state){
                                    case STATE_CMD:
@@ -109,13 +109,13 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                    case STATE_DREF:
                                      BEGIN(NUM);
                                      state = STATE_EXPR;
+                                     dref_still = open_paren;
                                      //fprintf(stderr, "      STATE -> EXPR\n");
                                      break;
                                    case STATE_EXPR:
-                                     //Intentionaly empty
                                      break;
                                  }
-                               }
+                               //}
                                return(TOKEN_COLON);
                              }
 
@@ -191,7 +191,14 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
 <DREF>{LBRACKET}             {return(TOKEN_LEFT_BRACKET);}
 <DREF>{RBRACKET}             {return(TOKEN_RIGHT_BRACKET);}
 <DREF,NUM>{LPAREN}           {open_paren = true; return(TOKEN_LEFT_PARENTHESIS);}
-<DREF,NUM>{RPAREN}           {open_paren = false; return(TOKEN_RIGHT_PARENTHESIS);}
+<DREF,NUM>{RPAREN}           {
+                               open_paren = false;
+                               if(dref_still){
+                                 state = STATE_DREF;
+                                 BEGIN(DREF);
+                               }
+                               return(TOKEN_RIGHT_PARENTHESIS);
+                             }
 <*>#[^\r\n]*                 /*eat comments*/
 <*>{EOL}                     {
                                BEGIN(INITIAL);
@@ -199,6 +206,7 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                //fprintf(stderr, "STATE -> CMD\n");
                                open_paren = false;
                                is_colour = false;
+                               dref_still = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }
