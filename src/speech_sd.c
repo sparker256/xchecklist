@@ -41,7 +41,7 @@ struct func_defs_t functions[] =
 };
 
 static SPDConnection* connection = NULL;
-static bool speaking = 0;
+static int speaking = 0;
 
 
 static int load_functions()

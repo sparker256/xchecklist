@@ -89,9 +89,9 @@ add_compile_options(-O3 -fPIC)
 # X-Plane plugin
 # FIXME: Split this into individual targets.
 if (SDK2)
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp chkl.l chkl.y)
+	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp chkl.l chkl.y plugin_dl.c)
 else ()
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y)
+	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y plugin_dl.c)
 endif ()
 
 if (WIN32)

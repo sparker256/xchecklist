@@ -1450,16 +1450,20 @@ static float clamp_colour(const float c, const std::string name, const char *com
 
 palette::palette()
 {
-  t_rgb def = {.r = 152.0 / 255.0, .g = 227.0 / 255.0, .b = 192.0 / 255.0};
+  t_rgb def;
+  def.r = 152.0 / 255.0;
+  def.g = 227.0 / 255.0;
+  def.b = 192.0 / 255.0;
   colours.push_back(def); //0 - default
   colours.push_back(def); //1 - back through the stack
 }
 
 void palette::add_colour(const std::string name, const std::string r, const std::string g, const std::string b)
 {
-  t_rgb def = {.r = clamp_colour(fromString<float>(r), name, "r"),
-               .g = clamp_colour(fromString<float>(g), name, "g"),
-               .b = clamp_colour(fromString<float>(b), name, "b")};
+  t_rgb def;
+  def.r = clamp_colour(fromString<float>(r), name, "r");
+  def.g = clamp_colour(fromString<float>(g), name, "g");
+  def.b = clamp_colour(fromString<float>(b), name, "b");
   colours.push_back(def);
   colour_names.insert(make_pair(name, colours.size() - 1));
 }
