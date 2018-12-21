@@ -31,6 +31,7 @@ function build() {
   (
     export PATH="$PATH:/usr/osxcross/bin"
     mkdir -p "$build_dir" && cd "$build_dir"
+    rm -rf *
     "$cmake" -G Ninja "${flags[@]}" ..
     ninja -v
   )

@@ -237,7 +237,6 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
         }
 
         // Find out how big to make the buttons so they always fit on the window
-        line_number = line_number;
         typedef enum {HIDE_LABEL, IN_FRONT_LABEL, PREVIOUS_LABEL, CHECK_ITEM_LABEL, NEXT_LABEL, SENTINEL_LABEL} label_names;
         const char *labels[] = {"Hide", "In Front", "Previous", "Check Item", "Next", ""};
 
