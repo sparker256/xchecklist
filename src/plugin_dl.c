@@ -1,9 +1,11 @@
-#include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "XPLMUtilities.h"
+
 #include "plugin_dl.h"
+#include "utils.h"
 
 typedef struct{
   const char *name;
@@ -37,20 +39,14 @@ bool loadFunctions(void)
 {
   t_fcn_info *ptr = funcs;
   void *fun_ptr;
-  void *handle;
   bool res = true;
 
-  handle = dlopen(NULL, RTLD_NOW);
-  if(handle == NULL){
-    fprintf(stderr, "Problem dlopening executable.\n");
-    return false;
-  }
   while(ptr->name != NULL){
-    fun_ptr = dlsym(handle, ptr->name);
+    fun_ptr = XPLMFindSymbol(ptr->name);
     if(fun_ptr != NULL){
       *(ptr->fun_ptr) = fun_ptr;
     }else{
-      fprintf(stderr, "Couldn't get address of function '%s'.\n", ptr->name);
+      xcDebug("Couldn't get address of function '%s'.\n", ptr->name);
       res = false;
     }
     ++ptr;
