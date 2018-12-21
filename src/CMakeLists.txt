@@ -84,7 +84,7 @@ add_compile_options(-Wall -Wpedantic -Wshadow -Wfloat-equal -Wextra)
 add_compile_options(-Wno-unused)
 
 # Always use position-independent code and highest optimization level (FPS!).
-add_compile_options(-O3 -fPIC)
+add_compile_options(-O3)
 
 # X-Plane plugin
 # FIXME: Split this into individual targets.
@@ -153,6 +153,7 @@ endif ()
 
 # Link library for dynamic loading of shared objects on UNIX systems.
 if (UNIX)
+    add_compile_options(-fPIC)
     find_library(DL_LIBRARY dl)
     target_link_libraries(Xchecklist ${DL_LIBRARY})
 endif ()

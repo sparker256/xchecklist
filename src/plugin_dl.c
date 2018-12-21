@@ -12,15 +12,15 @@ typedef struct{
   void **fun_ptr;
 } t_fcn_info;
 
-typeof(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr = NULL;
-typeof(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr = NULL;
-typeof(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr = NULL;
-typeof(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr = NULL;
-typeof(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr = NULL;
-typeof(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr = NULL;
-typeof(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr = NULL;
-typeof(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr = NULL;
-typeof(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr = NULL;
+__typeof__(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr = NULL;
+__typeof__(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr = NULL;
+__typeof__(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr = NULL;
+__typeof__(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr = NULL;
+__typeof__(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr = NULL;
+__typeof__(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr = NULL;
+__typeof__(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr = NULL;
+__typeof__(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr = NULL;
+__typeof__(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr = NULL;
 
 static t_fcn_info funcs[] = {
   {"XPLMGetScreenBoundsGlobal", (void *)&XPLMGetScreenBoundsGlobal_ptr},
