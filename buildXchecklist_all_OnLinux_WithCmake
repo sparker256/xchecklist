@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# This script will build Xchecklist for lin, win and mac for XP 11, 19 and 9 using Cmake
+#
+# How to run
+# ./buildXchecklist_all_OnLinux_WithCmake
+
+rm -rf release build
+mkdir -p release/Checker &&
+mkdir -p release/Xchecklist/64 &&
+mkdir build
+
+##########################################################################
+# Building Linux 32bit
+rm -r build/*
+pushd build
+cmake -D32BIT=ON ../src &&
+make VERBOSE=1 &&
+cp liblin.xpl ../release/Xchecklist/lin.xpl
+popd
+
+# Building Linux 64bit
+rm -r build/*
+pushd build
+cmake ../src &&
+make VERBOSE=1 &&
+cp liblin.xpl ../release/Xchecklist/64/lin.xpl
+popd
+
+# Building Windows 64bit
+rm -r build/*
+pushd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-mingw-w64-x86-64.cmake ../src &&
+make VERBOSE=1 &&
+cp libwin.xpl ../release/Xchecklist/64/win.xpl
+popd
+
+# Building Windows 32bit
+rm -r build/*
+pushd build
+cmake -D32BIT=ON -DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-mingw-w64-i686.cmake ../src &&
+make VERBOSE=1 &&
+cp libwin.xpl ../release/Xchecklist/win.xpl
+popd
+
+# Building Mac
+rm -r build/*
+pushd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-ubuntu-osxcross-10.11.cmake ../src &&
+make VERBOSE=1 &&
+cp Xchecklist.xpl ../release/Xchecklist/mac.xpl
+popd
+
+exec $SHELL
+#
