@@ -12,14 +12,18 @@ option(SDK2 "Build with SDK2" OFF)
 option(32BIT "Build with 32 Bit" OFF)
 
 if (32BIT)
+	message ("32BIT option is on")
 	if (UNIX)
-		message ("32BIT option is on")
 		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
 		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
 		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
 		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
-		find_library(DL_LIBRARY dl)
-		message(STATUS DL_LIBRARY = ${DL_LIBRARY})
+	endif ()
+        if (WIN32)
+		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
+		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
+		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
+		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
 	endif ()
 endif()
 
@@ -87,12 +91,7 @@ add_compile_options(-Wno-unused)
 add_compile_options(-O3)
 
 # X-Plane plugin
-# FIXME: Split this into individual targets.
-if (SDK2)
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp chkl.l chkl.y plugin_dl.c)
-else ()
-	list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y plugin_dl.c)
-endif ()
+list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y plugin_dl.c)
 
 if (WIN32)
 	list(APPEND XCHECKLIST_SRCS speech_sapi.cpp)
@@ -135,8 +134,13 @@ find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
 
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
 if (WIN32 OR APPLE)
-    find_library(XPLM_LIBRARY NAMES XPLM XPLM_64.lib)
-	find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets_64.lib)
+	if (32BIT)
+		find_library(XPLM_LIBRARY NAMES XPLM XPLM.lib)
+		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.lib)
+        else ()
+		find_library(XPLM_LIBRARY NAMES XPLM XPLM_64.lib)
+		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets_64.lib)
+	endif ()
 endif ()
 
 # Find Windows Speech API
@@ -154,8 +158,6 @@ endif ()
 # Link library for dynamic loading of shared objects on UNIX systems.
 if (UNIX)
     add_compile_options(-fPIC)
-    find_library(DL_LIBRARY dl)
-    target_link_libraries(Xchecklist ${DL_LIBRARY})
 endif ()
 
 # Link OS X core system libraries.
@@ -187,22 +189,16 @@ elseif (UNIX)
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist -Wl,--version-script -Wl,${CMAKE_SOURCE_DIR}/Xchecklist.sym)
+    target_link_libraries(Xchecklist -ldl -Wl,--version-script -Wl,${CMAKE_SOURCE_DIR}/Xchecklist.sym)
 endif ()
 
 
-if (SDK2)
-	if (WIN32)
-		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "win")
-	elseif (APPLE)
-		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "mac")
-	elseif (UNIX)
-		set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "lin")
-	endif ()
-	set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")
+if (WIN32)
+	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "win")
+elseif (APPLE)
+	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "mac")
+elseif (UNIX)
+	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "lin")
+endif ()
+set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")
 	
-else ()
-	set_target_properties(Xchecklist PROPERTIES PREFIX "")
-	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "Xchecklist")
-	set_target_properties(Xchecklist PROPERTIES SUFFIX ".xpl")	
-endif ()
