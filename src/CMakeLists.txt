@@ -178,7 +178,7 @@ endif ()
 
 if (WIN32)
     # Unlike OS X and Linux we build standard libraries statically since X-Plane does not provide them.
-    target_link_libraries(Xchecklist -static-libgcc -static-libstdc++ opengl32 sapi)
+    target_link_libraries(Xchecklist -static-libgcc -static-libstdc++ opengl32)
     # MSYS2 for some reason always links against winpthread, so we have to work around it by statically linking the
     # entire plugin. This allows building the plugin nativaly on Windows.
     target_link_libraries(Xchecklist -static)

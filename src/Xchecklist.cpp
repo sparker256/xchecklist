@@ -1507,7 +1507,7 @@ bool create_checklist(unsigned int size, const char *title,
              }
 
              // Create the action for a checklist item widget   **  original x+maxw_1+40
-            if(items[i].c_text != NULL){
+            if(items[i].c_suffix != NULL){
              xCheckListTextAWidget[i] = XPCreateCustomWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
                                         1,	// Visible
                                         items[i].suffix,// desc
