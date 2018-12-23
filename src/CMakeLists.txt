@@ -133,16 +133,17 @@ find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
 # target_link_libraries(Xchecklist ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLUT_LIBRARY})
 
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
-if (WIN32 OR APPLE)
+if (WIN32)
 	if (32BIT)
 		find_library(XPLM_LIBRARY NAMES XPLM XPLM.lib)
 		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.lib)
-		message (STATUS "32bits")
         else ()
 		find_library(XPLM_LIBRARY NAMES XPLM_64 XPLM_64.lib)
 		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets_64 XPWidgets_64.lib)
-		message (STATUS "64bits")
 	endif ()
+elseif (APPLE)
+	find_library(XPLM_LIBRARY NAMES XPLM XPLM.lib)
+	find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.lib)
 endif ()
 message (STATUS "XPLM_LIBRARY" = ${XPLM_LIBRARY})
 
