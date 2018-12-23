@@ -12,7 +12,10 @@ all: lin win mac
 bash: .image
 	docker run -it --rm -v "$(realpath ../src):/src" --entrypoint bash $(container):latest
 
+buildAll: .image
+	docker run -it --rm -v "$(realpath ..):/src" --entrypoint /src/buildXchecklist_all_OnLinux_WithCmake $(container):latest
+
 $(platforms): .image
 	docker run -i --rm -v "$(realpath ../src):/src" $(container):latest $@
 
-.PHONY: $(platforms) bash
+.PHONY: $(platforms) bash buildAll

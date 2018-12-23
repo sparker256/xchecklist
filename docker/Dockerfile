@@ -41,7 +41,7 @@ RUN mkdir -p "/tmp/osxcross" \
  && true
 
 # Install dependency libraries under Linux.
-RUN apt-get install -y --no-install-recommends freeglut3-dev libudev-dev libopenal-dev && apt-get clean
+RUN apt-get install -y --no-install-recommends freeglut3-dev libudev-dev libopenal-dev g++-multilib gcc-multilib libspeechd-dev && apt-get clean
 
 RUN echo "" | adduser --uid 1000 --disabled-password  --gecos "" aleks && adduser aleks sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
