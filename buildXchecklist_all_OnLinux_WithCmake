@@ -85,7 +85,7 @@ rm -r build/*
 pushd build
 cmake -DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-ubuntu-osxcross-10.11.cmake ../src &&
 make VERBOSE=1 &&
-cp Xchecklist.xpl ../release/Xchecklist/mac.xpl
+cp libmac.xpl ../release/Xchecklist/mac.xpl
 popd
 rm -r build/*
 pushd build
