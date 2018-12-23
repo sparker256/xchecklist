@@ -72,7 +72,7 @@ if (APPLE)
 endif ()
 
 if (APPLE)
-    target_link_libraries(simon -flat_namespace -undefined suppress -pthread -framework AppKit)
+    target_link_libraries(simon -flat_namespace "-undefined suppress" -framework AppKit)
 else ()
     target_link_libraries(simon -ldl -pthread)
 endif ()

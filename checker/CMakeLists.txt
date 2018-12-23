@@ -51,7 +51,10 @@ add_compile_options(-Wall -Wpedantic -Wshadow -Wfloat-equal -Wextra)
 add_compile_options(-Wno-unused)
 
 # Always use position-independent code and highest optimization level (FPS!).
-add_compile_options(-O3 -fPIC)
+add_compile_options(-O3)
+if (UNIX)
+    add_compile_options(-fPIC)
+endif ()
 
 # Checker
 # FIXME: Split this into individual targets.
