@@ -141,9 +141,6 @@ if (WIN32)
 		find_library(XPLM_LIBRARY NAMES XPLM_64 XPLM_64.lib)
 		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets_64 XPWidgets_64.lib)
 	endif ()
-elseif (APPLE)
-	find_library(XPLM_LIBRARY NAMES XPLM XPLM.lib)
-	find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.lib)
 endif ()
 message (STATUS "XPLM_LIBRARY" = ${XPLM_LIBRARY})
 
@@ -187,7 +184,7 @@ elseif (APPLE)
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
     target_link_libraries(Xchecklist "-exported_symbols_list ${CMAKE_SOURCE_DIR}/Xchecklist.sym_mac")
-	target_link_libraries(Xchecklist "-framework XPLM -framework XPWidgets -ldl")
+	target_link_libraries(Xchecklist "-flat_namespace -undefined suppress")
 elseif (UNIX)
     # Specify additional runtime search laths for dynamically-linked libraries.
     # Restrict set of symbols exported from the plugin. This reduces changes of

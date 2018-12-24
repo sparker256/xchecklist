@@ -27,10 +27,11 @@ mkdir -p release/Checker &&
 mkdir -p release/Xchecklist/64 &&
 mkdir build
 
-OSX_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-ubuntu-osxcross-10.11.cmake -DCMAKE_FIND_ROOT_PATH=/usr/osxcross/SDK/MacOSX10.11.sdk/"
+OSX_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-ubuntu-osxcross-10.11.cmake -DCMAKE_FIND_ROOT_PATH=/usr/osxcross/SDK/MacOSX10.11.sdk/ -DCMAKE_OSX_ARCHITECTURES=i386;x86_64"
 B32_CMAKE_FLAGS="-D32BIT=ON"
 WIN32_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-mingw-w64-i686.cmake"
 WIN64_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-mingw-w64-x86-64.cmake"
+export PATH=${PATH}:/usr/osxcross/bin
 
 # Windows build
 build "${WIN64_CMAKE_FLAGS}" ../src libwin.xpl ../release/Xchecklist/64/win.xpl
@@ -47,7 +48,6 @@ build "" ../simon simon_lin64 ../release/Xchecklist
 build "${B32_CMAKE_FLAGS}" ../simon simon_lin32 ../release/Xchecklist
 
 # Mac build
-export PATH=${PATH}:/usr/osxcross/bin
 build "${OSX_CMAKE_FLAGS}" ../src libmac.xpl ../release/Xchecklist/mac.xpl
 build "${OSX_CMAKE_FLAGS}" ../checker mac_checker ../release/Checker
 build "${OSX_CMAKE_FLAGS}" ../simon simon_mac ../release/Xchecklist
