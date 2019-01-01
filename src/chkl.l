@@ -69,8 +69,6 @@ sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 sw_define_colour             {is_colour = true; state = STATE_CDESC; return(TOKEN_COLOUR_DEF);}
 sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
 
-
-
 <CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
 <CDESC>{COLOURED_STRING}     {
                                chkllval.str=strdup(yytext);
@@ -92,18 +90,18 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                      }else{
                                        BEGIN(DESC);
                                      }
-                                     fprintf(stderr, "  STATE -> DESC\n");
+                                     //fprintf(stderr, "  STATE -> DESC\n");
                                      state = STATE_DESC;
                                      break;
                                    case STATE_CDESC:
                                      BEGIN(NUM);
                                      state = STATE_EXPR;
-                                     fprintf(stderr, "    STATE -> EXPR\n");
+                                     //fprintf(stderr, "    STATE -> EXPR\n");
                                      break;  
                                    case STATE_DESC:
                                      BEGIN(DREF);
                                      state = STATE_DREF;
-                                     fprintf(stderr, "    STATE -> DREF\n");
+                                     //fprintf(stderr, "    STATE -> DREF\n");
                                      break;
                                    case STATE_DREF:
                                      BEGIN(NUM);
