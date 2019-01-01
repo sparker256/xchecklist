@@ -8,7 +8,7 @@
   #include "chkl_yacc.h"
   #include "utils.h"
 
-  typedef enum {STATE_CMD, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
+  typedef enum {STATE_CMD, STATE_CDESC, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
   static t_state state = STATE_CMD;
   static bool open_paren = false;
   static bool is_colour = false;
@@ -66,10 +66,8 @@ sw_show                      {state = STATE_DESC; return(TOKEN_SHOW);}
 sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
 sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
-sw_define_colour             {is_colour = true; return(TOKEN_COLOUR_DEF);}
- /* Bill Good I am removing this untill we can find the reason for CTD */
- /* sw_item_c                    {is_colour = true; return(TOKEN_ITEM);} */
-sw_itemvoid_c                {is_colour = true; return(TOKEN_ITEMVOID);}
+sw_define_colour             {is_colour = true; state = STATE_CDESC; return(TOKEN_COLOUR_DEF);}
+sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
 
 <CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
 <CDESC>{COLOURED_STRING}     {
@@ -95,16 +93,15 @@ sw_itemvoid_c                {is_colour = true; return(TOKEN_ITEMVOID);}
                                      //fprintf(stderr, "  STATE -> DESC\n");
                                      state = STATE_DESC;
                                      break;
+                                   case STATE_CDESC:
+                                     BEGIN(NUM);
+                                     state = STATE_EXPR;
+                                     //fprintf(stderr, "    STATE -> EXPR\n");
+                                     break;  
                                    case STATE_DESC:
-                                     if(is_colour){
-                                       BEGIN(NUM);
-                                       state = STATE_EXPR;
-                                       //fprintf(stderr, "    STATE -> EXPR\n");
-                                     }else{
-                                       BEGIN(DREF);
-                                       state = STATE_DREF;
-                                       //fprintf(stderr, "    STATE -> DREF\n");
-                                     }
+                                     BEGIN(DREF);
+                                     state = STATE_DREF;
+                                     //fprintf(stderr, "    STATE -> DREF\n");
                                      break;
                                    case STATE_DREF:
                                      BEGIN(NUM);
