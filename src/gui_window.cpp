@@ -1,3 +1,7 @@
+
+#include "gui_window.h"
+
+
 #include "XPLMDisplay.h"    // for window creation and manipulation
 #include "XPLMGraphics.h"   // for window drawing
 #include "XPLMDataAccess.h" // for the VR dataref
@@ -5,15 +9,18 @@
 #include "XPLMUtilities.h"  // for Various utilities
 #include <stdio.h>
 #include <string.h>
+
 #if IBM
-    #include <windows.h>
+#include <windows.h>
 #endif
 #if LIN
-    #include <GL/gl.h>
-#elif __GNUC__
-    #include <GL/gl.h>
-#else
-    #include <GL/gl.h>
+#include <GL/gl.h>
+#endif
+#if __GNUC__ && APL
+#include <OpenGL/gl.h>
+#endif
+#if __GNUC__ && IBM
+#include <GL/gl.h>
 #endif
 
 #ifndef XPLM301
@@ -22,7 +29,6 @@
 
 
 
-#include "gui_window.h"
 #include "interface.h"
 #include "plugin_dl.h"
 
@@ -38,7 +44,6 @@ static float g_previous_button_lbrt[4]; // left, bottom, right, top
 static float g_next_button_lbrt[4]; // left, bottom, right, top
 static float g_check_item_button_lbrt[4]; // left, bottom, right, top
 
-char scratch_buffer[150];
 float col_white[] = {1.0, 1.0, 1.0};
 float col_green[] = {0.0, 1.0, 0.0};
 float col_red[] = {1.0, 0.0, 0.0};
@@ -97,6 +102,7 @@ void draw_button(float coords[], int x, int y, int w, int h, float color[], char
 void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 {
     (void) in_refcon;
+    int vr_is_enabled = isVREnabled();
     XPLMSetGraphicsState(
             0 /* no fog */,
             0 /* 0 texture units */,
@@ -192,8 +198,16 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
             }
 
-            XPLMDrawString(col_cyan, l + 40, t - line_number * char_height, (char *)xcvr_items[ii].text, NULL, xplmFont_Proportional);
-
+            if(xcvr_items[ii].c_text){
+              int x_c = l + 40;
+              t_c_string *cstr = static_cast<t_c_string*>(xcvr_items[ii].c_text);
+	      for(t_c_string::iterator str = cstr->begin(); str != cstr->end(); ++str){
+	        XPLMDrawString(str->rgb, x_c, t - line_number * char_height, str->str, NULL, xplmFont_Proportional);
+	        x_c += str->len;
+	      }
+            }else{
+              XPLMDrawString(col_cyan, l + 40, t - line_number * char_height, (char *)xcvr_items[ii].text, NULL, xplmFont_Proportional);
+            }
             if (vr_is_enabled) {
                 // Draw text for the result to be checked
                 g_suffix_box_lbrt[ii][0] = l + xcvr_right_text_start;
@@ -209,13 +223,20 @@ void	xcvr_draw(XPLMWindowID xcvr_in_window_id, void * in_refcon)
 
             }
 
-            XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_items[ii].suffix, NULL, xplmFont_Proportional);
-
+            if(xcvr_items[ii].c_suffix){
+              int x_c = l + xcvr_right_text_start;
+              t_c_string *cstr = static_cast<t_c_string*>(xcvr_items[ii].c_suffix);
+	      for(t_c_string::iterator str = cstr->begin(); str != cstr->end(); ++str){
+	        XPLMDrawString(str->rgb, x_c, t - line_number * char_height, str->str, NULL, xplmFont_Proportional);
+	        x_c += str->len;
+	      }
+            }else{
+              XPLMDrawString(col_cyan, l + xcvr_right_text_start, t - line_number * char_height, (char *)xcvr_items[ii].suffix, NULL, xplmFont_Proportional);
+            }
             line_number = line_number + 2;
         }
 
         // Find out how big to make the buttons so they always fit on the window
-        line_number = line_number;
         typedef enum {HIDE_LABEL, IN_FRONT_LABEL, PREVIOUS_LABEL, CHECK_ITEM_LABEL, NEXT_LABEL, SENTINEL_LABEL} label_names;
         const char *labels[] = {"Hide", "In Front", "Previous", "Check Item", "Next", ""};
 

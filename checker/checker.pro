@@ -2,8 +2,8 @@
 TEMPLATE = app
 QT -= gui core
 
-CONFIG += warn_on plugin release debug
-CONFIG -= thread exceptions qt rtti
+CONFIG += warn_on plugin release
+CONFIG -= thread exceptions qt rtti debug
 
 
 VERSION = 1.0.0
@@ -11,6 +11,7 @@ VERSION = 1.0.0
 INCLUDEPATH += ../../SDK/CHeaders/XPLM
 INCLUDEPATH += ../../SDK/CHeaders/Wrappers
 INCLUDEPATH += ../../SDK/CHeaders/Widgets
+INCLUDEPATH += ..
 INCLUDEPATH += ../src
 
 # Defined to use X-Plane SDK 2.0 capabilities - no backward compatibility before 9.0
@@ -43,10 +44,9 @@ unix:!macx {
     DEFINES += APL=0 IBM=0 LIN=1
     # WARNING! This requires the latest version of the X-SDK !!!!
     QMAKE_CXXFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 -fprofile-instr-generate -fcoverage-mapping
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
     QMAKE_CFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 -fprofile-instr-generate -fcoverage-mapping
-    QMAKE_LFLAGS += -fprofile-instr-generate -fcoverage-mapping
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
 }
 
 macx {

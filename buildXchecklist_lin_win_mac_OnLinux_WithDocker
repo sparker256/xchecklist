@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# This script will build Xchecklist for lin, win and mac XP 11 using Docker
+#
+# How to run
+# ./xp11_xchecklist_plugin_builder/xchecklist/buildXchecklist_lin_win_mac_OnLinux_WithDocker
+
+cd ~/xp11_xchecklist_plugin_builder/xchecklist
+
+make distclean >/dev/null
+rm -rf release
+mkdir -p release/Checker &&
+mkdir -p release/Xchecklist/64 &&
+mkdir -p release/Xchecklist/lin_x64 &&
+mkdir -p release/Xchecklist/win_x64 &&
+mkdir -p release/Xchecklist/mac_x64 &&
+mkdir -p release/Xchecklist/Documentation
+
+rm -r src/build-mac/*
+rm -r src/build-lin/*
+rm -r src/build-win/*
+
+(cd docker; make)
+
+cp src/build-lin/Xchecklist.xpl release/Xchecklist/lin_x64/Xchecklist.xpl
+cp src/build-win/Xchecklist.xpl release/Xchecklist/win_x64/Xchecklist.xpl
+cp src/build-mac/Xchecklist.xpl release/Xchecklist/mac_x64/Xchecklist.xpl
+
+cp docs/XchecklistUserManual.pdf release/Xchecklist/Documentation/XchecklistUserManual.pdf
+
+exec $SHELL
+#
+

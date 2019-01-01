@@ -124,7 +124,7 @@ number::number(std::string i, std::string d, std::string e)
   }
   frexpf(value, &exp); // get exponent...
 */
-};
+}
 
 bool number::get_value(double &d)const
 {
@@ -1413,7 +1413,7 @@ void coloured_string::resolve_colours()
 
 void coloured_string::append(coloured_string *str)
 {
-  std::vector<std::pair<std::string, unsigned long>>::const_iterator i;
+  std::vector<std::pair<std::string, unsigned long> >::const_iterator i;
   for(i = cs.begin(); i != cs.end(); ++i){
     str->append(i->first, i->second);
   }
@@ -1450,16 +1450,20 @@ static float clamp_colour(const float c, const std::string name, const char *com
 
 palette::palette()
 {
-  t_rgb def = {.r = 152.0 / 255.0, .g = 227.0 / 255.0, .b = 192.0 / 255.0};
+  t_rgb def;
+  def.r = 152.0 / 255.0;
+  def.g = 227.0 / 255.0;
+  def.b = 192.0 / 255.0;
   colours.push_back(def); //0 - default
   colours.push_back(def); //1 - back through the stack
 }
 
 void palette::add_colour(const std::string name, const std::string r, const std::string g, const std::string b)
 {
-  t_rgb def = {.r = clamp_colour(fromString<float>(r), name, "r"),
-               .g = clamp_colour(fromString<float>(g), name, "g"),
-               .b = clamp_colour(fromString<float>(b), name, "b")};
+  t_rgb def;
+  def.r = clamp_colour(fromString<float>(r), name, "r");
+  def.g = clamp_colour(fromString<float>(g), name, "g");
+  def.b = clamp_colour(fromString<float>(b), name, "b");
   colours.push_back(def);
   colour_names.insert(make_pair(name, colours.size() - 1));
 }

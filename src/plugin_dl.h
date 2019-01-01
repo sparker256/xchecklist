@@ -9,15 +9,15 @@ extern "C" {
 #endif
 
 
-extern typeof(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr;
-extern typeof(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr;
-extern typeof(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr;
-extern typeof(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr;
-extern typeof(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr;
-extern typeof(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr;
-extern typeof(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr;
-extern typeof(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr;
-extern typeof(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr;
+extern __typeof__(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr;
+extern __typeof__(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr;
+extern __typeof__(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr;
+extern __typeof__(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr;
+extern __typeof__(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr;
+extern __typeof__(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr;
+extern __typeof__(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr;
+extern __typeof__(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr;
+extern __typeof__(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr;
 extern bool loadFunctions();
 
 

@@ -1,24 +1,26 @@
-#include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "XPLMUtilities.h"
+
 #include "plugin_dl.h"
+#include "utils.h"
 
 typedef struct{
   const char *name;
   void **fun_ptr;
 } t_fcn_info;
 
-typeof(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr = NULL;
-typeof(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr = NULL;
-typeof(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr = NULL;
-typeof(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr = NULL;
-typeof(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr = NULL;
-typeof(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr = NULL;
-typeof(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr = NULL;
-typeof(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr = NULL;
-typeof(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr = NULL;
+__typeof__(XPLMGetScreenBoundsGlobal) *XPLMGetScreenBoundsGlobal_ptr = NULL;
+__typeof__(XPLMGetWindowGeometryOS) *XPLMGetWindowGeometryOS_ptr = NULL;
+__typeof__(XPLMSetWindowGeometryOS) *XPLMSetWindowGeometryOS_ptr = NULL;
+__typeof__(XPLMSetWindowGeometryVR) *XPLMSetWindowGeometryVR_ptr = NULL;
+__typeof__(XPLMSetWindowPositioningMode) *XPLMSetWindowPositioningMode_ptr = NULL;
+__typeof__(XPLMSetWindowResizingLimits) *XPLMSetWindowResizingLimits_ptr = NULL;
+__typeof__(XPLMSetWindowTitle) *XPLMSetWindowTitle_ptr = NULL;
+__typeof__(XPLMWindowIsPoppedOut) *XPLMWindowIsPoppedOut_ptr = NULL;
+__typeof__(XPGetWidgetUnderlyingWindow) *XPGetWidgetUnderlyingWindow_ptr = NULL;
 
 static t_fcn_info funcs[] = {
   {"XPLMGetScreenBoundsGlobal", (void *)&XPLMGetScreenBoundsGlobal_ptr},
@@ -37,20 +39,14 @@ bool loadFunctions(void)
 {
   t_fcn_info *ptr = funcs;
   void *fun_ptr;
-  void *handle;
   bool res = true;
 
-  handle = dlopen(NULL, RTLD_NOW);
-  if(handle == NULL){
-    fprintf(stderr, "Problem dlopening executable.\n");
-    return false;
-  }
   while(ptr->name != NULL){
-    fun_ptr = dlsym(handle, ptr->name);
+    fun_ptr = XPLMFindSymbol(ptr->name);
     if(fun_ptr != NULL){
       *(ptr->fun_ptr) = fun_ptr;
     }else{
-      fprintf(stderr, "Couldn't get address of function '%s'.", ptr->name);
+      xcDebug("Couldn't get address of function '%s'.\n", ptr->name);
       res = false;
     }
     ++ptr;

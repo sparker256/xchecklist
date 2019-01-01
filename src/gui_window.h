@@ -1,7 +1,9 @@
 #ifndef GUI_WINDOW__H
 #define GUI_WINDOW__H
 
+
 #include "interface.h"
+#include <vector>
 
 // Variables to be passed to VR window
 extern const char * xcvr_title; // title to be used for the VR window
@@ -22,9 +24,18 @@ extern int mouse_down_previous;
 extern int mouse_down_check_item;
 extern int mouse_down_next;
 
-extern int vr_is_enabled;
 extern int is_popped_out;
 
+extern bool isVREnabled();
+
 extern void put_xcvr_gui_window_in_front();
+
+typedef struct{
+  char *str;
+  float rgb[3];
+  int len;
+} t_c_str;
+ 
+typedef std::vector<t_c_str> t_c_string;
 
 #endif
