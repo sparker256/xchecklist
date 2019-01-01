@@ -67,9 +67,9 @@ sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
 sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 sw_define_colour             {is_colour = true; return(TOKEN_COLOUR_DEF);}
-sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
-
-
+ /* Bill Good I am removing this untill we can find the reason for CTD */
+ /* sw_item_c                    {is_colour = true; return(TOKEN_ITEM);} */
+sw_itemvoid_c                {is_colour = true; return(TOKEN_ITEMVOID);}
 
 <CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
 <CDESC>{COLOURED_STRING}     {

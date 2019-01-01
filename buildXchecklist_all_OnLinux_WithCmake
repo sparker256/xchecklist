@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-# This script will build Xchecklist for lin, win and mac for XP 11, 19 and 9 using Cmake
+# This script will build Xchecklist for lin, win and mac for XP 9, 10 and 11 using Cmake
 #
 # How to run
+# cd $Xchecklist_REPO
 # ./buildXchecklist_all_OnLinux_WithCmake
 
 function build() {
@@ -19,12 +20,10 @@ function build() {
   popd
 }
 
-
-
-
 rm -rf release build
-mkdir -p release/Checker &&
 mkdir -p release/Xchecklist/64 &&
+mkdir -p release/Xchecklist/Checker &&
+mkdir -p release/Xchecklist/Documentation &&
 mkdir build
 
 OSX_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=../src/Toolchain-ubuntu-osxcross-10.11.cmake -DCMAKE_FIND_ROOT_PATH=/usr/osxcross/SDK/MacOSX10.11.sdk/ -DCMAKE_OSX_ARCHITECTURES=i386;x86_64"
@@ -36,20 +35,25 @@ export PATH=${PATH}:/usr/osxcross/bin
 # Windows build
 build "${WIN64_CMAKE_FLAGS}" ../src libwin.xpl ../release/Xchecklist/64/win.xpl
 build "${B32_CMAKE_FLAGS} ${WIN32_CMAKE_FLAGS}" ../src libwin.xpl ../release/Xchecklist/win.xpl
-build "${WIN64_CMAKE_FLAGS}" ../checker win_checker_64bit.exe ../release/Checker
-build "${B32_CMAKE_FLAGS} ${WIN32_CMAKE_FLAGS}" ../checker win_checker_32bit.exe ../release/Checker
+build "${WIN64_CMAKE_FLAGS}" ../checker win_checker_64bit.exe ../release/Xchecklist/Checker
+build "${B32_CMAKE_FLAGS} ${WIN32_CMAKE_FLAGS}" ../checker win_checker_32bit.exe ../release/Xchecklist/Checker
 
 # Linux build
 build "" ../src liblin.xpl ../release/Xchecklist/64/lin.xpl
 build "${B32_CMAKE_FLAGS}" ../src liblin.xpl ../release/Xchecklist/lin.xpl
-build "" ../checker lin_checker_64 ../release/Checker
-build "${B32_CMAKE_FLAGS}" ../checker lin_checker_32 ../release/Checker
+build "" ../checker lin_checker_64 ../release/Xchecklist/Checker
+build "${B32_CMAKE_FLAGS}" ../checker lin_checker_32 ../release/Xchecklist/Checker
 build "" ../simon simon_lin64 ../release/Xchecklist
 build "${B32_CMAKE_FLAGS}" ../simon simon_lin32 ../release/Xchecklist
 
 # Mac build
 build "${OSX_CMAKE_FLAGS}" ../src libmac.xpl ../release/Xchecklist/mac.xpl
-build "${OSX_CMAKE_FLAGS}" ../checker mac_checker ../release/Checker
+build "${OSX_CMAKE_FLAGS}" ../checker mac_checker ../release/Xchecklist/Checker
 build "${OSX_CMAKE_FLAGS}" ../simon simon_mac ../release/Xchecklist
 
-#
+# Docs copy
+cp docs/XchecklistUserManual.pdf release/Xchecklist/Documentation
+cp ChangeLog.txt release/Xchecklist/Documentation
+cp checker/clist.txt release/Xchecklist/Checker
+cp checker/clist.txt release/Xchecklist/Checker
+cp checker/regres_test1.txt release/Xchecklist/Checker
