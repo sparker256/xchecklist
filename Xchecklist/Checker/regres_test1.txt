@@ -1,0 +1,221 @@
+# Regression testing example
+# --------------------------
+# This file is an example of the usage of the Xchecklist's built-in 
+# regression testing functionality.
+#
+# The checklist format was extended by two special format comments;
+# one allows to create a dataref with specified type, name and initial value,
+# while the other specifies actions to perform the test.
+#
+# #?#i checklist/test/int_dref1 42
+#
+# This special comment creates integer (i) dataref available under the name
+#  checklist/test/int_dref1 that initialized to value 42.
+#  Currenly integer (i), float (f) and double (d) datarefs are available.
+#  Also integer array (I) and float array (F) datarefs are available.
+#
+# #!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 51:checklist/test/int_dref1 53
+# sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
+#
+# This special comment defines the actions to test a particular checklist line.
+#  The "target" line is identified by a tag <006>, that must occur within the
+#  checklist item's text field. Dataref assignments are performed as specified;
+#  where assignments are separated by coma, the assignments are performed 
+#  in the same timeslot, while assignments separated by colon are performed in
+#  the following timeslot. This allows to test operations requiring the dataref's 
+#  value to change in time.
+#
+# The order and placement of the above special comments is not critical - 
+#  they can be appear anywhere in the checklist file.
+#
+# For the test to run, execute the checker on this file with added parameter 4:
+#  ./checker regres_test1.txt 4
+
+sw_define_colour:red:1.0,0.0,0.0
+sw_define_colour:green:0.0,1.0,0.0
+sw_define_colour:blue:1.0,0.0,1.0
+
+
+sw_checklist:Basic operations
+#?#i checklist/test/int_dref1 40
+#?#I checklist/test/array_int_dref1 1 2 3 4 5 6 7 8 9
+#!#<001>checklist/test/int_dref1 30,checklist/test/array_int_dref1[4] 22
+sw_item:<001>Equality test:checklist/test/array_int_dref1[4]:22
+
+#!#<002>checklist/test/int_dref1 40
+sw_iteminfo:<002>Inequality test:checklist/test/int_dref1:!30
+
+#!#<003>checklist/test/int_dref1 51
+sw_item:<003>Test bigger that:checklist/test/int_dref1:>50
+
+#!#<004>checklist/test/int_dref1 49
+sw_item:<004>Test smaller than:checklist/test/int_dref1:<50
+
+#!#<005>checklist/test/int_dref1 51
+sw_item:<005>Test range:checklist/test/int_dref1:50 | 52
+
+#!#<006>checklist/test/int_dref1 49:checklist/test/int_dref1 53
+sw_item:<006>Test change with hystheresis:checklist/test/int_dref1:50 : 52
+
+#!#<006_1>checklist/test/int_dref1 63:checklist/test/int_dref1 61:checklist/test/int_dref1 59
+sw_item:<006_1>Test change with hystheresis:checklist/test/int_dref1:62 : 60
+
+#!#<006_2>checklist/test/int_dref1 63:checklist/test/int_dref1 59
+sw_item:<006_2>Test change with hystheresis:checklist/test/int_dref1:62 : 60
+
+#!#<007>checklist/test/int_dref1 58
+sw_item:<007>Test bigger than or equal (equal):checklist/test/int_dref1:>=58
+
+#!#<008>checklist/test/int_dref1 61
+sw_item:<008>Test bigger than or equal (bigger):checklist/test/int_dref1:>=60
+
+#!#<009>checklist/test/int_dref1 58
+sw_item:<009>Test lower than or equal (equal):checklist/test/int_dref1:<=58
+
+#!#<010>checklist/test/int_dref1 59
+sw_item:<010>Test lower than or equal (lower):checklist/test/int_dref1:<=60
+
+#!#<011>checklist/test/int_dref1 59:checklist/test/int_dref1 62
+sw_item:<011>Test change up:checklist/test/int_dref1:+>2
+
+#!#<012>checklist/test/int_dref1 60:checklist/test/int_dref1 56
+sw_item:<012>Test change down:checklist/test/int_dref1:-<3
+
+#!#<013>checklist/test/int_dref1 60:checklist/test/int_dref1 54
+sw_item:<013>Test absolute change (down):checklist/test/int_dref1:><5
+
+#!#<014>checklist/test/int_dref1 60:checklist/test/int_dref1 66
+sw_item:<014>Test absolute change (up):checklist/test/int_dref1:><5
+
+
+sw_checklist:Expressions
+#?#f checklist/test/float_dref1 40
+#!#<101>checklist/test/float_dref1 30
+sw_item:<101>Equality test with type cast:checklist/test/float_dref1:(int)10.1 + 20
+
+#!#<102>checklist/test/float_dref1 40
+sw_item:<102>Inequality test:checklist/test/float_dref1:!2.0 * (10 + round(5.25))
+
+#!#<103>checklist/test/float_dref1 5.1e1
+sw_item:<103>Test bigger that:checklist/test/float_dref1:>8 ** 2 - 28 / 2
+
+#!#<104>checklist/test/float_dref1 49
+sw_item:<104>Test smaller than:checklist/test/float_dref1:<1 + 7 * 7
+
+#!#<105>checklist/test/float_dref1 51,checklist/test/int_dref1 55
+sw_item:<105>Test range:checklist/test/float_dref1:({checklist/test/int_dref1} - 5) | ({checklist/test/int_dref1} - 3)
+
+#?#ifd checklist/test/all_dref1 3.141592654
+#!#<106>checklist/test/all_dref1 3.141592654
+sw_item:<106>Equality test with type cast to int:checklist/test/all_dref1:(int)3
+
+#!#<107>checklist/test/all_dref1 3.141592654
+sw_item:<107>Equality test with type cast to float:checklist/test/all_dref1:(float)3.141592
+
+#!#<108>checklist/test/all_dref1 3.141592654
+sw_item:<108>Equality test with type cast to double:checklist/test/all_dref1:(double)3.141592
+
+#!#<109>checklist/test/int_dref1 14
+sw_item:<109>Equality test with type cast to int:checklist/test/int_dref1:round(14.1415)
+
+#!#<110>checklist/test/int_dref1 1, checklist/test/float_dref1 13:checklist/test/float_dref1 14
+sw_item:<110>Equality test with type cast to int:checklist/test/int_dref1:step({checklist/test/float_dref1} - 14)
+
+#!#<111>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<111>Closer than function test:checklist/test/int_dref1:{checklist/test/int_dref1}*closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+
+#!#<112>checklist/test/array_int_dref1[4] 14
+sw_item:<112>Equality test with array datarefs:checklist/test/array_int_dref1[4]:{checklist/test/array_int_dref1[4]}
+
+#!#<113>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<113>Closer than function test:+1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<114>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<114>Closer than function test:-1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-2
+#!#<115>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<115>Closer than function test:1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<116>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<116>Closer than function test:1.4:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)+0.4
+#!#<117>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<117>Closer than function test:+1.:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+#!#<118>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<118>Closer than function test:.3:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-0.7
+#!#<119>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<119>Closer than function test:-.6:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-1.6
+#!#<120>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<120>Closer than function test:2E-1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)-0.8
+#!#<121>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<121>Closer than function test:.3e2:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)+29
+#!#<122>checklist/test/int_dref1 42, checklist/test/float_dref1 13:checklist/test/float_dref1 43.5
+sw_item:<122>Closer than function test:+1:closer_than({checklist/test/int_dref1},{checklist/test/float_dref1}, 2)
+
+
+sw_checklist:Condition combinations
+#!#<200>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 43:checklist/test/float_dref1 42, checklist/test/int_dref1 43:checklist/test/float_dref1 43
+sw_item:<200>Condition combination (and):(checklist/test/float_dref1:43)&&(checklist/test/int_dref1:43)
+
+#!#<201>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 44
+sw_item:<201>Condition combination (or, first true):(checklist/test/float_dref1:44)||(checklist/test/int_dref1:44)
+
+#!#<202>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/int_dref1 45
+sw_item:<202>Condition combination (or, second true):(checklist/test/float_dref1:45)||(checklist/test/int_dref1:45)
+
+#!#<203>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 46,checklist/test/int_dref1 46
+sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:46)||(checklist/test/int_dref1:46)
+
+#!#<204>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 47,checklist/test/int_dref1 46
+sw_item:<204>Condition combination (or, both true):(checklist/test/float_dref1:>46)||(checklist/test/int_dref1:46)
+
+sw_checklist:New expressions
+#!#<210>checklist/test/float_dref1 42,checklist/test/int_dref1 44:checklist/test/int_dref1 42
+sw_item:<210>New expressions test::({checklist/test/float_dref1} == {checklist/test/int_dref1})
+#!#<211>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/int_dref1 44
+sw_item:<211>New expressions test::({checklist/test/float_dref1} != {checklist/test/int_dref1})
+#!#<212>checklist/test/float_dref1 42,checklist/test/array_int_dref1[4] 42:checklist/test/array_int_dref1[4] 14,checklist/test/float_dref1 43
+sw_item:<212>New expressions test::({checklist/test/float_dref1} != 42) && ({checklist/test/array_int_dref1[4]} == 14)
+
+
+
+sw_checklist:Varia:Varia
+#?#f checklist/test/show_int1 0
+sw_show:checklist/test/show_int1:1
+sw_item:No check here
+sw_itemvoid:Whatever
+sw_itemvoid:Whatever|Whatever
+sw_remark:Thoughtfull remark
+sw_rcolsize:120
+#!#<300>checklist/test/show_int1 1:
+sw_item:<300>Switch test:checklist/test/show_int1:1
+
+sw_checklist:Varia1:Varia1
+sw_item:No check here either|Really
+sw_continue:C0
+
+sw_checklist:C2:C2m
+#!#<402>checklist/test/int_dref1 5:checklist/test/float_dref1 13
+sw_item:<402>Item C2:checklist/test/float_dref1:>12
+sw_continue:C1
+
+
+sw_checklist:C0:C0m
+#!#<400>checklist/test/float_dref1 0, checklist/test/int_dref1 0
+sw_item:<400>Item C1:checklist/test/float_dref1:0
+sw_continue:C1
+
+sw_checklist:C1:C1m
+#!#<401>checklist/test/float_dref1 1
+sw_item:<401>Item C1:checklist/test/float_dref1:>-1
+sw_continue:C2:checklist/test/int_dref1:0
+sw_continue:C3
+
+sw_checklist:We don't go to Ravneholm
+sw_item:If you see this, something is wrong
+
+sw_checklist:C3:C3m
+@sw_item:Item C3
+sw_continue
+
+sw_checklist:C4:C4m
+@sw_item:Item C4
+sw_item_c:\red\Red item|\blue\Blue item
+sw_item_c:Default colour \green\green colour \\back to default 
+

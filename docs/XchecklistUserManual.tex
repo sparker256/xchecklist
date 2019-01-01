@@ -63,7 +63,7 @@
 \maketitle
 
 \begin{center}
-1.33
+1.34
 \end{center}
 
 \vspace{2cm}
@@ -116,16 +116,22 @@ In the beginning of August 2013 I contacted Michal and told him I would like to 
 \item Enforces strictly sequential checklist flow
 \end{itemize}
 
+\begin{itemize}
+\item Allow colored text for some items in a checklist
+\end{itemize}
+
 \newpage
 \section{Installation Instructions}
 
 Unpack the archive and place the folder Xchecklist to '.../Resources/plugins' then fire up XPlane and if the plane you fly has a checklist, you should see it.. \newline
 
+If you are using a version previous to 1.34 please delete the ../Resources/plugins/Xchecklist folder and install the new one as the folder structure has changed with this version. \newline 
+
 The checklist file is called clist.txt and should be put in the aircraft folder which is the same place the *.acf file resides. \newline
 
 You may also have a checklist file named aircraftname\_clist.txt which will be searched for first then it will search for clist.txt. The default Cessna would be Cessna\_172SP\_clist.txt. This allows you to have multiple aircraft in one folder like a float and a wheeled version. \newline
 
-Also in the archive is a folder called Checker \ that has test programs for your platform and bitsize. \newline
+Also in the archive is a folder called Xchecklist/Checker \ that has test programs for your platform and bitsize. \newline
 
 Paths are bgood/xchecklist/check\_item, \ \ bgood/xchecklist/next\_checklist, \ bgood/xchecklist/prev\_checklist, \ \ bgood/xchecklist/hide\_checklist and bgood/xchecklist/reload\_checklist. \newline
 
@@ -558,6 +564,20 @@ Also note that to avoid confusion concerning the priorities of the arithmetic vs
 You can use usual comparison operators: $==$ for equality, $!=$ for inequality, $>$ for greater than, $<$ for lower than, $>=$ for greater or equal, $<=$ lower or equal. Only bear in mind, that testing floting point values for equality or inequality can give you unexpected results! For comparing floating point values preferably use the \textbf{closer\_than} construct.
 
 Hopefully these  new possibilities will make the dataref expressions much more readable.
+
+\newpage
+\section{Coloured Text}
+
+Starting with version 1.34 we can now have some items in a checklist use coloured text. The first to use this feature will be a new item called sw\_itemvoid\_c which will be in addition to the original item sw\_itemvoid. More will be added in the future but this is just a starting point.
+
+For this to work you need to define some colours using the new item called sw\_define\_colour that you can define any RGB colour you want using the following format.
+
+sw\_define\_colour:red:1.0,0.0,0.0
+
+This will define a variable called 'red' that you have given it the correct RGB values. You can have as many as you need in your checklist and can be put before any other checklist items. Here is a example of you to use in a checklist.
+
+sw\_itemvoid\_c:$\backslash$red$\backslash$Red item|$\backslash$red$\backslash$Red item
+
 
 \newpage
 \section{Number of Lines Per Page}
