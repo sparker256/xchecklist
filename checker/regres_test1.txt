@@ -34,7 +34,7 @@
 sw_define_colour:red:1.0,0.0,0.0
 sw_define_colour:green:0.0,1.0,0.0
 sw_define_colour:blue:0.0,0.0,1.0
-sw_define_colour:yellow:1.0,0.0,1.0
+sw_define_colour:yellow:1.0,1.0,0.0
 
 
 sw_checklist:Basic operations
