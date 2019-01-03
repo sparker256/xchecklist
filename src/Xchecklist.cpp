@@ -1840,11 +1840,10 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             if (state[SHOW_GUI]) {
                 if (xcvr_g_window == NULL) {
                   xcvr_create_gui_window();
-                } else {
-                  XPLMSetWindowIsVisible(xcvr_g_window,1);
                 }
                 if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
-                    if (XPLMGetWindowIsVisible(xcvr_g_window)) {
+                    toggle_gui();
+/*                    if (XPLMGetWindowIsVisible(xcvr_g_window)) {
                         if (is_popped_out) {
                             XPLMGetWindowGeometryOS_ptr(xcvr_g_window, &left, &top, &right, &bottom);
                             XPLMSetWindowIsVisible(xcvr_g_window,0);
@@ -1868,6 +1867,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                             was_popped_out = 0;
                         }
                     }
+*/
                 }
             }
             break;
