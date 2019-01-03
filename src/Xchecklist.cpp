@@ -774,7 +774,11 @@ bool toggle_gui()
     else {
         if (was_popped_out) {
             XPLMSetWindowPositioningMode_ptr(xcvr_g_window, xplm_WindowPopOut, 0);
+            #if LIN
+            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
+            #else
             XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
+            #endif
             XPLMSetWindowIsVisible(xcvr_g_window,1);
             was_popped_out = 0;
         }

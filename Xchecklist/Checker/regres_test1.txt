@@ -34,7 +34,8 @@
 sw_define_colour:red:1.0,0.0,0.0
 sw_define_colour:green:0.0,1.0,0.0
 sw_define_colour:blue:0.0,0.0,1.0
-sw_define_colour:yellow:1.0,0.0,1.0
+sw_define_colour:yellow:1.0,1.0,0.0
+sw_define_colour:r:1,0,0
 
 
 sw_checklist:Basic operations
@@ -221,4 +222,5 @@ sw_item_c:\red\Red item|\blue\Blue item
 sw_item_c:\red\Red item|\blue\Blue item:sim/pokus:1
 sw_item_c:Default colour \green\green colour \\back to default 
 sw_item_c:\yellow\PARKING BRAKE|\yellow\ON:sim/flightmodel/controls/parkbrake:1
+sw_item_c:\r\X|XXX
 
