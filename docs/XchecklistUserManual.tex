@@ -120,6 +120,10 @@ In the beginning of August 2013 I contacted Michal and told him I would like to 
 \item Allow colored text for some items in a checklist
 \end{itemize}
 
+\begin{itemize}
+\item Support popping out windows to second monitor using X-Plane 11.30r2+
+\end{itemize}
+
 \newpage
 \section{Installation Instructions}
 
@@ -133,7 +137,7 @@ You may also have a checklist file named aircraftname\_clist.txt which will be s
 
 Also in the archive is a folder called Xchecklist/Checker \ that has test programs for your platform and bitsize. \newline
 
-Paths are bgood/xchecklist/check\_item, \ \ bgood/xchecklist/next\_checklist, \ bgood/xchecklist/prev\_checklist, \ \ bgood/xchecklist/hide\_checklist and bgood/xchecklist/reload\_checklist. \newline
+Paths are bgood/xchecklist/check\_item, \ \ bgood/xchecklist/next\_checklist, \ bgood/xchecklist/prev\_checklist, \ \ bgood/xchecklist/toggle\_checklist and bgood/xchecklist/reload\_checklist. \newline
 
 If you have any ideas, comments or bug reports, don't hesitate and let us know... \newline
 
@@ -564,6 +568,14 @@ Also note that to avoid confusion concerning the priorities of the arithmetic vs
 You can use usual comparison operators: $==$ for equality, $!=$ for inequality, $>$ for greater than, $<$ for lower than, $>=$ for greater or equal, $<=$ lower or equal. Only bear in mind, that testing floting point values for equality or inequality can give you unexpected results! For comparing floating point values preferably use the \textbf{closer\_than} construct.
 
 Hopefully these  new possibilities will make the dataref expressions much more readable.
+
+\newpage
+\section{closer\_than function example}
+
+Here is a example provided by user per0ni that shows how he is using the closer\_than function in his checklist.
+
+sw\_item:Sync Altimeter|SYNCED:sim/cockpit/misc/barometer\_setting:{sim/cockpit/misc/barometer\_setting}*closer\_than({sim/cockpit/misc/barometer\_setting}, {sim/weather/barometer\_sealevel\_inhg}, 0.03)
+
 
 \newpage
 \section{Coloured Text}
