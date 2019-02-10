@@ -226,13 +226,6 @@ int mouse_down_previous = 0;
 int mouse_down_check_item = 0;
 int mouse_down_next = 0;
 
-/*
-static int coord_in_rect(float coord_x, float coord_y, float * bounds_lbrt)
-{
-  return ((coord_x >= bounds_lbrt[0]) && ((coord_x - 20) < bounds_lbrt[2])
-       && (coord_y <  bounds_lbrt[3]) && (coord_y        >= bounds_lbrt[1]));
-}
-*/
 
 int is_popped_out = 0;
 int was_popped_out = 0;
@@ -252,12 +245,6 @@ void put_xcvr_gui_window_in_front();
 XPLMWindowPositioningMode PositioningMode = 0;
 #endif
 
-/*
-void errorCallback(const char *inMessage)
-{
-  xcErr("X-Plane ERROR: %s\n", inMessage);
-}
-*/
 
 PLUGIN_API int XPluginStart(
 						char *		outName,
@@ -333,9 +320,7 @@ PLUGIN_API int XPluginStart(
         XPLMAppendMenuItem(PluginMenu, "Save Settings", (void *) "settings", 1);
         XPLMAppendMenuItem(PluginMenu, "Create Dictionary", (void *) "dictionary", 1);
         if (VersionXP > 11200) {
-            #if IBM
             XPLMAppendMenuItem(PluginMenu, "Toggle GUI Checklist", (void *) "toggle", 1);
-            #endif
         }
         cmdcheckitem = XPLMCreateCommand("bgood/xchecklist/check_item","Check Item");
         cmdnextchecklist = XPLMCreateCommand("bgood/xchecklist/next_checklist","Next Checklist");
@@ -490,44 +475,6 @@ bool try_open(char *name, std::fstream &fin)
   return false;
 }
 
-/*
-static int limit_coord(int min, int coord, int max)
-{
-  if(coord < min){
-    return min;
-  }
-  if(coord > max){
-    return max;
-  }
-  return coord;
-}
-
-static void fit_interval(int min, int max, int *l, int *r, int wdt)
-{
-  //printf("Fitting %d, %d to %d, %d (w = %d)\n", *l, *r, min, max, wdt);
-  int l1 = limit_coord(min, *l, max);
-  int r1 = limit_coord(min, *r, max);
-
-  if(r1 - l1 < wdt){
-    r1 = limit_coord(min, l1 + wdt, max);
-  }
-  if(r1 - l1 < wdt){
-    l1 = r1 - wdt;
-  }
-  *l = l1;
-  *r = r1;
-  printf("%d - %d\n", l1, r1);
-}
-
-static void safe_window_defaults(void)
-{
-  int screen_w, screen_h;
-  XPLMGetScreenSize(&screen_w, &screen_h);
-  // Make sure the coords are on screen
-  fit_interval(0, screen_w, &win_pos_x1, &win_pos_y1, 300);
-  fit_interval(0, screen_h-30, &win_pos_y2, &win_pos_x2, 200);
-}
-*/
 
 bool save_prefs()
 {
@@ -1847,31 +1794,6 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                 }
                 if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
                     toggle_gui();
-/*                    if (XPLMGetWindowIsVisible(xcvr_g_window)) {
-                        if (is_popped_out) {
-                            XPLMGetWindowGeometryOS_ptr(xcvr_g_window, &left, &top, &right, &bottom);
-                            XPLMSetWindowIsVisible(xcvr_g_window,0);
-                            was_popped_out = is_popped_out;
-                        }
-                        else {
-                            XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
-                            XPLMSetWindowIsVisible(xcvr_g_window,0);
-                        }
-                    }
-                    else {
-                        if (was_popped_out) {
-                            XPLMSetWindowPositioningMode_ptr(xcvr_g_window, xplm_WindowPopOut, 0);
-                            #if LIN
-                            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left + ((right - left) / 2), top - ((top - bottom) /2) + 14, right + ((right - left) / 2), bottom - ((top - bottom) /2) + 14);
-                            #else
-                            XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
-                            #endif
-
-                            XPLMSetWindowIsVisible(xcvr_g_window,1);
-                            was_popped_out = 0;
-                        }
-                    }
-*/
                 }
             }
             break;

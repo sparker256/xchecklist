@@ -87,3 +87,5 @@ Ver. 1.31 Working on issues related to popped out windows. Made the original wid
 Ver. 1.32 Fixed a bug that if a checklist had more than 30 items they would not be displayed and it corrupted the text in the setup widget.
 
 Ver. 1.33 You now can have up to 50 lines in a VR checklist but think 30 is plenty. Fixed a issue if you were in 2d and then went into VR Xchecklist might not be displayed.
+
+Ver. 1.34 Changed the Xchecklist folder structure to add the Checker and Documentation folders. Added the ability to have colored text in a checklist. Added the ability to have a line in the checklist not speak when others are.  
