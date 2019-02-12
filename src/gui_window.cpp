@@ -285,6 +285,9 @@ int	xcvr_handle_mouse(XPLMWindowID xcvr_in_window_id, int xcvr_x, int xcvr_y, XP
             else if (coord_in_rect(xcvr_x, xcvr_y, g_hide_button_lbrt))
             {
                 mouse_down_hide = 1;
+                if (is_popped_out) {
+                    was_popped_out = is_popped_out;
+                }
                 XPLMSetWindowIsVisible(xcvr_in_window_id, 0);
             }
 

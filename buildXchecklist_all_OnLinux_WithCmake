@@ -55,5 +55,4 @@ build "${OSX_CMAKE_FLAGS}" ../simon simon_mac ../Xchecklist
 cp docs/XchecklistUserManual.pdf Xchecklist/Documentation
 cp ChangeLog.txt Xchecklist/Documentation
 cp checker/clist.txt Xchecklist/Checker
-cp checker/clist.txt Xchecklist/Checker
-cp checker/regres_test1.txt Xchecklist/Checker
+# cp checker/regres_test1.txt Xchecklist/Checker

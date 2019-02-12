@@ -25,6 +25,7 @@ extern int mouse_down_check_item;
 extern int mouse_down_next;
 
 extern int is_popped_out;
+extern int was_popped_out;
 
 extern bool isVREnabled();
 

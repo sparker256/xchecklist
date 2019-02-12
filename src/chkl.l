@@ -8,10 +8,11 @@
   #include "chkl_yacc.h"
   #include "utils.h"
 
-  typedef enum {STATE_CMD, STATE_CDESC, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
+  typedef enum {STATE_CMD, STATE_CDEF, STATE_DESC, STATE_DREF, STATE_EXPR} t_state;
   static t_state state = STATE_CMD;
   static bool open_paren = false;
-  static bool is_colour = false;
+  static bool is_colour_def = false;
+  static bool is_colour_desc = false;
   static bool dref_still = false;
 %}
 %option noyywrap
@@ -20,7 +21,7 @@
 %option nodefault
 %option warn
 
-%x DESC NUM DREF CDESC
+%x DESC NUM DREF CDESC CDEF
 
 EOL                     (\r|\n|\n\r|\r\n)
 STRING                  [^\n\r:|]+
@@ -66,8 +67,9 @@ sw_show                      {state = STATE_DESC; return(TOKEN_SHOW);}
 sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
 sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
-sw_define_colour             {is_colour = true; state = STATE_CDESC; return(TOKEN_COLOUR_DEF);}
-sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
+sw_define_colour             {is_colour_def = true; return(TOKEN_COLOUR_DEF);}
+sw_item_c                    {is_colour_desc = true; return(TOKEN_ITEM);}
+sw_itemvoid_c                {is_colour_desc = true; return(TOKEN_ITEMVOID);}
 
 <CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
 <CDESC>{COLOURED_STRING}     {
@@ -85,15 +87,21 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                  //fprintf(stderr, ":\n");
                                  switch(state){
                                    case STATE_CMD:
-                                     if(is_colour){
+                                     if(is_colour_desc){
                                        BEGIN(CDESC);
+                                       //fprintf(stderr, "  STATE -> CDESC\n");
+                                       state = STATE_DESC;
+                                     }else if(is_colour_def){
+                                       BEGIN(CDEF);
+                                       //fprintf(stderr, "  STATE -> CDEF\n");
+                                       state = STATE_CDEF;
                                      }else{
                                        BEGIN(DESC);
+                                       //fprintf(stderr, "  STATE -> DESC\n");
+                                       state = STATE_DESC;
                                      }
-                                     //fprintf(stderr, "  STATE -> DESC\n");
-                                     state = STATE_DESC;
                                      break;
-                                   case STATE_CDESC:
+                                   case STATE_CDEF:
                                      BEGIN(NUM);
                                      state = STATE_EXPR;
                                      //fprintf(stderr, "    STATE -> EXPR\n");
@@ -202,13 +210,14 @@ sw_item_c                    {is_colour = true; return(TOKEN_ITEM);}
                                state = STATE_CMD;
                                //fprintf(stderr, "STATE -> CMD\n");
                                open_paren = false;
-                               is_colour = false;
+                               is_colour_def = false;
+                               is_colour_desc = false;
                                dref_still = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }
 <*>[[:blank:]]+              /*eat whitespaces*/
-<DESC>{STRING}               {
+<DESC,CDEF>{STRING}          {
                                chkllval.str=strdup(yytext);
                                //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
                                return(TOKEN_STRING);
