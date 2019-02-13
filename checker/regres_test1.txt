@@ -167,6 +167,9 @@ sw_item:<203>Condition combination (or, both true):(checklist/test/float_dref1:4
 #!#<204>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 47,checklist/test/int_dref1 46
 sw_item:<204>Condition combination (or, both true):(checklist/test/float_dref1:>46)||(checklist/test/int_dref1:46)
 
+#!#<205>checklist/test/float_dref1 42,checklist/test/int_dref1 42:checklist/test/float_dref1 47,checklist/test/int_dref1 45
+sw_item:<205>Condition combination (or, both true):(checklist/test/float_dref1:>46)&&(checklist/test/int_dref1:<46)
+
 sw_checklist:New expressions
 #!#<210>checklist/test/float_dref1 42,checklist/test/int_dref1 44:checklist/test/int_dref1 42
 sw_item:<210>New expressions test::({checklist/test/float_dref1} == {checklist/test/int_dref1})
@@ -216,6 +219,8 @@ sw_checklist:C3:C3m
 @sw_item:Item C3
 sw_continue
 
+#?#i sim/pokus 40
+#?#i sim/flightmodel/controls/parkbrake 1
 sw_checklist:C4:C4m
 @sw_item:Item C4
 sw_item_c:\red\Red item|\blue\Blue item
@@ -223,4 +228,9 @@ sw_item_c:\red\Red item|\blue\Blue item:sim/pokus:1
 sw_item_c:Default colour \green\green colour \\back to default 
 sw_item_c:\yellow\PARKING BRAKE|\yellow\ON:sim/flightmodel/controls/parkbrake:1
 sw_item_c:\r\X|XXX
+
+sw_checklist:C5&:C5&m
+sw_itemvoid::::::::::::::::xyz:::::|::::::::::uvw::::::::
+
+
 

@@ -13,6 +13,8 @@
   static bool open_paren = false;
   static bool is_colour_def = false;
   static bool is_colour_desc = false;
+  static bool is_void = false;
+  static bool is_checklist = false;
   static bool dref_still = false;
 %}
 %option noyywrap
@@ -21,11 +23,14 @@
 %option nodefault
 %option warn
 
-%x DESC NUM DREF CDESC CDEF
+%x DESC NUM DREF CDESC CDEF VOID CVOID CL
 
 EOL                     (\r|\n|\n\r|\r\n)
+CL_STRING               [^\n\r:]+
 STRING                  [^\n\r:|]+
+VOID_STRING             [^\n\r|]+
 COLOURED_STRING         [^\n\r:|\\]+
+COLOURED_VOID_STRING    [^\n\r|\\]+
 DATAREF                 [^\n\r:|\[\]\(\)&]+
 COLON                   :
 LBRACKET                \[
@@ -59,20 +64,35 @@ SILENCER                @
 %%
 {BOM_UTF8}                   {}
 {SILENCER}                   {return(TOKEN_SILENCE);}
-sw_checklist                 {return(TOKEN_CHECKLIST);}
+sw_checklist                 {is_checklist = true; return(TOKEN_CHECKLIST);}
 sw_item                      {return(TOKEN_ITEM);}
 sw_iteminfo                  {return(TOKEN_ITEMINFO);}
-sw_itemvoid                  {return(TOKEN_ITEMVOID);}
+sw_itemvoid                  {is_void = true; return(TOKEN_ITEMVOID);}
 sw_show                      {state = STATE_DESC; return(TOKEN_SHOW);}
 sw_rcolsize                  {return(TOKEN_RCOLSIZE);}
 sw_remark                    {return(TOKEN_REMARK);}
 sw_continue[[:blank:]]*      {return(TOKEN_CONTINUE);}
 sw_define_colour             {is_colour_def = true; return(TOKEN_COLOUR_DEF);}
 sw_item_c                    {is_colour_desc = true; return(TOKEN_ITEM);}
-sw_itemvoid_c                {is_colour_desc = true; return(TOKEN_ITEMVOID);}
+sw_itemvoid_c                {is_colour_desc = true; is_void = true; return(TOKEN_ITEMVOID);}
 
-<CDESC>\\\\                  {return(TOKEN_BACKSLASH);}
-<CDESC>{COLOURED_STRING}     {
+
+<CL>{CL_STRING}              {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_STRING);
+                             };
+<CVOID>{COLOURED_VOID_STRING} {
+                               chkllval.str=strdup(yytext);
+                               return(TOKEN_STRING);
+                             }
+<CVOID>\\{COLOURED_VOID_STRING}\\ {
+                               size_t len = strlen(yytext);
+                               chkllval.str=strdup(yytext + 1);
+                               chkllval.str[len - 2] = '\0';
+                               return(TOKEN_COLOUR_NAME);
+                             }
+<CDESC,CVOID>\\\\            {return(TOKEN_BACKSLASH);}
+<CDESC>{COLOURED_STRING} {
                                chkllval.str=strdup(yytext);
                                return(TOKEN_STRING);
                              }
@@ -85,6 +105,18 @@ sw_itemvoid_c                {is_colour_desc = true; return(TOKEN_ITEMVOID);}
 <*>{COLON}                   {
                                //if(!open_paren){
                                  //fprintf(stderr, ":\n");
+                                 if(is_checklist){
+                                   BEGIN(CL);
+                                   return(TOKEN_COLON);
+                                 }
+                                 if(is_void){
+                                   if(is_colour_desc){
+                                     BEGIN(CVOID);
+                                   }else{
+                                     BEGIN(VOID);
+                                   }
+                                   return(TOKEN_COLON);
+                                 }
                                  switch(state){
                                    case STATE_CMD:
                                      if(is_colour_desc){
@@ -212,11 +244,18 @@ sw_itemvoid_c                {is_colour_desc = true; return(TOKEN_ITEMVOID);}
                                open_paren = false;
                                is_colour_def = false;
                                is_colour_desc = false;
+                               is_void = false;
                                dref_still = false;
+                               is_checklist = false;
                                ++chkllineno;
                                //fprintf(stderr, ">>>>>>>>>>Initial!\n");
                              }
 <*>[[:blank:]]+              /*eat whitespaces*/
+<VOID>{VOID_STRING}          {
+                               chkllval.str=strdup(yytext);
+                               //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
+                               return(TOKEN_STRING);
+                             }
 <DESC,CDEF>{STRING}          {
                                chkllval.str=strdup(yytext);
                                //fprintf(stderr, "\nSTRING:'%s'\n", yytext);
