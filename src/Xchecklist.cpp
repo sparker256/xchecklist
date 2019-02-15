@@ -804,7 +804,7 @@ void xcvr_create_gui_window() {
         params.left = xcvr_global_desktop_bounds[0] + 50;
         params.bottom = xcvr_global_desktop_bounds[1] + 100;
         params.right = xcvr_global_desktop_bounds[0] + 550;
-        params.top = xcvr_global_desktop_bounds[1] + 700;
+        params.top = xcvr_global_desktop_bounds[1] + 800;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;

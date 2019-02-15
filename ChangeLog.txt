@@ -90,4 +90,4 @@ Ver. 1.33 You now can have up to 50 lines in a VR checklist but think 30 is plen
 
 Ver. 1.34 Changed the Xchecklist folder structure to add the Checker and Documentation folders. Added the ability to have colored text in a checklist. Added the ability to have a line in the checklist not speak when others are.
 
-Ver. 1.35 Found a parser error allowing a CTD to released new version. 
+Ver. 1.35 Fixed errors in chacklist and void statements. Fixed handling of colons in sw_itemvoid statement. Fixed handling of characters except pipe in sw_checklist statement. Fixed CTD because of to small array size for items.
