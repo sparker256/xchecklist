@@ -32,10 +32,10 @@
 #include "interface.h"
 #include "plugin_dl.h"
 
-static float g_check_box_lbrt[25][4]; // left, bottom, right, top
-static float g_copilot_box_lbrt[25][4]; // left, bottom, right, top
-static float g_text_box_lbrt[25][4]; // left, bottom, right, top
-static float g_suffix_box_lbrt[25][4]; // left, bottom, right, top
+static float g_check_box_lbrt[50][4]; // left, bottom, right, top
+static float g_copilot_box_lbrt[50][4]; // left, bottom, right, top
+static float g_text_box_lbrt[50][4]; // left, bottom, right, top
+static float g_suffix_box_lbrt[50][4]; // left, bottom, right, top
 
 
 static float g_hide_button_lbrt[4]; // left, bottom, right, top
