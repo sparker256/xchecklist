@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.35 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.36 build " __DATE__ " " __TIME__
 
 
 #include "XPLMPlugin.h"
@@ -803,8 +803,8 @@ void xcvr_create_gui_window() {
         }
         params.left = xcvr_global_desktop_bounds[0] + 50;
         params.bottom = xcvr_global_desktop_bounds[1] + 100;
-        params.right = xcvr_global_desktop_bounds[0] + 550;
-        params.top = xcvr_global_desktop_bounds[1] + 800;
+        params.right = xcvr_global_desktop_bounds[0] + w + 50;
+        params.top = xcvr_global_desktop_bounds[1] + h + 100;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;

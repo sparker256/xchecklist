@@ -63,7 +63,7 @@
 \maketitle
 
 \begin{center}
-1.35
+1.36
 \end{center}
 
 \vspace{2cm}
@@ -586,11 +586,11 @@ sw\_item:Sync Altimeter|SYNCED:sim/cockpit/misc/barometer\_setting:{sim/cockpit/
 
 Starting with version 1.34 we can now have some items in a checklist use coloured text. The first two items to use this feature will be a new item called sw\_item\_c and sw\_itemvoid\_c which will be in addition to the original item sw\_item and sw\_itemvoid.
 
-For this to work you need to define some colours using the new item called sw\_define\_colour that you can define any RGB colour you want using the following format.
+For this to work you need to first define some colours using the new item called sw\_define\_colour that you can define any RGB colour you want using the following format.
 
-sw\_define\_colour:red:1.0,0.0,0.0
-sw\_define\_colour:green:0.0,1.0,0.0
-sw\_define\_colour:yellow:1.0,1.0,0.0
+sw\_define\_colour:red:1.0,0.0,0.0 \newline
+sw\_define\_colour:green:0.0,1.0,0.0 \newline
+sw\_define\_colour:yellow:1.0,1.0,0.0 \newline
 sw\_define\_colour:darkorange:1.0,0.54,0.0
 
 This will define a variable called 'red' that you have given it the correct RGB values. You can have as many as you need in your checklist and can be put before any other checklist items. Here is a example of you to use in a checklist.
