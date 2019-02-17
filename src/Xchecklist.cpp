@@ -142,10 +142,16 @@ static int prev_external_view = false;
 static bool restore_on_internal = false;
 
 bool voice_state;
-int win_pos_x1 = -1;
-int win_pos_x2 = -1;
-int win_pos_y1 = -1;
-int win_pos_y2 = -1;
+int widget_win_pos_x1 = -1;
+int widget_win_pos_x2 = -1;
+int widget_win_pos_y1 = -1;
+int widget_win_pos_y2 = -1;
+
+int gui_win_pos_x1 = -1;
+int gui_win_pos_x2 = -1;
+int gui_win_pos_y1 = -1;
+int gui_win_pos_y2 = -1;
+
 
 const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist exist", \
                                  "Turn Copilot On", "Voice Prompt", "Auto Hide", "Show Widget", "Show GUI"};
@@ -493,58 +499,72 @@ bool save_prefs()
   if(fout.is_open()){
     //Store prefs version first
     fout<<"1"<<std::endl;
-    XPGetWidgetGeometry(xCheckListWidget, &win_pos_x1, &win_pos_x2, &win_pos_y1, &win_pos_y2);
+    XPGetWidgetGeometry(xCheckListWidget, &widget_win_pos_x1, &widget_win_pos_x2, &widget_win_pos_y1, &widget_win_pos_y2);
+
+    if (xcvr_g_window == nullptr)
+    {
+        gui_win_pos_x1 = 50; // left
+        gui_win_pos_x2 = gui_win_pos_y2 + h; // top
+        gui_win_pos_y1 = gui_win_pos_x1 + w; // right
+        gui_win_pos_y2 = 100; // bottom
+    }
+    else
+    {
+        XPLMGetWindowGeometry(xcvr_g_window, &gui_win_pos_x1, &gui_win_pos_x2, &gui_win_pos_y1, &gui_win_pos_y2);
+    }
 
     int screen_w, screen_h;
     int to_far_right, to_far_left, to_far_up, to_far_down;
     XPLMGetScreenSize(&screen_w, &screen_h);
     xcDebug("Xchecklist: XPLMGetScreenSize  screen_w = %d  screen_h = %d\n", screen_w, screen_h);
-    xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 botton = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+    xcDebug("Xchecklist: Checklist widget window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 botton = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
+    xcDebug("Xchecklist: Checklist gui window position gui_win_pos_x1 left = %d gui_win_pos_x2 top = %d gui_win_pos_y1 right = %d gui_win_pos_y2 botton = %d\n", gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
 
-    if (win_pos_y1 > screen_w) {
+
+    if (widget_win_pos_y1 > screen_w) {
         xcDebug("Xchecklist: Checklist to far to the right of the screen.\n");
-        to_far_right = win_pos_y1 - screen_w;
+        to_far_right = widget_win_pos_y1 - screen_w;
         to_far_right = to_far_right + 30;
-        win_pos_x1 = win_pos_x1 - to_far_right;
-        win_pos_y1 = win_pos_y1 - to_far_right;
-        xcDebug("Xchecklist: win_pos_x1 = %d  win_pos_y1 = %d  to_far_right = %d\n", win_pos_x1, win_pos_y1, to_far_right);
+        widget_win_pos_x1 = widget_win_pos_x1 - to_far_right;
+        widget_win_pos_y1 = widget_win_pos_y1 - to_far_right;
+        xcDebug("Xchecklist: widget_win_pos_x1 = %d  widget_win_pos_y1 = %d  to_far_right = %d\n", widget_win_pos_x1, widget_win_pos_y1, to_far_right);
     }
 
-    if (win_pos_x2 > screen_h) {
+    if (widget_win_pos_x2 > screen_h) {
         xcDebug("Xchecklist: Checklist to far up on the screen.\n");
-        to_far_up = win_pos_x2 - screen_h;
+        to_far_up = widget_win_pos_x2 - screen_h;
         to_far_up = to_far_up + 30;
-        win_pos_x2 = win_pos_x2 - to_far_up;
-        win_pos_y2 = win_pos_y2 - to_far_up;
-        xcDebug("Xchecklist: win_pos_x2 = %d  win_pos_y2 = %d  to_far_up = %d\n", win_pos_x2, win_pos_y2, to_far_up);
+        widget_win_pos_x2 = widget_win_pos_x2 - to_far_up;
+        widget_win_pos_y2 = widget_win_pos_y2 - to_far_up;
+        xcDebug("Xchecklist: widget_win_pos_x2 = %d  widget_win_pos_y2 = %d  to_far_up = %d\n", widget_win_pos_x2, widget_win_pos_y2, to_far_up);
     }
 
-    if (win_pos_x1 < 0) {
+    if (widget_win_pos_x1 < 0) {
         xcDebug("Xchecklist: Checklist to far to the left of the screen.\n");
-        to_far_left = win_pos_x1;
+        to_far_left = widget_win_pos_x1;
         to_far_left = abs(to_far_left);
-        win_pos_y1 = win_pos_y1 + to_far_left + 30;
-        win_pos_x1 = 30;
-        xcDebug("Xchecklist: win_pos_x1 = %d  win_pos_y1 = %d  to_far_left = %d\n", win_pos_x1, win_pos_y1, to_far_left);
+        widget_win_pos_y1 = widget_win_pos_y1 + to_far_left + 30;
+        widget_win_pos_x1 = 30;
+        xcDebug("Xchecklist: widget_win_pos_x1 = %d  widget_win_pos_y1 = %d  to_far_left = %d\n", widget_win_pos_x1, widget_win_pos_y1, to_far_left);
     }
 
-    if (win_pos_y2 < 0) {
+    if (widget_win_pos_y2 < 0) {
         xcDebug("Xchecklist: Checklist to far below the screen.\n");
-        to_far_down = win_pos_y2;
+        to_far_down = widget_win_pos_y2;
         to_far_down = abs(to_far_down);
-        win_pos_y2 = 30;
-        win_pos_x2 = win_pos_x2 + to_far_down + 30;
-        xcDebug("Xchecklist: win_pos_x2 = %d  win_pos_y2 = %d  to_far_down = %d\n", win_pos_x2, win_pos_y2, to_far_down);
+        widget_win_pos_y2 = 30;
+        widget_win_pos_x2 = widget_win_pos_x2 + to_far_down + 30;
+        xcDebug("Xchecklist: widget_win_pos_x2 = %d  widget_win_pos_y2 = %d  to_far_down = %d\n", widget_win_pos_x2, widget_win_pos_y2, to_far_down);
     }
 
-    XPSetWidgetGeometry(xCheckListWidget, win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+    XPSetWidgetGeometry(xCheckListWidget, widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
 
-    fout<<win_pos_x1<<" "<<win_pos_x2<<" "<<win_pos_y1<<" "<<win_pos_y2<<std::endl;
+    fout<<widget_win_pos_x1<<" "<<widget_win_pos_x2<<" "<<widget_win_pos_y1<<" "<<widget_win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<" "<<state[SHOW_WIDGET]<<" "<<state[SHOW_GUI]<<std::endl;
     fout.close();
     xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
-    xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+    xcDebug("Xchecklist: Checklist window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
     xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
     xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
     xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -582,11 +602,11 @@ bool init_setup()
     switch(version){
       case 1:
 	//Read the window position
-	fin>>win_pos_x1>>win_pos_x2>>win_pos_y1>>win_pos_y2;
+    fin>>widget_win_pos_x1>>widget_win_pos_x2>>widget_win_pos_y1>>widget_win_pos_y2;
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE]>>state[SHOW_WIDGET]>>state[SHOW_GUI];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
-        xcDebug("Xchecklist: Checklist window position win_pos_x1 left = %d win_pos_x2 top = %d win_pos_y1 right = %d win_pos_y2 bottom = %d\n", win_pos_x1, win_pos_x2, win_pos_y1, win_pos_y2);
+        xcDebug("Xchecklist: Checklist window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
         xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -602,8 +622,8 @@ bool init_setup()
     //safe_window_defaults();
     // Set the upper left corner from the prefs file
     // Not sure if this is the corect place but it is working
-    x = win_pos_x1;
-    y = win_pos_x2;
+    x = widget_win_pos_x1;
+    y = widget_win_pos_x2;
   }else{
     free(prefs);
     prefs = prefsPath();
@@ -802,9 +822,9 @@ void xcvr_create_gui_window() {
           params.structSize = sizeof(params);
         }
         params.left = xcvr_global_desktop_bounds[0] + 50;
-        params.bottom = xcvr_global_desktop_bounds[1] + 100;
+        params.bottom = xcvr_global_desktop_bounds[1] + 300;
         params.right = xcvr_global_desktop_bounds[0] + w + 50;
-        params.top = xcvr_global_desktop_bounds[1] + h + 100;
+        params.top = xcvr_global_desktop_bounds[1] + h + 300;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;
