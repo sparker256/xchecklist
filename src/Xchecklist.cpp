@@ -1730,7 +1730,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPShowWidget(xCheckListWidget);
                 }
             }
-            if (state[SHOW_GUI]) {
+            if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
                 if(item_checked(checkable)) {
                   check_item(checkable);
                 }
@@ -1750,7 +1750,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPShowWidget(xCheckListWidget);
 		}
             }
-            if (state[SHOW_GUI]) {
+            if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
                 next_checklist(true);
             }
 
@@ -1764,7 +1764,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     XPShowWidget(xCheckListWidget);
 		}
             }
-            if (state[SHOW_GUI]) {
+            if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
                 prev_checklist();
             }
 
