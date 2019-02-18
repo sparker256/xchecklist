@@ -62,6 +62,9 @@ int w = 300;
 int h = 400;
 //int x2, y2;
 
+int gui_left = 50;
+int gui_bottom = 300;
+
 int outLeft, outTop, outRight, outBottom;
 
 int max_items = -1;
@@ -560,6 +563,7 @@ bool save_prefs()
     XPSetWidgetGeometry(xCheckListWidget, widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
 
     fout<<widget_win_pos_x1<<" "<<widget_win_pos_x2<<" "<<widget_win_pos_y1<<" "<<widget_win_pos_y2<<std::endl;
+    fout<<gui_win_pos_x1<<" "<<gui_win_pos_x2<<" "<<gui_win_pos_y1<<" "<<gui_win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<" "<<state[SHOW_WIDGET]<<" "<<state[SHOW_GUI]<<std::endl;
     fout.close();
@@ -603,6 +607,7 @@ bool init_setup()
       case 1:
 	//Read the window position
     fin>>widget_win_pos_x1>>widget_win_pos_x2>>widget_win_pos_y1>>widget_win_pos_y2;
+    fin>>gui_win_pos_x1>>gui_win_pos_x2>>gui_win_pos_y1>>gui_win_pos_y2;
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE]>>state[SHOW_WIDGET]>>state[SHOW_GUI];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
@@ -624,6 +629,9 @@ bool init_setup()
     // Not sure if this is the corect place but it is working
     x = widget_win_pos_x1;
     y = widget_win_pos_x2;
+    gui_left = gui_win_pos_x1;
+    gui_bottom = widget_win_pos_y2;
+
   }else{
     free(prefs);
     prefs = prefsPath();
@@ -821,10 +829,10 @@ void xcvr_create_gui_window() {
         }else{
           params.structSize = sizeof(params);
         }
-        params.left = xcvr_global_desktop_bounds[0] + 50;
-        params.bottom = xcvr_global_desktop_bounds[1] + 300;
-        params.right = xcvr_global_desktop_bounds[0] + w + 50;
-        params.top = xcvr_global_desktop_bounds[1] + h + 300;
+        params.left = xcvr_global_desktop_bounds[0] + gui_left;
+        params.bottom = xcvr_global_desktop_bounds[1] + gui_bottom + 140;
+        params.right = xcvr_global_desktop_bounds[0] + w + gui_left;
+        params.top = xcvr_global_desktop_bounds[1] + h + gui_bottom + 140;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;
