@@ -611,7 +611,8 @@ bool init_setup()
 	//Read the rest of setup
         fin>>state[TRANSLUCENT]>>state[SHOW_CHECKLIST]>>state[COPILOT_ON]>>state[VOICE]>>state[AUTO_HIDE]>>state[SHOW_WIDGET]>>state[SHOW_GUI];
         xcDebug("\nXchecklist: During Startup inital prefs file found, using values found.\n");
-        xcDebug("Xchecklist: Checklist window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
+        xcDebug("Xchecklist: Checklist widget window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
+        xcDebug("Xchecklist: Checklist gui window position gui_win_pos_x1 left = %d gui_win_pos_x2 top = %d gui_win_pos_y1 right = %d gui_win_pos_y2 bottom = %d\n", gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
         xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
         xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
         xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -630,7 +631,7 @@ bool init_setup()
     x = widget_win_pos_x1;
     y = widget_win_pos_x2;
     gui_left = gui_win_pos_x1;
-    gui_bottom = widget_win_pos_y2;
+    gui_bottom = gui_win_pos_y2;
 
   }else{
     free(prefs);
@@ -830,9 +831,9 @@ void xcvr_create_gui_window() {
           params.structSize = sizeof(params);
         }
         params.left = xcvr_global_desktop_bounds[0] + gui_left;
-        params.bottom = xcvr_global_desktop_bounds[1] + gui_bottom + 140;
+        params.bottom = xcvr_global_desktop_bounds[1] + gui_bottom + 95;
         params.right = xcvr_global_desktop_bounds[0] + w + gui_left;
-        params.top = xcvr_global_desktop_bounds[1] + h + gui_bottom + 140;
+        params.top = xcvr_global_desktop_bounds[1] + h + gui_bottom + 95;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
         params.handleMouseClickFunc = xcvr_handle_mouse;
