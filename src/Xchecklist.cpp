@@ -568,7 +568,8 @@ bool save_prefs()
         <<state[VOICE]<<" "<<state[AUTO_HIDE]<<" "<<state[SHOW_WIDGET]<<" "<<state[SHOW_GUI]<<std::endl;
     fout.close();
     xcDebug("\nXchecklist: prefs file found, Saving these values.\n");
-    xcDebug("Xchecklist: Checklist window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
+    xcDebug("Xchecklist: Checklist widget window position widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 bottom = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
+    xcDebug("Xchecklist: Checklist gui window position gui_win_pos_x1 left = %d gui_win_pos_x2 top = %d gui_win_pos_y1 right = %d gui_win_pos_y2 bottom = %d\n", gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
     xcDebug("Xchecklist: TRANSLUCENT: %d \n", state[TRANSLUCENT]);
     xcDebug("Xchecklist: SHOW_CHECKLIST: %d\n", state[SHOW_CHECKLIST]);
     xcDebug("Xchecklist: COPILOT_ON: %d\n", state[COPILOT_ON]);
@@ -744,8 +745,8 @@ bool toggle_gui()
         else {
             XPLMGetWindowGeometry(xcvr_g_window, &left, &top, &right, &bottom);
         }
-        // XPLMDebugString("Xbtn2cmd: Hide from Menu Toggle Window\n");
         XPLMSetWindowIsVisible(xcvr_g_window,0);
+        xcDebug("Xchecklist: toggle_gui() XPLMGetWindowIsVisible XPLMGetWindowGeometry left = %d top = %d right = %d bottom = %d\n", left, top, right, bottom);
     }
     else {
         if (was_popped_out) {
@@ -762,6 +763,7 @@ bool toggle_gui()
             XPLMSetWindowGeometryOS_ptr(xcvr_g_window, left, top, right, bottom);
             XPLMSetWindowIsVisible(xcvr_g_window,1);
         }
+        xcDebug("Xchecklist: toggle_gui() Not XPLMGetWindowIsVisible XPLMGetWindowGeometry left = %d top = %d right = %d bottom = %d\n", left, top, right, bottom);
     }
     return true;
 }
@@ -810,7 +812,7 @@ void xcvr_create_gui_window() {
     xcDebug("Xchecklist:In xcvr_create_gui_window() function vr_is_enabled = %d\n", vr_is_enabled);
 
     if (xcvr_g_window==NULL) {
-        int xcvr_global_desktop_bounds[4]; // left, bottom, right, top
+        int xcvr_global_desktop_bounds[4]; // left, top, right, bottom
         // We're not guaranteed that the main monitor's lower left is at (0, 0)...
         // we'll need to query for the global desktop bounds!
         if(XPLMGetScreenBoundsGlobal_ptr){
@@ -830,9 +832,23 @@ void xcvr_create_gui_window() {
         }else{
           params.structSize = sizeof(params);
         }
-        params.left = xcvr_global_desktop_bounds[0] + gui_left;
+        if (xcvr_global_desktop_bounds[0] < 0)
+        {
+            params.left = gui_left;
+        }
+        else
+        {
+            params.left = xcvr_global_desktop_bounds[0] + gui_left;
+        }
         params.bottom = xcvr_global_desktop_bounds[1] + gui_bottom + 95;
-        params.right = xcvr_global_desktop_bounds[0] + w + gui_left;
+        if (xcvr_global_desktop_bounds[0] < 0)
+        {
+            params.right = w + gui_left;
+        }
+        else
+        {
+            params.right = xcvr_global_desktop_bounds[0] + w + gui_left;
+        }
         params.top = xcvr_global_desktop_bounds[1] + h + gui_bottom + 95;
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
