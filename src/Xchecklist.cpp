@@ -155,7 +155,6 @@ int gui_win_pos_x2 = -1;
 int gui_win_pos_y1 = -1;
 int gui_win_pos_y2 = -1;
 
-
 const char* setupText[] = {"Translucent Window", "Show Checklist if Checklist exist", \
                                  "Turn Copilot On", "Voice Prompt", "Auto Hide", "Show Widget", "Show GUI"};
 
@@ -234,7 +233,6 @@ int mouse_down_hide = 0;
 int mouse_down_previous = 0;
 int mouse_down_check_item = 0;
 int mouse_down_next = 0;
-
 
 int is_popped_out = 0;
 int was_popped_out = 0;
@@ -610,8 +608,6 @@ bool save_prefs()
   }
 
 
-
-
     fout<<widget_win_pos_x1<<" "<<widget_win_pos_x2<<" "<<widget_win_pos_y1<<" "<<widget_win_pos_y2<<std::endl;
     fout<<gui_win_pos_x1<<" "<<gui_win_pos_x2<<" "<<gui_win_pos_y1<<" "<<gui_win_pos_y2<<std::endl;
     fout<<state[TRANSLUCENT]<<" "<<state[SHOW_CHECKLIST]<<" "<<state[COPILOT_ON]<<" "
@@ -820,40 +816,52 @@ bool toggle_gui()
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void * inParam)
 {
-  (void) inFrom; // To get rid of warnings on unused variables
-  if((inMsg == XPLM_MSG_PLANE_LOADED) && (inParam == 0)){
-    //user plane loaded / reloaded, initiate deferred start to avoid
-    //  race condition with plane's plugin creating custom datarefs
-    XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
-    if(!init_done){
-      XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+
+    (void) inFrom; // To get rid of warnings on unused variables
+    if((inMsg == XPLM_MSG_PLANE_LOADED) && (inParam == 0))
+    {
+        //user plane loaded / reloaded, initiate deferred start to avoid
+        //  race condition with plane's plugin creating custom datarefs
+        XPLMRegisterFlightLoopCallback(xCheckListDeferredInitNewAircraftFLCB, -1, NULL);
+        if(!init_done)
+        {
+            XPLMRegisterFlightLoopCallback(dataProcessingCallback, 0.1f, NULL);
+        }
     }
-  }
 
-      // We want to wait to create our window until *after* the first scenery load,
-      // so that VR will actually be available.
-      // if(!xcvr_g_window && inMsg == XPLM_MSG_SCENERY_LOADED)
+    // We want to wait to create our window until *after* the first scenery load,
+    // so that VR will actually be available.
+    if(inMsg == XPLM_MSG_SCENERY_LOADED)
+    {
+        if (findChecklist())
+        {
+            if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI]))
+            {
+                xcDebug("Xchecklist: inMsg == XPLM_MSG_SCENERY_LOADED\n");
+                if (xcvr_g_window == nullptr)
+                {
+                    xcvr_create_gui_window();
+                }
+            }
+        }
+    }
 
-      if(inMsg == XPLM_MSG_SCENERY_LOADED) {
-          if (findChecklist()) {
-              if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
-                  xcvr_create_gui_window();
-              }
-          }
-      }
-      #if XPLM301
-      if(inMsg == XPLM_MSG_ENTERED_VR) {
-          if (findChecklist()) {
-              if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI])) {
-                  if (xcvr_g_window) {
-                      xcvr_g_window = NULL;
-                  }
-                  xcvr_create_gui_window();
-              }
-          }
-      }
-      #endif
-
+    #if XPLM301
+    if(inMsg == XPLM_MSG_ENTERED_VR)
+    {
+        if (findChecklist())
+        {
+            if ((state[SHOW_CHECKLIST]) && (state[SHOW_GUI]))
+            {
+                if (xcvr_g_window)
+                {
+                    xcvr_g_window = NULL;
+                }
+                xcvr_create_gui_window();
+            }
+        }
+    }
+    #endif
 }
 
 

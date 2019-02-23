@@ -94,4 +94,4 @@ Ver. 1.35 Fixed errors in chacklist and void statements. Fixed handling of colon
 
 Ver. 1.36 Make the initial GUI size match the widget size. Make sure that if the widget and GUI are displayed that the next and previous commands only advance one page. Now can remember position of GUI not popped out window just like we do for the widget.
 
-Ver. 1.37 Save the GUI left and top position. Use XPLMGetScreenBoundsGlobal_ptr to make sure the saved position for GUI is inside the gloabal screen bounds.
+Ver. 1.37 Save the GUI left and top position. Use XPLMGetScreenBoundsGlobal_ptr to make sure the saved position for GUI is inside the gloabal screen bounds. Fixed a issue where if the checklist is hidden it would unhide by its self because of a scenery reload.
