@@ -656,7 +656,9 @@ void checklist_binder::add_checklist(checklist *c)
 bool checklist_binder::select_checklist(unsigned int index, bool force)
 {
   //Unsigned must be >= 0...
-  if(index >= checklists.size()) return false;
+  if(index >= checklists.size()){
+    return false;
+  }
   current = index;
 
   return checklists[current]->activate(current, force);
@@ -670,6 +672,9 @@ bool checklist_binder::prev_checklist()
 bool checklist_binder::next_checklist(bool followSwCont)
 {
   std::string label;
+  if((current < 0) && ((size_t)current >= checklists.size())){
+      return false;
+  }
   if(checklists[current]->get_next(label) && followSwCont){
     if(labels.find(label) != labels.end()){
       return select_checklist(labels[label], true);
@@ -747,7 +752,9 @@ bool checklist_binder::do_processing(bool visible, bool copilotOn)
   }
 
   if(visible){
-    return checklists[current]->do_processing(copilotOn);
+    if((current >= 0) && ((size_t)current < checklists.size())){
+      return checklists[current]->do_processing(copilotOn);
+    }
   }else{
     if(triggered >= 0){
       select_checklist(triggered, true);

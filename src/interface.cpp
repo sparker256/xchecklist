@@ -17,9 +17,7 @@ bool start_checklists(const char *fname, int debug)
     delete binder;
     binder = NULL;
   }
-  if(!parse_clist(std::string(fname), debug)){
-    return false;
-  }
+  parse_clist(std::string(fname), debug);
   if(binder != NULL){
     binder->check_references();
     return binder->select_checklist(0);
