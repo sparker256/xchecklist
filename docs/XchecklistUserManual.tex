@@ -21,7 +21,7 @@
 
 \lstset{numbers=left, numberstyle=\tiny, numbersep=4pt, breaklines=true, frame=single, showstringspaces=false, basicstyle=\scriptsize}
 \include{lua.def}
-\usepackage[pdftitle={HeliTrim Manual},pdfstartview={FitH},colorlinks=true]{hyperref}
+\usepackage[pdftitle={Xchecklist Manual},pdfstartview={FitH},colorlinks=true]{hyperref}
 \pdfcompresslevel=9
 \pdfimageresolution=72
 
@@ -63,14 +63,14 @@
 \maketitle
 
 \begin{center}
-1.38
+1.39
 \end{center}
 
 \vspace{2cm}
 
 
 \begin{center}
-\includegraphics[width=15cm]{TranslucentXchecklist.png}
+\includegraphics[width=14cm]{TranslucentXchecklist.png}
 \end{center}
 
 
@@ -137,7 +137,9 @@ You may also have a checklist file named aircraftname\_clist.txt which will be s
 
 Also in the archive is a folder called Xchecklist/Checker \ that has test programs for your platform and bitsize. \newline
 
-Paths are bgood/xchecklist/check\_item, \ \ bgood/xchecklist/next\_checklist, \ bgood/xchecklist/prev\_checklist, \ \ bgood/xchecklist/toggle\_checklist and bgood/xchecklist/reload\_checklist. \newline
+Command paths are bgood/xchecklist/check\_item, \ \ bgood/xchecklist/next\_checklist, \ bgood/xchecklist/prev\_checklist, \ \ bgood/xchecklist/toggle\_checklist, bgood/xchecklist/reload\_checklist and bgood/xchecklist/move\_checklist. \newline
+
+If you are using VR then the Show GUI checkbox must be checked for the checklist to be displayed. \newline
 
 If you have any ideas, comments or bug reports, don't hesitate and let us know... \newline
 
@@ -194,7 +196,7 @@ It is also the checklist widow type that is used in VR but in VR it has a transp
 Joystick buttons are setup using Buttons : Adv pane in the Joystick \& Equipment window, that is accessible through Settings / Joystick, Keys \& Equipment menu.
 
 \begin{center}
-\includegraphics[width=17cm]{XchecklistUserManual-img001.png}
+\includegraphics[width=16cm]{XP10_JoystickButtonsSetup.png}
 \end{center}
 
 Please note the four items in the right box - these are the four actions, that allow you to control the Xchecklist. \newline
@@ -221,7 +223,7 @@ Keystrokes are setup using Keys pane in the Joystick \& Equipment window, that i
 Settings / Joystick, Keys \& Equipment menu.
 
 \begin{center}
-\includegraphics[width=17cm]{XchecklistUserManual-img002.png}
+\includegraphics[width=16cm]{XP10_KeystrokesSetup.png}
 \end{center}
 
 Please note the four items in the right box - these are the four actions, that allow you to control the 
@@ -249,7 +251,7 @@ Last item is 'reload\_checklist' as it says reloads the checklist.
 Joystick buttons are setup using Settings dialog window which can be accessed through the Settings button on the first screen. Use the Joystick menu.
 
 \begin{center}
-\includegraphics[width=17cm]{XchecklistUserManual-img003.png}
+\includegraphics[width=17cm]{XP11_JoystickButtonsSetup.png}
 \end{center}
 
 Please note the four items in the right box - these are the four actions, that allow you to control the 
@@ -275,7 +277,7 @@ Reload item is 'reload\_checklist' as it says reloads the checklist.
 Keystrokes are setup using Settings dialog window which can be accessed through the Settings button on the first screen.Use the Keyboard menu.
 
 \begin{center}
-\includegraphics[width=17cm]{XchecklistUserManual-img004.png}
+\includegraphics[width=17cm]{XP11_KeystrokesSetup.png}
 \end{center}
 
 After typing bg in the search box you should see the items you can map to Xchecklist.
@@ -574,11 +576,25 @@ Hopefully these  new possibilities will make the dataref expressions much more r
 To silence a line, just prepend it with the '@' sign and nothing will be spoken... 
 
 \newpage
-\section{closer\_than function example}
+\section{closer\_than function examples}
+
+sw\_item:Sync Altimeter|SYNCED:1:closer\_than(\{sim/cockpit/misc/barometer\_setting\}, \{sim/weather/barometer\_sealevel\_inhg\}, 0.03)
+
+sw\_item:Sync HSI|SYNCED:1:closer\_than(\{round(sim/cockpit2/radios/indicators/\newline
+hsi\_relative\_heading\_vacuum\_deg\_pilot)\}, \{round(sim/cockpit2/gauges/indicators/\newline
+compass\_heading\_deg\_mag)\}, 0.03)
+
+sw\_item:Fuel Contents|CHECK equal L \& R levels:1:closer\_than(\{sim/flightmodel/weight/m\_fuel1\}, \{sim/flightmodel/weight/m\_fuel2\}, 0.01)
+
+sw\_item: Fuel Contents|CHECK equal L \& R levels:sim/flightmodel/weight/m\_fuel\_total:\newline
+\{sim/flightmodel/weight/m\_fuel\_total\}*closer\_than(\{sim/flightmodel/weight/m\_fuel1\}, 
+\{sim/flightmodel/weight/m\_fuel2\}, 0.03)\newline
+
 
 Here is a example provided by user per0ni that shows how he is using the closer\_than function in his checklist.
 
-sw\_item:Sync Altimeter|SYNCED:sim/cockpit/misc/barometer\_setting:{sim/cockpit/misc/barometer\_setting}*closer\_than({sim/cockpit/misc/barometer\_setting}, {sim/weather/barometer\_sealevel\_inhg}, 0.03)
+sw\_item:Sync Altimeter|SYNCED:sim/cockpit/misc/barometer\_setting:\{sim/cockpit/misc/barometer\_setting
+\}*closer\_than(\{sim/cockpit/misc/barometer\_setting\}, \{sim/weather/barometer\_sealevel\_inhg\}, 0.03)
 
 
 \newpage
@@ -604,17 +620,9 @@ sw\_itemvoid\_c:$\backslash$yellow$\backslash$Yellow item|$\backslash$darkorange
 \section{Number of Lines Per Page}
 
 
-It was brought to my attention that starting with version 1.29 if you had to many lines per page you would corrupt the text in the setup widget. With the release of version 1.32 this is resolved but in doing testing I have found some issues so will give some guide lines.
+\textbf{For all checklist authors please follow these recommendations unless you do not care about crash to desktop or corruption of the Xchecklist\_Setup items.}
 
-If you are using the widget display I am not sure if there are any limits to the number of lines.
-
-If you are using the GUI display in 2d then the limit is less than 49 lines.
-
-If you are in VR then the limit is less that 30 lines which I have no control over.
-
-When I am talking about lines this is all lines displayed blank or not.
-
-So to the Xchecklist authors my recommendation is to keep your number of lines below 30 to allow all users to fully use your checklist.
+As Xchecklist supports 2d and VR please limit your number of lines per page to 29 so your checklist can be used by both type of users. When I am talking about lines this is all lines displayed blank or not.
 
 \newpage
 \section{Checker}

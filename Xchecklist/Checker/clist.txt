@@ -1,4 +1,4 @@
-  #regression tester
+ #regression tester
 sw_checklist:Checklist name with strange chars like <>/![]=
 sw_rcolsize:120
 sw_item:Simplest item

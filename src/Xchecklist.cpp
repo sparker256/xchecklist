@@ -14,8 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.38 build " __DATE__ " " __TIME__
-
+#define VERSION_NUMBER "1.39 build " __DATE__ " " __TIME__
 
 #include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
@@ -76,7 +75,7 @@ int Item;
 //char FileName[256], AircraftPath[512];
 //char prefsPath[512];
 
-enum {NEXT_CHECKLIST_COMMAND, PREV_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, TOGGLE_CHECKLIST_COMMAND, RELOAD_CHECKLIST_COMMAND};
+enum {NEXT_CHECKLIST_COMMAND, PREV_CHECKLIST_COMMAND, CHECK_ITEM_COMMAND, TOGGLE_CHECKLIST_COMMAND, RELOAD_CHECKLIST_COMMAND, MOVE_CHECKLIST_COMMAND};
 
 int MyCommandCallback(
                                    XPLMCommandRef       inCommand,
@@ -108,7 +107,6 @@ XPWidgetID      setupMoveChecklistWindowDownButton = NULL;
 XPWidgetID      setupSaveSettingsButton = NULL;
 
 
-
 XPLMMenuID      PluginMenu     = NULL;
 XPLMMenuID      checklistsMenu = NULL;
 
@@ -119,6 +117,7 @@ XPLMCommandRef cmdnextchecklist;
 XPLMCommandRef cmdprevchecklist;
 XPLMCommandRef cmdtogglechecklist;
 XPLMCommandRef cmdreloadchecklist;
+XPLMCommandRef cmdmovechecklist;
 
 static XPLMDataRef              ext_view = NULL;
 
@@ -334,6 +333,7 @@ PLUGIN_API int XPluginStart(
         cmdprevchecklist = XPLMCreateCommand("bgood/xchecklist/prev_checklist","Prev Checklist");
         cmdtogglechecklist = XPLMCreateCommand("bgood/xchecklist/toggle_checklist","Toggle Checklist");
         cmdreloadchecklist = XPLMCreateCommand("bgood/xchecklist/reload_checklist","Reload Checklist");
+        cmdmovechecklist = XPLMCreateCommand("bgood/xchecklist/move_checklist","Move Checklist");
 
         XPLMRegisterCommandHandler(
                     cmdcheckitem,
@@ -364,6 +364,12 @@ PLUGIN_API int XPluginStart(
                     MyCommandCallback,
                     true,
                     (void *)RELOAD_CHECKLIST_COMMAND);
+
+        XPLMRegisterCommandHandler(
+                    cmdmovechecklist,
+                    MyCommandCallback,
+                    true,
+                    (void *)MOVE_CHECKLIST_COMMAND);
 
         init_setup();
 
@@ -1883,6 +1889,12 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                 XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                 XPShowWidget(xCheckListWidget);
             }
+            break;
+        case MOVE_CHECKLIST_COMMAND:
+            XPUMoveWidgetBy(
+                        xCheckListWidget,
+                        0,
+                        -25);
             break;
         case TOGGLE_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
