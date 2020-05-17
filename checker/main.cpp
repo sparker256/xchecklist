@@ -419,7 +419,6 @@ bool walkthrough_checklists()
       break;
     }
   }
-  xcSummary();
   return true;
 }
 
@@ -620,6 +619,7 @@ int main(int argc, char *argv[])
     walkthrough_checklists();
   }
 
+  xcSummary();
   do_cleanup();
   stop_checklists();
   //discard_checklist();
