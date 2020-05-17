@@ -99,3 +99,5 @@ Ver. 1.37 Save the GUI left and top position. Use XPLMGetScreenBoundsGlobal_ptr 
 Ver. 1.38 Fixed crash to desktop caused by syntax errors in the checklist.
 
 Ver. 1.39 Updated closer_than function examples in manual. Added command for move widget window down.
+
+Ver. 1.40 Increased the number of pixels the Move Windows Down button uses from -15 to -100. Changed the Checker to print out the summary by default. 

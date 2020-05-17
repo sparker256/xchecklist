@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.39 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.40 build " __DATE__ " " __TIME__
 
 #include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
@@ -1079,7 +1079,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
         XPUMoveWidgetBy(
                     xCheckListWidget,
                     0,
-                    -25);
+                    -100);
     }
     if (!strcmp((char *) inItemRef, "settings")){
         save_prefs();
@@ -1254,7 +1254,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
                     XPUMoveWidgetBy(
                                 xCheckListWidget,
                                 0,
-                                -25);
+                                -100);
                     XPHideWidget(setupWidget);
                 }
 
@@ -1894,7 +1894,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
             XPUMoveWidgetBy(
                         xCheckListWidget,
                         0,
-                        -25);
+                        -100);
             break;
         case TOGGLE_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
