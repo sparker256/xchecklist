@@ -194,6 +194,7 @@ elseif (UNIX)
 endif ()
 
 
+set_target_properties(Xchecklist PROPERTIES PREFIX "")
 if (WIN32)
 	set_target_properties(Xchecklist PROPERTIES OUTPUT_NAME "win")
 elseif (APPLE)
