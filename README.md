@@ -37,6 +37,16 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
     cmake --build .\build
     cp .\build\win.xpl .\Xchecklist\64\
     ```
+    
+4. Configure and build checker and copy it into the appropriate directory:
+
+   ```
+   rm -r build/*
+   cmake -S ./checker -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   cmake --build ./build
+   cp ./build/win_checker_64bit.exe ./Xchecklist/Checker/
+   ```    
+
 
 ### On Ubuntu:
 
@@ -52,6 +62,7 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
    ```
    git clone https://github.com/sparker256/xchecklist.git
    cd xchecklist
+   rm -r build/*
    cmake -S ./src -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
    ```
 
@@ -65,7 +76,7 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
 4. Configure and build simon and copy it into the appropriate directory:
 
    ```
-   rm -rf build
+   rm -r build/*
    cmake -S ./simon -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
    cmake --build ./build
    cp ./build/simon_lin64 ./Xchecklist/
@@ -74,7 +85,7 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
 5. Configure and build checker and copy it into the appropriate directory:
 
    ```
-   rm -rf build
+   rm -r build/*
    cmake -S ./checker -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
    cmake --build ./build
    cp ./build/lin_checker_64 ./Xchecklist/Checker/
@@ -100,3 +111,21 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
    cmake --build ./build
    cp ./build/mac.xpl ./Xchecklist/64/
    ```
+   
+4. Configure and build simon and copy it into the appropriate directory:
+
+   ```
+   rm -r build/*
+   cmake -S ./simon -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   cmake --build ./build
+   cp ./build/simon_mac ./Xchecklist/
+   ```   
+
+5. Configure and build checker and copy it into the appropriate directory:
+
+   ```
+   rm -r build/*
+   cmake -S ./checker -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   cmake --build ./build
+   cp ./build/mac_checker ./Xchecklist/Checker/
+   ```   
