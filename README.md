@@ -61,6 +61,26 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
    cmake --build ./build
    cp ./build/lin.xpl ./Xchecklist/64/
    ```
+   
+4. Configure and build simon and copy it into the appropriate directory:
+
+   ```
+   rm -rf build
+   cmake -S ./simon -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   cmake --build ./build
+   cp ./build/simon_lin64 ./Xchecklist/
+   ```   
+
+5. Configure and build checker and copy it into the appropriate directory:
+
+   ```
+   rm -rf build
+   cmake -S ./checker -B ./build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+   cmake --build ./build
+   cp ./build/lin_checker_64 ./Xchecklist/Checker/
+   ```
+
+
 
 ### On OS X:
 
