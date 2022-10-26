@@ -69,24 +69,24 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: binaries
-          path: FlyWithLua/64
+          path: Xchecklist/64
 
       - uses: actions/upload-artifact@v2
         with:
-          name: FlyWithLua_plugin
+          name: Xchecklist_plugin
           path: |
-            ${{github.workspace}}/FlyWithLua*
+            ${{github.workspace}}/Xchecklist*
           if-no-files-found: error
 
       - name: Create plugin archive
         if: github.event_name == 'release'
-        run: zip -r FlyWithLua_NG_Lin_Mac_Win.zip FlyWithLua/
+        run: zip -r Xchecklist.zip Xchecklist/
 
       - name: Upload binaries to release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: FlyWithLua_NG_Lin_Mac_Win.zip
+          file: Xchecklist.zip
           tag: ${{ github.ref }}
           overwrite: true
