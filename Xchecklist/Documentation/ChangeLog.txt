@@ -103,3 +103,5 @@ Ver. 1.39 Updated closer_than function examples in manual. Added command for mov
 Ver. 1.40 Increased the number of pixels the Move Windows Down button uses from -15 to -100. Changed the Checker to print out the summary by default.
 
 Ver. 1.41 Had a bad build on version 1.40 so rebuilt and calling it 1.41.
+
+Ver. 1.50 First version to support X-Plane 12.0+ and arm support on the Mac.

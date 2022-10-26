@@ -8,39 +8,27 @@
 cmake_minimum_required(VERSION 3.9)
 project(Xchecklist VERSION 1.3.4 DESCRIPTION "Xchecklist X-Plane plugin")
 
-option(SDK2 "Build with SDK2" OFF)
-option(32BIT "Build with 32 Bit" OFF)
-
-if (32BIT)
-	message ("32BIT option is on")
-	if (UNIX)
-		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
-		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
-		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
-	endif ()
-        if (WIN32)
-		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
-		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
-		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
-	endif ()
-endif()
-
+# We will enable this when we have a SDK supporting arm
+# X-Plane supports OS X 11.0+, so this should ensure Xchecklist can run on
+# all supported versions.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version" FORCE)
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for mac OS X" FORCE)
 
 # By default, use optimized release configuration.
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif ()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Set include directories used by our code and dependencies.
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Widgets")
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/Wrappers")
-include_directories("${CMAKE_SOURCE_DIR}/XPSDK301/CHeaders/XPLM")
+include_directories("${CMAKE_SOURCE_DIR}/SDK/CHeaders/Widgets")
+include_directories("${CMAKE_SOURCE_DIR}/SDK/CHeaders/Wrappers")
+include_directories("${CMAKE_SOURCE_DIR}/SDK/CHeaders/XPLM")
 include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
 include_directories("${CMAKE_SOURCE_DIR}")
+
+
 
 if (WIN32)
 	include_directories("${CMAKE_SOURCE_DIR}/WinSDK/Include")
@@ -49,19 +37,15 @@ endif ()
 
 # Specify library search locations.
 if (WIN32)
-    list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Win")
-	if (32BIT)
-		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib")
-	else ()
-		list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
-	endif ()
+    list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/SDK/Libraries/Win")
+    list(APPEND CMAKE_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/WinSDK/Lib/x64")
 elseif (APPLE)
-    list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_SOURCE_DIR}/XPSDK301/Libraries/Mac")
+    list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_SOURCE_DIR}/SDK/Libraries/Mac")
 elseif (UNIX)
 
 endif ()
 
-message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})
+# message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})
 
 # Enable all X-Plane SDK APIs up to the newest version.
 if (SDK2)
@@ -70,9 +54,10 @@ else ()
 	add_definitions(-DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1)
 endif ()
 
+# Enable all X-Plane SDK APIs up to the newest version.
+add_definitions(-DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1 -DXPLM302=1 -DXPLM303=1)
 # Define platform macros.
 add_definitions(-DAPL=$<BOOL:${APPLE}> -DIBM=$<BOOL:${WIN32}> -DLIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>)
-
 
 
 # Force-enable exception support. This is most likely redundant, although for C
@@ -88,7 +73,7 @@ add_compile_options(-Wall -Wpedantic -Wshadow -Wfloat-equal -Wextra)
 add_compile_options(-Wno-unused)
 
 # Always use position-independent code and highest optimization level (FPS!).
-add_compile_options(-O3)
+add_compile_options(-O3 -fPIC)
 
 # X-Plane plugin
 list(APPEND XCHECKLIST_SRCS Xchecklist.cpp interface.cpp parser.cpp utils.cpp gui_window.cpp chkl.l chkl.y plugin_dl.c)
@@ -134,13 +119,9 @@ find_library(GLUT_LIBRARY NAMES glut GLUT glut64)  # apt install freeglut3-dev
 
 # Link X-Plane plugin system libraries. They are only provided for OS X and Windows.
 if (WIN32)
-	if (32BIT)
-		find_library(XPLM_LIBRARY NAMES XPLM XPLM.lib)
-		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.lib)
-        else ()
-		find_library(XPLM_LIBRARY NAMES XPLM_64 XPLM_64.lib)
-		find_library(XPWIDGETS_LIBRARY NAMES XPWidgets_64 XPWidgets_64.lib)
-	endif ()
+	find_library(XPLM_LIBRARY NAMES XPLM XPLM_64.lib)
+	find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets_64.lib)
+	
 endif ()
 message (STATUS "XPLM_LIBRARY" = ${XPLM_LIBRARY})
 
@@ -183,14 +164,14 @@ elseif (APPLE)
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist "-exported_symbols_list ${CMAKE_SOURCE_DIR}/Xchecklist.sym_mac")
+    target_link_libraries(Xchecklist "-exported_symbols_list ${CMAKE_SOURCE_DIR}/exports.sym_mac")
 	target_link_libraries(Xchecklist "-flat_namespace -undefined suppress")
 elseif (UNIX)
     # Specify additional runtime search laths for dynamically-linked libraries.
     # Restrict set of symbols exported from the plugin. This reduces changes of
     # conflict with other plugins, in particular ones with Lua interpreter
     # embedded.
-    target_link_libraries(Xchecklist -ldl -Wl,--version-script -Wl,${CMAKE_SOURCE_DIR}/Xchecklist.sym)
+    target_link_libraries(Xchecklist -ldl -Wl,--version-script -Wl,${CMAKE_SOURCE_DIR}/exports.txt)
 endif ()
 
 

@@ -8,17 +8,11 @@
 cmake_minimum_required(VERSION 3.9)
 project(checker VERSION 1.3.4 DESCRIPTION "Xchecklist X-Plane plugin")
 
-option(32BIT "Build with 32 Bit" OFF)
-
-if (32BIT)
-	if (UNIX)
-		message ("32BIT option is on")
-		SET(CMAKE_C_FLAGS "-m32" CACHE STRING "" FORCE)
-		SET(CMAKE_CXX_FLAGS "-m32" CACHE STRING "" FORCE)
-		Set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-		message ("CMAKE_C_FLAGS = " ${CMAKE_C_FLAGS} "   CMAKE_CXX_FLAGS = " ${CMAKE_CXX_FLAGS})
-	endif ()
-endif()
+# We will enable this when we have a SDK supporting arm
+# X-Plane supports OS X 11.0+, so this should ensure Xchecklist can run on
+# all supported versions.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version" FORCE)
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for mac OS X" FORCE)
 
 
 # By default, use optimized release configuration.
@@ -26,10 +20,10 @@ if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif ()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Set include directories used by our code and dependencies.
-include_directories("../src/XPSDK301/CHeaders/XPLM")
+include_directories("../src/SDK/CHeaders/XPLM")
 include_directories("../src")
 
 message (STATUS "CMAKE_LIBRARY_PATH" = ${CMAKE_LIBRARY_PATH})

@@ -8,13 +8,13 @@
 //     A plugin to display a clist.txt in widget window
 //     Also use speach to prompt user
 //
-//     Supporting X-Plane 10.51r2 32/64bit
-//     X-Plane 11.20r3+
-//     Also suporting X-Plane 9.70
+//     Supporting X-Plane 10.51r2 64bit only
+//     X-Plane 11.55r2+
+//     X-Plane 12.0
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.41 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.50 build " __DATE__ " " __TIME__
 
 #include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
