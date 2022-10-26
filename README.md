@@ -1,4 +1,4 @@
-Xchecklist for X-Plane 11, 10 and 9
+Xchecklist for X-Plane 12, 11 and 10
 =========================
 
 [![Build Status](https://travis-ci.org/sparker256/xchecklist.svg)](https://travis-ci.org/sparker256/xchecklist)
