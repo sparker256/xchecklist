@@ -29,10 +29,9 @@ jobs:
 
     - name: "Windows: Configure environment"
       if: runner.os == 'Windows'
-      name: Install winflexbison
-      run: choco install winflexbison
       shell: bash
       run: |
+        choco install winflexbison
         # Select MinGW toolchain instead of the default MSVC.
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
 
