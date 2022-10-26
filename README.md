@@ -1,7 +1,8 @@
 Xchecklist for X-Plane 12, 11 and 10
 =========================
 
-[![Build Status](https://travis-ci.org/sparker256/xchecklist.svg)](https://travis-ci.org/sparker256/xchecklist)
+[![CMake](https://github.com/sparker256/xchecklist/actions/workflows/cmake.yml/badge.svg)](https://github.com/sparker256/xchecklist/actions/workflows/cmake.yml)
+
 
 ![Alt text](docs/Xchecklist_GUI.jpg?raw=true "Xchecklist_GUI")
 
