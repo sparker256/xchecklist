@@ -1,16 +1,11 @@
 name: CMake
 
-on:
-  push:
-    branches: [ "*" ]
-  pull_request:
-    branches: [ "*" ]
-  release:
-    type: [created, edited]
+on: [push]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: RelWithDebInfo
+  XCL_VERSION: 1.5.0
 
 jobs:
   build:
@@ -73,20 +68,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Xchecklist_plugin
+          name: Xchecklist_v${{env.XCL_VERSION}}
           path: |
             ${{github.workspace}}/Xchecklist*
           if-no-files-found: error
-
-      - name: Create plugin archive
-        if: github.event_name == 'release'
-        run: zip -r Xchecklist.zip Xchecklist/
-
-      - name: Upload binaries to release
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: Xchecklist.zip
-          tag: ${{ github.ref }}
-          overwrite: true
