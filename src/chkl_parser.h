@@ -261,15 +261,18 @@ class dataref_dsc : public dataref_t{
 class item_label{
   friend std::ostream& operator<<(std::ostream &output, const item_label& l);
  public:
+  item_label(coloured_string *label_left, coloured_string *label_right, coloured_string *label_left_phonetic, coloured_string *label_right_phonetic);
   item_label(coloured_string *label_left, coloured_string *label_right);
   item_label(coloured_string *label_left);
-  ~item_label(){if(label) delete label; if(suffix) delete suffix;};
+  ~item_label(){if(label) delete label; if(suffix) delete suffix;if(label_phonetic) delete label_phonetic; if(suffix_phonetic) delete suffix_phonetic;};
   bool getDesc(checklist_item_desc_t &desc);
   void say_label();
   void say_suffix();
  private:
   coloured_string *label;
+  coloured_string *label_phonetic;
   coloured_string *suffix;
+  coloured_string *suffix_phonetic;
 };
 
 class show_item: public checklist_item{
