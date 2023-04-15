@@ -1549,7 +1549,9 @@ bool create_checklist(unsigned int size, const char *title,
                                         0,		// root
                                         xCheckListWidget,
                                         coloured_caption_callback);
-              captionsMap.insert(make_pair(xCheckListTextWidget[i], coloured_string_process(static_cast<coloured_string *>(items[i].c_text))));
+	      t_c_string processed_c_string = coloured_string_process(static_cast<coloured_string *>(items[i].c_text));
+              captionsMap.insert(make_pair(xCheckListTextWidget[i], processed_c_string));
+              xcvr_items[i].c_text = &(captionsMap.find(xCheckListTextWidget[i])->second);
             }else{
               xCheckListTextWidget[i] = XPCreateWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
                                         1,	// Visible
@@ -1557,10 +1559,10 @@ bool create_checklist(unsigned int size, const char *title,
                                         0,		// root
                                         xCheckListWidget,
                                         xpWidgetClass_Caption);
+	      xcvr_items[i].c_text = NULL;
             }
 
             xcvr_items[i].text = items[i].text;
-            xcvr_items[i].c_text = &(captionsMap.find(xCheckListTextWidget[i])->second);
 
             if (state[TRANSLUCENT] == true) {
 
@@ -1576,8 +1578,9 @@ bool create_checklist(unsigned int size, const char *title,
                                         0,		// root
                                         xCheckListWidget,
                                         coloured_caption_callback);
-              captionsMap.insert(make_pair(xCheckListTextAWidget[i], 
-                                           coloured_string_process(static_cast<coloured_string *>(items[i].c_suffix))));
+	      t_c_string processed_c_string = coloured_string_process(static_cast<coloured_string *>(items[i].c_suffix));
+              captionsMap.insert(make_pair(xCheckListTextAWidget[i], processed_c_string));
+              xcvr_items[i].c_suffix = &(captionsMap.find(xCheckListTextAWidget[i])->second);
             }else{
              xCheckListTextAWidget[i] = XPCreateWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
                                         1,	// Visible
@@ -1585,12 +1588,12 @@ bool create_checklist(unsigned int size, const char *title,
                                         0,		// root
                                         xCheckListWidget,
                                         xpWidgetClass_Caption);
+	     xcvr_items[i].c_suffix = NULL;
             }
 
 
              xcvr_right_text_start = (maxw_1 + 50);
              xcvr_items[i].suffix = items[i].suffix;
-             xcvr_items[i].c_suffix = &(captionsMap.find(xCheckListTextAWidget[i])->second);
 
              if (state[TRANSLUCENT] == true) {
 
