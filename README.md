@@ -19,7 +19,7 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
 
     ```
     choco install git cmake
-    choco install mingw --version 8.1.0
+    choco install mingw --version 12.2.0
     ```
 
     You can also install the same programs manually if you prefer.

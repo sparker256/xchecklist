@@ -250,6 +250,13 @@ spec_string:    coloured_string{
                     $3->resolve_colours();
                     $$ = new item_label($1, $3);
                   }
+                | coloured_string TOKEN_PIPE coloured_string TOKEN_PIPE coloured_string TOKEN_PIPE coloured_string{
+                    $1->resolve_colours();
+                    $3->resolve_colours();
+                    $5->resolve_colours();
+                    $7->resolve_colours();
+                    $$ = new item_label($1, $3, $5, $7);
+                  }
 ;
 coloured_string : coloured_string coloured_string_element {
                     $2->append($1);

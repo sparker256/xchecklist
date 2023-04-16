@@ -574,29 +574,41 @@ bool dataref_dsc::trigered()
 
 
 
+item_label::item_label(coloured_string *label_left, coloured_string *label_right, coloured_string *label_left_phonetic, coloured_string *label_right_phonetic)
+{
+  label = label_left;
+  label_phonetic = label_left_phonetic;
+  suffix = label_right;
+  suffix_phonetic = label_right_phonetic;
+}
+
 item_label::item_label(coloured_string *label_left, coloured_string *label_right)
 {
   label = label_left;
+  label_phonetic = label_left;
   suffix = label_right;
+  suffix_phonetic = label_right;
 }
 
 item_label::item_label(coloured_string *label_left)
 {
   label = label_left;
+  label_phonetic = label_left;
   suffix = new coloured_string("CHECK");
+  suffix_phonetic = new coloured_string("CHECK");
 }
 
 void item_label::say_label()
 {
     if(voice_state) {
-        say(label->c_str());
+        say(label_phonetic->c_str());
     }
 }
 
 void item_label::say_suffix()
 {
    if(voice_state) {
-      say(suffix->c_str());
+      say(suffix_phonetic->c_str());
    }
 }
 
