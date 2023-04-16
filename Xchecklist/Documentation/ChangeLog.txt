@@ -105,3 +105,5 @@ Ver. 1.40 Increased the number of pixels the Move Windows Down button uses from 
 Ver. 1.41 Had a bad build on version 1.40 so rebuilt and calling it 1.41.
 
 Ver. 1.50 First version to support X-Plane 12.0+ and arm support on the Mac.
+
+Ver. 1.51 Fixing coloured strings handling problem.

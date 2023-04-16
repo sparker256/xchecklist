@@ -5,7 +5,7 @@ on: [push]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: RelWithDebInfo
-  XCL_VERSION: 1.5.0
+  XCL_VERSION: 1.5.1
 
 jobs:
   build:
