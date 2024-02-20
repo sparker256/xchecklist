@@ -23,7 +23,7 @@
 %}
 
 %debug
-%error-verbose
+%define parse.error verbose
 
 %union {
   char *str;
@@ -165,6 +165,18 @@ checklist:        TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
                     printf("New checklist def1 '%s'!\n", $3);
                     free($3);
                     free($5);
+                  }
+                | TOKEN_SILENCE TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING {
+                    $$ = new class checklist($4);
+                    $$->mute();
+                    free($4);
+                  }
+                | TOKEN_SILENCE TOKEN_CHECKLIST TOKEN_COLON TOKEN_STRING
+                    TOKEN_COLON TOKEN_STRING {
+                    $$ = new class checklist($4, $6);
+                    $$->mute();
+                    free($4);
+                    free($6);
                   }
 ;
 

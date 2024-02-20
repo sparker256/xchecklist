@@ -356,7 +356,15 @@ bool my_checklist::check_item(int itemNo)
 
 
 my_checklist *cl;
-
+extern "C" {
+float XPLMMeasureString(int fontID, const char *str, int len)
+{
+  (void) fontID;
+  (void) str;
+  (void) len;
+  return -1;
+}
+}
 bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show)

@@ -73,6 +73,7 @@ class checklist_item{
   void setIndex(int i){index = i;};
   bool item_done(){return (state == NEXT);};
   virtual bool check();
+
  protected:
   int index;
   item_state_t state;
@@ -83,11 +84,11 @@ class checklist_item{
 class checklist{
   friend std::ostream& operator<<(std::ostream &output, const checklist& dsc);
  public:
-  checklist(std::string display, std::string menu);
-  checklist(std::string display);
+  checklist(std::string display, std::string menu="");
   ~checklist();
   bool add_item(checklist_item *i);
   void set_width(int f);
+  int  get_width(){return width;};
   bool activate(int index, bool force = false);
   bool item_checked(int item);
   bool do_processing(bool copilotOn);
@@ -100,24 +101,27 @@ class checklist{
   void add_continue_flag(std::string label = "", dataref_t *dref = NULL);
   bool get_next(std::string &l){l = continue_label; return continue_flag;};
   void check_references(const std::map<std::string, int> &labels);
+  void mute();
  private:
   std::string displaytext;
   std::string menutext;
   std::vector<checklist_item *> items;
   int width;
+  int true_width;
   int current_item;
   bool finished;
   bool trigger_block;
   std::vector<std::pair<std::string, dataref_t *> > gotos;
   bool continue_flag;
   std::string continue_label;
+  bool muted;
 };
 
 //Collection of checklists
 class checklist_binder{
   friend std::ostream& operator<<(std::ostream &output, const checklist_binder& b);
   public:
-    checklist_binder():current(-1){};
+    checklist_binder():current(-1), common_width(0){};
     ~checklist_binder();
     void add_checklist(checklist *c);
     bool select_checklist(unsigned int index, bool force = false);
@@ -129,10 +133,12 @@ class checklist_binder{
     bool free_checklist_names(int all_checklists, int menu_size, constname_t *names[], int *indexes[]);
     bool checklist_finished(bool *switchNext);
     bool check_references();
+    int get_common_width(){return common_width;};
   private:
     std::vector<checklist*> checklists;
     std::map<std::string, int> labels;
     int current;
+    int common_width;
 };
 
 class value{
@@ -321,6 +327,7 @@ class chk_item:public checklist_item{
     virtual bool activate();
     virtual bool do_processing(bool copilotOn);
     virtual bool check();
+    void reverse_silent(){dont_speak = dont_speak ? false : true;};
   private:
     item_label *label;
     dataref_t *dataref;

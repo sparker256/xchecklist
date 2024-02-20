@@ -45,21 +45,17 @@ checklist::checklist(std::string display, std::string menu)
   menutext = menu;
   displaytext = display;
   width = 300;
+  true_width = -1;
   finished = false;
   trigger_block = false;
   continue_flag = false;
   continue_label = "";
+  muted = false;
 }
 
-checklist::checklist(std::string display)
+void checklist::mute()
 {
-  displaytext = display;
-  menutext = "";
-  width = 300;
-  finished = false;
-  trigger_block = false;
-  continue_flag = false;
-  continue_label = "";
+  muted = true;
 }
 
 checklist::~checklist()
@@ -76,6 +72,18 @@ checklist::~checklist()
 bool checklist::add_item(checklist_item *i)
 {
   items.push_back(i);
+  checklist_item_desc_t desc;
+  if(i->getDesc(desc)){
+    int tmp_w = measure_string(desc.text, strlen(desc.text)) + measure_string(desc.suffix, strlen(desc.suffix));
+    if(tmp_w > true_width){
+      true_width = tmp_w;
+    }
+  }
+  if(muted){
+    if(chk_item *item = dynamic_cast<chk_item*>(i)){
+      item->reverse_silent();
+    }
+  }
   return true;
 }
 
@@ -651,6 +659,10 @@ void checklist_binder::add_checklist(checklist *c)
     }
     labels[name] = checklists.size() - 1;
   }
+  int tmp_w = c->get_width();
+  if(common_width < tmp_w){
+    common_width = tmp_w;
+  }
 }
 
 bool checklist_binder::select_checklist(unsigned int index, bool force)
@@ -817,8 +829,7 @@ bool chk_item::do_processing(bool copilotOn)
         break;
     case PROCESSING:
         elapsed = 0;
-        if(checked ||
-           (!dont_speak && (copilotOn && (dataref != NULL) && dataref->trigered()))){
+        if(checked || (copilotOn && (dataref != NULL) && dataref->trigered())){
           if(speech_active() && !dont_speak){
             label->say_suffix();
             state = SAY_SUFFIX;

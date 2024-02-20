@@ -2,6 +2,7 @@
 #define INTERFACE__H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "XPLMDataAccess.h"
 
 
@@ -40,7 +41,7 @@ struct dataref_struct_t{
   double (*accessor)(struct dataref_struct_t *dref);
 };
 
-
+const int checklist_frames_width = 85; // original was 75
 
 
 #ifdef __cplusplus
@@ -124,6 +125,8 @@ bool create_checklist(unsigned int size, const char *title,
                       checklist_item_desc_t items[], int width,
                       int index, int force_show);
 
+
+int measure_string(const char *str, size_t len);
 
 //Inform frontend to check an item (to be used in copilot mode)
 //  item is the index of an item to be checked(provided by checklist_item_desc_t.index)

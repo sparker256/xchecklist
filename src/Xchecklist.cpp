@@ -1858,13 +1858,19 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
         case NEXT_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
                 if (XPIsWidgetVisible(xCheckListWidget)){
-                    next_checklist(true);
 		}else{
                     XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                     XPShowWidget(xCheckListWidget);
 		}
+                next_checklist(true);
             }
             if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
+                if (xcvr_g_window == NULL) {
+                  xcvr_create_gui_window();
+                }
+                if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
+                    toggle_gui();
+                }
                 next_checklist(true);
             }
 
@@ -1912,7 +1918,8 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                 if (xcvr_g_window == NULL) {
                   xcvr_create_gui_window();
                 }
-                if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
+                if (!XPLMGetWindowIsVisible(xcvr_g_window) &&
+                    XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
                     toggle_gui();
                 }
             }

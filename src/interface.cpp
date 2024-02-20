@@ -1,6 +1,7 @@
 #include "chkl_parser.h"
 #include "speech.h"
 #include <string>
+#include "XPLMGraphics.h"
 
 checklist_binder *binder = NULL;
 
@@ -109,5 +110,10 @@ bool checklist_finished(bool *switchNext)
       return false;
     }
     return binder->checklist_finished(switchNext);
+}
+
+int measure_string(const char *str, size_t len)
+{
+	return XPLMMeasureString(xplmFont_Proportional, str, len);
 }
 
