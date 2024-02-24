@@ -112,8 +112,3 @@ bool checklist_finished(bool *switchNext)
     return binder->checklist_finished(switchNext);
 }
 
-int measure_string(const char *str, size_t len)
-{
-	return XPLMMeasureString(xplmFont_Proportional, str, len);
-}
-

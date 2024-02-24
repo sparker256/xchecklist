@@ -45,7 +45,9 @@ checklist::checklist(std::string display, std::string menu)
   menutext = menu;
   displaytext = display;
   width = 300;
-  true_width = -1;
+  true_width = 0;
+  true_width_label = 0;
+  true_width_suffix = 0;
   finished = false;
   trigger_block = false;
   continue_flag = false;
@@ -74,10 +76,15 @@ bool checklist::add_item(checklist_item *i)
   items.push_back(i);
   checklist_item_desc_t desc;
   if(i->getDesc(desc)){
-    int tmp_w = measure_string(desc.text, strlen(desc.text)) + measure_string(desc.suffix, strlen(desc.suffix));
-    if(tmp_w > true_width){
-      true_width = tmp_w;
+    int tmp_w_l = measure_string(desc.text, strlen(desc.text));
+    int tmp_w_s = measure_string(desc.suffix, strlen(desc.suffix));
+    if(tmp_w_l > true_width_label){
+      true_width_label = tmp_w_l;
     }
+    if(tmp_w_s > true_width_suffix){
+      true_width_suffix = tmp_w_s;
+    }
+    true_width = true_width_label + true_width_suffix;
   }
   if(muted){
     if(chk_item *item = dynamic_cast<chk_item*>(i)){
@@ -659,10 +666,6 @@ void checklist_binder::add_checklist(checklist *c)
     }
     labels[name] = checklists.size() - 1;
   }
-  int tmp_w = c->get_width();
-  if(common_width < tmp_w){
-    common_width = tmp_w;
-  }
 }
 
 bool checklist_binder::select_checklist(unsigned int index, bool force)
@@ -965,7 +968,9 @@ bool checklist::activate(int index, bool force)
     }
   }
 
-  bool res = create_checklist(j, displaytext.c_str(), desc, width, index, force);
+  bool res = create_checklist(j, displaytext.c_str(), desc, width,
+		              true_width_label, true_width_suffix,
+			      index, force);
   delete [] desc;
   activate_next_item(true);
   return res;
@@ -986,9 +991,16 @@ bool checklist_binder::check_references()
   int sizeOfAll = checklists.size();
   std::string nextLabel;
   std::map<std::string, int>::const_iterator ref;
+  int tmp_w;
   for(int i = 0; i < sizeOfAll; ++i){
     checklists[i]->check_references(labels);
+    tmp_w = checklists[i]->get_width();
+    if(common_width < tmp_w){
+      common_width = tmp_w;
+    }
   }
+  for(int i = 0; i < sizeOfAll; ++i) checklists[i]->set_width(common_width);
+
   return true;
 }
 

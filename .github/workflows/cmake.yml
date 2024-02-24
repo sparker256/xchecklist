@@ -5,7 +5,7 @@ on: [push]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: RelWithDebInfo
-  XCL_VERSION: 1.5.1
+  XCL_VERSION: 1.5.2
 
 jobs:
   build:
@@ -20,13 +20,13 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: "Windows: Configure environment"
       if: runner.os == 'Windows'
       shell: bash
       run: |
-        choco install winflexbison
+        choco install winflexbison3
         # Select MinGW toolchain instead of the default MSVC.
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
 
@@ -34,7 +34,18 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential cmake git freeglut3-dev libudev-dev libopenal-dev libspeechd-dev
+        sudo apt-get install -y --no-install-recommends build-essential cmake git freeglut3-dev libudev-dev libopenal-dev libspeechd-dev speech-dispatcher
+        
+    - name: "MacOS: Install dependency libraries"
+      if: runner.os == 'macOS'
+      run: |
+        brew install bison
+        echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/bison/lib"
+        brew install flex
+        echo "/usr/local/opt/flex/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/src
@@ -59,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:

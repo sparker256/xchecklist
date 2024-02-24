@@ -122,7 +122,8 @@ bool checklist_finished(bool *switchNext);
 //
 //  Return true if no problems were encountered, false otherwise.
 bool create_checklist(unsigned int size, const char *title,
-                      checklist_item_desc_t items[], int width,
+                      checklist_item_desc_t items[], int win_width,
+		      int label_width, int suffix_width,
                       int index, int force_show);
 
 

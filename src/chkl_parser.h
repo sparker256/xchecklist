@@ -87,8 +87,8 @@ class checklist{
   checklist(std::string display, std::string menu="");
   ~checklist();
   bool add_item(checklist_item *i);
-  void set_width(int f);
-  int  get_width(){return width;};
+  void set_width(int w);
+  int  get_width(){return (width > (true_width)) ? width : true_width;};
   bool activate(int index, bool force = false);
   bool item_checked(int item);
   bool do_processing(bool copilotOn);
@@ -107,7 +107,7 @@ class checklist{
   std::string menutext;
   std::vector<checklist_item *> items;
   int width;
-  int true_width;
+  int true_width, true_width_label, true_width_suffix;
   int current_item;
   bool finished;
   bool trigger_block;

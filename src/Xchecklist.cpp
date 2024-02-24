@@ -932,7 +932,7 @@ void xcvr_create_gui_window() {
         }
 
         xcvr_g_window = XPLMCreateWindowEx(&params);
-        printf("xcvr_g_window: %p\n", xcvr_g_window);
+        //printf("xcvr_g_window: %p\n", xcvr_g_window);
 
         if(XPLMSetWindowPositioningMode_ptr && XPLMSetWindowResizingLimits_ptr && XPLMSetWindowTitle_ptr){
           XPLMSetWindowPositioningMode_ptr(xcvr_g_window, vr_is_enabled ? xplm_WindowVR : xplm_WindowPositionFree, -1);
@@ -1055,7 +1055,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
         }
         if (state[SHOW_WIDGET]) {
             if (xCheckListWidget == NULL){
-              create_checklist(pageSize, pageTitle, pageItems, 120, 0, 0);
+              create_checklist(pageSize, pageTitle, pageItems, 200, 120, 50, 0, 0);
             }else{
               if(!XPIsWidgetVisible(xCheckListWidget))
                 XPShowWidget(xCheckListWidget);
@@ -1207,7 +1207,7 @@ int	xSetupHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t  in
 
         if (inMessage == xpMsg_ButtonStateChanged)
         {
-                printf("Got button state change message!\n");
+                //printf("Got button state change message!\n");
                 for (size_t ItemNo=0; ItemNo<SETUP_TEXT_ITEMS; ItemNo++)
                 {
                         intptr_t tmp;
@@ -1291,7 +1291,7 @@ int	xCheckListHandler(XPWidgetMessage  inMessage, XPWidgetID  inWidget, intptr_t
   }
 
   if(inMessage == xpMsg_PushButtonPressed){
-    printf("Button pushed...\n");
+    //printf("Button pushed...\n");
     if(inParam1 == (intptr_t)xChecklistPreviousButton){
       prev_checklist();
       return 1;
@@ -1357,12 +1357,16 @@ t_c_string coloured_string_process(coloured_string *cs)
 }
 
 bool create_checklist(unsigned int size, const char *title,
-                      checklist_item_desc_t items[], int width,
+                      checklist_item_desc_t items[], int win_width,
+		      int label_width, int suffix_width,
                       int index, int force_show)
 {
     size_t i;
     int x2, y2;
     int screen_w, screen_h;
+    //printf("***********************************************\n");
+    //printf("Checklist width: %d (%d, %d)\n", win_width, label_width, suffix_width);
+    //printf("***********************************************\n");
 
     if (XPLMSetWindowTitle_ptr) {
         xcvr_title = title;
@@ -1404,28 +1408,9 @@ bool create_checklist(unsigned int size, const char *title,
         y2 = outBottom;
         XPDestroyWidget(xCheckListWidget, 1);
     }
-    float maxw_1 = 0;
-    float maxw_2 = 0;
-    float tmp_text, tmp_suffix;
-    for (i = 0; i < size; ++i) {
-        tmp_text = XPLMMeasureString(xplmFont_Proportional, items[i].text, strlen(items[i].text));
 
-        if (tmp_text > maxw_1) {
-            maxw_1 = tmp_text;
-        }
-        tmp_suffix = XPLMMeasureString(xplmFont_Proportional, items[i].suffix, strlen(items[i].suffix));
-
-        if (tmp_suffix > maxw_2) {
-            maxw_2 = tmp_suffix;
-        }
-    }
-
-
-    w = int(maxw_1) + int(maxw_2) + 85;// original was 75
-
-    if (width > w) {
-        w = width;
-    }
+    w = win_width + 85; // original was 75
+    //printf("Final width = %d, label_width = %g, suffix_width = %g\n", w, label_width, suffix_width);
 
     xcvr_width = w;
     xcvr_height = h;
@@ -1486,7 +1471,7 @@ bool create_checklist(unsigned int size, const char *title,
 // Add Close Box to the Main Widget.  Other options are available.  See the SDK Documentation.
     XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowHasCloseBoxes, 1);
 
-    printf("Button # %d has value %s \n", Item, (state[Item])?"true":"false");
+    //printf("Button # %d has value %s \n", Item, (state[Item])?"true":"false");
     if (state[TRANSLUCENT] == true) {
         XPSetWidgetProperty(xCheckListWidget, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
     }
@@ -1543,7 +1528,7 @@ bool create_checklist(unsigned int size, const char *title,
 
             // Create the description section for checklist item widget
             if(items[i].c_text != NULL){
-              xCheckListTextWidget[i] = XPCreateCustomWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
+              xCheckListTextWidget[i] = XPCreateCustomWidget(x+40, y-yOffset, x+label_width+20, y-yOffset-20,
                                         1,	// Visible
                                         items[i].text,// desc
                                         0,		// root
@@ -1553,7 +1538,7 @@ bool create_checklist(unsigned int size, const char *title,
               captionsMap.insert(make_pair(xCheckListTextWidget[i], processed_c_string));
               xcvr_items[i].c_text = &(captionsMap.find(xCheckListTextWidget[i])->second);
             }else{
-              xCheckListTextWidget[i] = XPCreateWidget(x+40, y-yOffset, x+maxw_1+20, y-yOffset-20,
+              xCheckListTextWidget[i] = XPCreateWidget(x+40, y-yOffset, x+label_width+20, y-yOffset-20,
                                         1,	// Visible
                                         items[i].text,// desc
                                         0,		// root
@@ -1570,9 +1555,11 @@ bool create_checklist(unsigned int size, const char *title,
 
              }
 
-             // Create the action for a checklist item widget   **  original x+maxw_1+40
+             // Create the action for a checklist item widget   **  original x+label_width+40
+	    int suffix_end = w - 45;
+	    int suffix_start = suffix_end - suffix_width + 10; // +10??? Why, oh why?
             if(items[i].c_suffix != NULL){
-             xCheckListTextAWidget[i] = XPCreateCustomWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
+             xCheckListTextAWidget[i] = XPCreateCustomWidget(x+suffix_start, y-yOffset, x+suffix_end, y-yOffset-20,
                                         1,	// Visible
                                         items[i].suffix,// desc
                                         0,		// root
@@ -1582,7 +1569,7 @@ bool create_checklist(unsigned int size, const char *title,
               captionsMap.insert(make_pair(xCheckListTextAWidget[i], processed_c_string));
               xcvr_items[i].c_suffix = &(captionsMap.find(xCheckListTextAWidget[i])->second);
             }else{
-             xCheckListTextAWidget[i] = XPCreateWidget(x+maxw_1+50, y-yOffset, x+maxw_1+maxw_2+40, y-yOffset-20,
+             xCheckListTextAWidget[i] = XPCreateWidget(x+suffix_start, y-yOffset, x+suffix_end, y-yOffset-20,
                                         1,	// Visible
                                         items[i].suffix,// desc
                                         0,		// root
@@ -1592,7 +1579,7 @@ bool create_checklist(unsigned int size, const char *title,
             }
 
 
-             xcvr_right_text_start = (maxw_1 + 50);
+             xcvr_right_text_start = suffix_start; //(label_width + 50);
              xcvr_items[i].suffix = items[i].suffix;
 
              if (state[TRANSLUCENT] == true) {
@@ -1646,7 +1633,7 @@ bool create_checklist(unsigned int size, const char *title,
 
      XPSetWidgetProperty(xChecklistNextButton, xpProperty_ButtonType, xpPushButton);
      XPSetWidgetProperty(xChecklistNextButton, xpProperty_Enabled, (index < (checklists_count-1)) ? 1 : 0);
-     printf("Checklist index %d (of %d)\n", index, checklists_count);
+     //printf("Checklist index %d (of %d)\n", index, checklists_count);
      // Register our widget handler
      XPAddWidgetCallback(xCheckListWidget, xCheckListHandler);
 
@@ -1667,7 +1654,7 @@ bool create_checklist(unsigned int size, const char *title,
 
 bool check_item(int itemNo)
 {
-  printf("Checking item %d\n", itemNo);
+  //printf("Checking item %d\n", itemNo);
   if(itemNo >= 0){
     XPSetWidgetProperty(xCheckListCheckWidget[itemNo], xpProperty_ButtonState, 1);
     item_checked(itemNo);
@@ -1680,7 +1667,7 @@ bool check_item(int itemNo)
 bool activate_item(int itemNo)
 {
   checkable = itemNo;
-  printf("Activating item %d\n", itemNo);
+  //printf("Activating item %d\n", itemNo);
   return true;
 }
 
@@ -1834,7 +1821,7 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
     if (inPhase == xplm_CommandBegin) {
         switch((intptr_t)inRefcon){
         case CHECK_ITEM_COMMAND:
-            printf ("trying to make check_item to work \n");
+            //printf ("trying to make check_item to work \n");
             if (state[SHOW_WIDGET]) {
                 if (XPIsWidgetVisible(xCheckListWidget)) {
                     if(item_checked(checkable)){
@@ -1928,3 +1915,9 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
     }
     return 1;
 }
+
+int measure_string(const char *str, size_t len)
+{
+	return XPLMMeasureString(xplmFont_Proportional, str, len);
+}
+
