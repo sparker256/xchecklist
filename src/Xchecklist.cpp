@@ -1829,12 +1829,29 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
                     }
                 }else{
                     XPShowWidget(xCheckListWidget);
+		    bool switchNext = false;
+		    if(checklist_finished(&switchNext)){
+		        next_checklist(false); 
+		    }
                 }
             }
             if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
-                if(item_checked(checkable)) {
-                  check_item(checkable);
-                }
+                if (xcvr_g_window == NULL) {
+                    xcvr_create_gui_window();
+                }else{
+                    if (!XPLMGetWindowIsVisible(xcvr_g_window) &&
+                        XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
+                          toggle_gui();
+  		          bool switchNext = false;
+		          if(checklist_finished(&switchNext)){
+		              next_checklist(false); 
+		          }
+                    }else{
+	                if(item_checked(checkable)) {
+                            check_item(checkable);
+                        }
+	            }
+		}
             }
             if (!state[SHOW_WIDGET]) {
                 if (XPIsWidgetVisible(xCheckListWidget)) {
@@ -1845,20 +1862,23 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
         case NEXT_CHECKLIST_COMMAND:
             if (state[SHOW_WIDGET]) {
                 if (XPIsWidgetVisible(xCheckListWidget)){
+                    next_checklist(true);
 		}else{
                     XPSetWidgetProperty(setupCheckWidget[1], xpProperty_ButtonState, 1);
                     XPShowWidget(xCheckListWidget);
 		}
-                next_checklist(true);
             }
             if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
                 if (xcvr_g_window == NULL) {
                   xcvr_create_gui_window();
-                }
-                if (XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
-                    toggle_gui();
-                }
-                next_checklist(true);
+                }else{
+                    if (!XPLMGetWindowIsVisible(xcvr_g_window) && 
+			    XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
+                        toggle_gui();
+                    }else{
+                        next_checklist(true);
+		    }
+		}
             }
 
             break;
@@ -1872,7 +1892,16 @@ int MyCommandCallback(XPLMCommandRef       inCommand,
 		}
             }
             if ((state[SHOW_GUI]) && (!state[SHOW_WIDGET])) {
-                prev_checklist();
+                if (xcvr_g_window == NULL) {
+                  xcvr_create_gui_window();
+                }else{
+                    if (!XPLMGetWindowIsVisible(xcvr_g_window) && 
+			    XPLMGetWindowGeometryOS_ptr && XPLMSetWindowPositioningMode_ptr) {
+                        toggle_gui();
+                    }else{
+                        prev_checklist();
+		    }
+		}
             }
 
             break;
