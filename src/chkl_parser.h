@@ -308,14 +308,16 @@ class void_item:public checklist_item{
 
 class remark_item:public checklist_item{
   public:
-    remark_item(coloured_string *s);
+    remark_item(coloured_string *s, bool silent = false);
     virtual ~remark_item(){if(text) delete text;};
     virtual void print(std::ostream &output)const;
     virtual bool getDesc(checklist_item_desc_t &desc);
     virtual bool activate();
     virtual bool do_processing(bool copilotOn);
+    void reverse_silent(){dont_speak = dont_speak ? false : true;};
   private:
     coloured_string *text;
+    bool dont_speak;
 };
 
 class chk_item:public checklist_item{

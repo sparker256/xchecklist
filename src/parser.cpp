@@ -89,6 +89,8 @@ bool checklist::add_item(checklist_item *i)
   if(muted){
     if(chk_item *item = dynamic_cast<chk_item*>(i)){
       item->reverse_silent();
+    }else if(remark_item *remark = dynamic_cast<remark_item*>(i)){
+      remark->reverse_silent();
     }
   }
   return true;
@@ -627,9 +629,10 @@ void_item::void_item(coloured_string *s, coloured_string *s1)
   text1 = s1;
 }
 
-remark_item::remark_item(coloured_string *s)
+remark_item::remark_item(coloured_string *s, bool silent)
 {
   text = s;
+  dont_speak = silent;
 }
 
 chk_item::chk_item(item_label *l, dataref_t *d, bool ch, bool silent)
@@ -868,7 +871,7 @@ bool remark_item::do_processing(bool copilotOn)
     case INACTIVE:
         elapsed = 0.0f;
         if(speech_active()){
-            if(voice_state) {
+            if(voice_state && !dont_speak) {
               say(text->c_str());
             }
             state = SAY_LABEL;

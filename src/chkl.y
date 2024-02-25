@@ -227,6 +227,10 @@ item_remark:    TOKEN_REMARK TOKEN_COLON coloured_string{
                     $3->resolve_colours();
                     $$ = new remark_item($3);
                   }
+                | TOKEN_SILENCE TOKEN_REMARK TOKEN_COLON coloured_string{
+                    $4->resolve_colours();
+                    $$ = new remark_item($4, true);
+                  }
 ;
 show:                TOKEN_SHOW TOKEN_COLON dataref_expr_both{
                     $$ = new show_item($3);
