@@ -14,7 +14,7 @@
 //
 // *********************************************************
 
-#define VERSION_NUMBER "1.51 build " __DATE__ " " __TIME__
+#define VERSION_NUMBER "1.52 build " __DATE__ " " __TIME__
 
 #include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
@@ -1028,6 +1028,7 @@ float dataProcessingCallback(float inElapsed1, float inElapsed2, int cntr, void 
           next_checklist(true);
       } else if (hide_cntr > 30) {
           XPHideWidget(xCheckListWidget);
+          toggle_gui();
       }
   } else {
       hide_cntr = 0;
@@ -1058,7 +1059,7 @@ void xCheckListMenuHandler(void * inMenuRef, void * inItemRef)
               create_checklist(pageSize, pageTitle, pageItems, 200, 120, 50, 0, 0);
             }else{
               if(!XPIsWidgetVisible(xCheckListWidget))
-                XPShowWidget(xCheckListWidget);
+                  XPShowWidget(xCheckListWidget);
             }
         }
 

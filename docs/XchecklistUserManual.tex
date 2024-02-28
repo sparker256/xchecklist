@@ -63,7 +63,7 @@
 \maketitle
 
 \begin{center}
-1.51
+1.52
 \end{center}
 
 \vspace{2cm}
@@ -573,7 +573,27 @@ You can use usual comparison operators: $==$ for equality, $!=$ for inequality, 
 
 Hopefully these  new possibilities will make the dataref expressions much more readable.
 
-To silence a line, just prepend it with the '@' sign and nothing will be spoken... 
+\newpage
+\section{Silence Examples}
+
+To silence a line, just prepend it with the '@' sign and nothing will be spoken...
+
+@sw\_item:PARKING BRAKE|ON:sim/flightmodel/controls/parkbrake:1\newline
+
+To silence a checklist just just prepend it with the '@' sign and nothing will be spoken in the checklist.
+
+If you would like a line in the silenced checklist then just prepend it with the '@' sign and that line will be spoken.
+
+@sw\_checklist:PREFLIGHT PART 1:PREFLIGHT PART 1\newline
+sw\_item:PARKING BRAKE|ON:sim/flightmodel/controls/parkbrake:1\newline
+sw\_item:IGNITION SWITCH|OFF:sim/cockpit2/engine/actuators/ignition\_key[0]:0\newline
+@sw\_item:MASTER SWITCH (BATTERY)|ON:sim/cockpit/electrical/battery\_on:1\newline
+sw\_item:AVIONICS MASTER SWITCH|OFF:sim/cockpit/electrical/avionics\_on:0\newline
+sw\_item:AVIONICS COOLING FAN|AUDIBLE:sim/cockpit/electrical/avionics\_on:1\newline
+sw\_item:AVIONICS MASTER SWITCH|OFF:sim/cockpit/electrical/avionics\_on:0\newline
+@sw\_item:STATIC PRESSURE ALTERNATE|OFF:sim/cockpit2/switches/alternate\_static\_air\_ratio:<0.1\newline
+@sw\_remark:PREFLIGHT PART 1 CHECKLIST COMPLETED 
+
 
 \newpage
 \section{closer\_than function examples}

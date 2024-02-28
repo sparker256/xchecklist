@@ -1,0 +1,306 @@
+name: build_xchecklist_simon
+
+on: [push]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+  XCL_VERSION: 1.5.2
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: "Windows: Configure environment"
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        choco install winflexbison3
+        # Select MinGW toolchain instead of the default MSVC.
+        echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+
+    - name: "Linux: Install dependency libraries"
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential cmake git freeglut3-dev libudev-dev libopenal-dev libspeechd-dev speech-dispatcher
+        
+    - name: "MacOS: Install dependency libraries"
+      if: runner.os == 'macOS'
+      run: |
+        brew install bison
+        echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/bison/lib"
+        brew install flex
+        echo "/usr/local/opt/flex/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/src
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/src
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: binaries-${{matrix.os}}
+        path: ${{github.workspace}}/build/*.xpl
+        if-no-files-found: error
+        
+        
+  build-simon-lin:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: "Linux: Install dependency libraries"
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential cmake git freeglut3-dev libudev-dev libopenal-dev libspeechd-dev speech-dispatcher
+        
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/simon
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/simon
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: simon-lin
+        path: ${{github.workspace}}/build/simon_lin64
+        if-no-files-found: error
+        
+  build-simon-mac:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+     
+    - name: "MacOS: Install dependency libraries"
+      if: runner.os == 'macOS'
+      run: |
+        brew install bison
+        echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/bison/lib"
+        brew install flex
+        echo "/usr/local/opt/flex/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/simon
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/simon
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: simon-mac
+        path: ${{github.workspace}}/build/simon_mac       
+        if-no-files-found: error
+        
+  build-checker-lin:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: "Linux: Install dependency libraries"
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential cmake git freeglut3-dev libudev-dev libopenal-dev libspeechd-dev speech-dispatcher
+        
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/checker
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/checker
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: checker-lin
+        path: ${{github.workspace}}/build/lin_checker_64
+        if-no-files-found: error
+        
+  build-checker-win:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: "Windows: Configure environment"
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        choco install winflexbison3
+        # Select MinGW toolchain instead of the default MSVC.
+        echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+        
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/checker
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/checker
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: checker-win
+        path: ${{github.workspace}}/build/win_checker_64bit.exe
+        if-no-files-found: error
+        
+  build-checker-mac:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: "MacOS: Install dependency libraries"
+      if: runner.os == 'macOS'
+      run: |
+        brew install bison
+        echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/bison/lib"
+        brew install flex
+        echo "/usr/local/opt/flex/bin" >> $GITHUB_PATH
+        export LDFLAGS="-L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
+        
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/checker
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/checker
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: checker-mac
+        path: ${{github.workspace}}/build/mac_checker
+        if-no-files-found: error                                   
+        
+  package:
+    needs: [build, build-simon-lin, build-simon-mac, build-checker-lin, build-checker-win, build-checker-mac]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: binaries
+          pattern: binaries-*
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: Xchecklist/64
+          
+      - name: Zip binaries
+        run: |
+            zip -r Xchecklist Xchecklist/64/*.xpl            
+     
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: simon_lin_mac
+          pattern: simon-*
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: simon_lin_mac
+          path: Xchecklist
+          
+      - name: Set executiable bit for simon files
+        run: |
+            chmod a+x ${{github.workspace}}/Xchecklist/simon_*
+            zip -r Xchecklist Xchecklist/simon_*
+            
+      - uses: actions/download-artifact@v4
+        with:
+          name: checker-lin
+          path: Xchecklist/Checker
+          
+      - name: Set executiable bit for lin_checker_64 file
+        run: |
+            chmod a+x ${{github.workspace}}/Xchecklist/Checker/lin_checker_64
+            zip -r Xchecklist Xchecklist/Checker/lin_checker_64     
+          
+      - uses: actions/download-artifact@v4
+        with:
+          name: checker-win
+          path: Xchecklist/Checker
+          
+      - name: Set executiable bit for win_checker_64bit.exe file
+        run: |
+            chmod a+x ${{github.workspace}}/Xchecklist/Checker/win_checker_64bit.exe
+            zip -r Xchecklist Xchecklist/Checker/win_checker_64bit.exe          
+          
+      - uses: actions/download-artifact@v4
+        with:
+          name: checker-mac
+          path: Xchecklist/Checker
+          
+      - name: Set executiable bit for mac_checker file
+        run: |
+            chmod a+x ${{github.workspace}}/Xchecklist/Checker/mac_checker
+            zip -r Xchecklist Xchecklist/Checker/mac_checker           
+            
+      - name: Zip Documentation
+        run: |
+            zip -r Xchecklist Xchecklist/Documentation/*.*
+            
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Xchecklist_v${{env.XCL_VERSION}}
+          path: |
+            Xchecklist.zip
+          if-no-files-found: error              
