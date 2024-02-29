@@ -1,7 +1,7 @@
 Xchecklist for X-Plane 12, 11 and 10
 =========================
 
-[![CMake](https://github.com/sparker256/xchecklist/actions/workflows/cmake.yml/badge.svg)](https://github.com/sparker256/xchecklist/actions/workflows/cmake.yml)
+[![CMake](https://github.com/sparker256/xchecklist/actions/workflows/build_xchecklist_simon_checker.yml/badge.svg)](https://github.com/sparker256/xchecklist/actions/workflows/build_xchecklist_simon_checker.yml)
 
 
 ![Alt text](docs/Xchecklist_GUI.jpg?raw=true "Xchecklist_GUI")
@@ -18,7 +18,8 @@ Alow you to have a interactive checklist in your 2d or VR cockpit
 1.  Install required software using [Chocolatey](https://chocolatey.org/) using admin command prompt:
 
     ```
-    choco install git cmake
+    choco install git
+    choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
     choco install mingw --version 8.1.0
     ```
 
