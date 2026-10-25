@@ -111,3 +111,5 @@ Ver. 1.51 Fixing coloured strings handling problem.
 Ver. 1.52 Fixed issue with how check & next item worked and improved the @ silence function.
 
 Ver. 1.53 Trying to reach feature parity for the GUI comparied to the widget including sw_show.
+
+Ver. 1.54 Keep windows within the global desktop bounds.
