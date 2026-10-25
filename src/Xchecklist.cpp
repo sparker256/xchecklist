@@ -489,6 +489,48 @@ bool try_open(char *name, std::fstream &fin)
 }
 
 
+// Window positions (both modern windows and native widget windows) are in
+// global desktop coordinates, whose origin is not guaranteed to be at (0, 0)
+// (e.g. multi-monitor setups, or XWayland). Shift the rectangle so that it
+// lies within the global desktop bounds, keeping its size.
+void keep_window_on_screen(int &left, int &top, int &right, int &bottom)
+{
+    const int margin = 30; // leave room for the window decoration/title bar
+    int gbl_left, gbl_top, gbl_right, gbl_bottom;
+
+    if (XPLMGetScreenBoundsGlobal_ptr) {
+        XPLMGetScreenBoundsGlobal_ptr(&gbl_left, &gbl_top, &gbl_right, &gbl_bottom);
+    } else {
+        // Pre XPLM300 there is only the main window, with its origin at (0, 0)
+        XPLMGetScreenSize(&gbl_right, &gbl_top);
+        gbl_left = 0;
+        gbl_bottom = 0;
+    }
+    xcDebug("Xchecklist: screen bounds ltrb = %d %d %d %d, window ltrb = %d %d %d %d\n", gbl_left, gbl_top, gbl_right, gbl_bottom, left, top, right, bottom);
+
+    if (right > gbl_right - margin) {
+        int shift = right - (gbl_right - margin);
+        left -= shift;
+        right -= shift;
+    }
+    if (left < gbl_left + margin) {
+        int shift = (gbl_left + margin) - left;
+        left += shift;
+        right += shift;
+    }
+    if (bottom < gbl_bottom + margin) {
+        int shift = (gbl_bottom + margin) - bottom;
+        top += shift;
+        bottom += shift;
+    }
+    if (top > gbl_top - margin) {
+        int shift = top - (gbl_top - margin);
+        top -= shift;
+        bottom -= shift;
+    }
+    xcDebug("Xchecklist: window ltrb after = %d %d %d %d\n", left, top, right, bottom);
+}
+
 bool save_prefs()
 {
   char *prefs;
@@ -507,48 +549,7 @@ bool save_prefs()
     //Store prefs version first
     fout<<"1"<<std::endl;
     XPGetWidgetGeometry(xCheckListWidget, &widget_win_pos_x1, &widget_win_pos_x2, &widget_win_pos_y1, &widget_win_pos_y2);
-    int screen_w, screen_h;
-    int widget_to_far_right, widget_to_far_left, widget_to_far_up, widget_to_far_down;
-    XPLMGetScreenSize(&screen_w, &screen_h);
-    xcDebug("Xchecklist: XPLMGetScreenSize  screen_w = %d  screen_h = %d\n", screen_w, screen_h);
-    xcDebug("Xchecklist: Checklist widget window position1 widget_win_pos_x1 left = %d widget_win_pos_x2 top = %d widget_win_pos_y1 right = %d widget_win_pos_y2 botton = %d\n", widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
-
-    if (widget_win_pos_y1 > screen_w) {
-        xcDebug("Xchecklist: Widget Checklist to far to the right of the screen.\n");
-        widget_to_far_right = widget_win_pos_y1 - screen_w;
-        widget_to_far_right = widget_to_far_right + 30;
-        widget_win_pos_x1 = widget_win_pos_x1 - widget_to_far_right;
-        widget_win_pos_y1 = widget_win_pos_y1 - widget_to_far_right;
-        xcDebug("Xchecklist: widget_win_pos_x1 = %d  widget_win_pos_y1 = %d  widget_to_far_right = %d\n", widget_win_pos_x1, widget_win_pos_y1, widget_to_far_right);
-    }
-
-    if (widget_win_pos_x2 > screen_h) {
-        xcDebug("Xchecklist: Widget Checklist to far up on the screen.\n");
-        widget_to_far_up = widget_win_pos_x2 - screen_h;
-        widget_to_far_up = widget_to_far_up + 30;
-        widget_win_pos_x2 = widget_win_pos_x2 - widget_to_far_up;
-        widget_win_pos_y2 = widget_win_pos_y2 - widget_to_far_up;
-        xcDebug("Xchecklist: widget_win_pos_x2 = %d  widget_win_pos_y2 = %d  widget_to_far_up = %d\n", widget_win_pos_x2, widget_win_pos_y2, widget_to_far_up);
-    }
-
-    if (widget_win_pos_x1 < 0) {
-        xcDebug("Xchecklist: Widget Checklist to far to the left of the screen.\n");
-        widget_to_far_left = widget_win_pos_x1;
-        widget_to_far_left = abs(widget_to_far_left);
-        widget_win_pos_y1 = widget_win_pos_y1 + widget_to_far_left + 30;
-        widget_win_pos_x1 = 30;
-        xcDebug("Xchecklist: widget_win_pos_x1 = %d  widget_win_pos_y1 = %d  widget_to_far_left = %d\n", widget_win_pos_x1, widget_win_pos_y1, widget_to_far_left);
-    }
-
-    if (widget_win_pos_y2 < 0) {
-        xcDebug("Xchecklist: Widget Checklist to far below the screen.\n");
-        widget_to_far_down = widget_win_pos_y2;
-        widget_to_far_down = abs(widget_to_far_down);
-        widget_win_pos_y2 = 30;
-        widget_win_pos_x2 = widget_win_pos_x2 + widget_to_far_down + 30;
-        xcDebug("Xchecklist: widget_win_pos_x2 = %d  widget_win_pos_y2 = %d  widget_to_far_down = %d\n", widget_win_pos_x2, widget_win_pos_y2, widget_to_far_down);
-    }
-
+    keep_window_on_screen(widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
     XPSetWidgetGeometry(xCheckListWidget, widget_win_pos_x1, widget_win_pos_x2, widget_win_pos_y1, widget_win_pos_y2);
 
 
@@ -564,54 +565,8 @@ bool save_prefs()
         XPLMGetWindowGeometry(xcvr_g_window, &gui_win_pos_x1, &gui_win_pos_x2, &gui_win_pos_y1, &gui_win_pos_y2);
     }
 
-    if(VersionSDK > 210)
-    {
-
-    int gbl_left, gbl_top, gbl_right, gbl_bottom;
-    int gui_to_far_right, gui_to_far_left, gui_to_far_up, gui_to_far_down;
-
-    XPLMGetScreenBoundsGlobal_ptr(&gbl_left, &gbl_top, &gbl_right, &gbl_bottom);
-    xcDebug("Xchecklist: XPLMGetScreenBoundsGlobal_ptr  gbl_left = %d  gbl_top = %d gbl_right = %d  gbl_bottom = %d\n", gbl_left, gbl_top, gbl_right, gbl_bottom);
-    xcDebug("Xchecklist: Checklist gui window position gui_win_pos_x1 left = %d gui_win_pos_x2 top = %d gui_win_pos_y1 right = %d gui_win_pos_y2 botton = %d\n", gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
-
-    if (gui_win_pos_y1 > gbl_right) {
-        xcDebug("Xchecklist: Gui Checklist to far to the right of the screen.\n");
-        gui_to_far_right = gui_win_pos_y1 - screen_w;
-        gui_to_far_right = gui_to_far_right + 30;
-        gui_win_pos_x1 = gui_win_pos_x1 - gui_to_far_right;
-        gui_win_pos_y1 = gui_win_pos_y1 - gui_to_far_right;
-        xcDebug("Xchecklist: gui_win_pos_x1 = %d  gui_win_pos_y1 = %d  gui_to_far_right = %d\n", gui_win_pos_x1, gui_win_pos_y1, gui_to_far_right);
-    }
-
-    if (gui_win_pos_x2 > gbl_top) {
-        xcDebug("Xchecklist: Gui Checklist to far up on the screen.\n");
-        gui_to_far_up = gui_win_pos_x2 - screen_h;
-        gui_to_far_up = gui_to_far_up + 30;
-        gui_win_pos_x2 = gui_win_pos_x2 - gui_to_far_up;
-        gui_win_pos_y2 = gui_win_pos_y2 - gui_to_far_up;
-        xcDebug("Xchecklist: gui_win_pos_x2 = %d  gui_win_pos_y2 = %d  gui_to_far_up = %d\n", gui_win_pos_x2, gui_win_pos_y2, gui_to_far_up);
-    }
-
-    if (gui_win_pos_x1 < gbl_left) {
-        xcDebug("Xchecklist: Gui Checklist to far to the left of the screen.\n");
-        gui_to_far_left = gui_win_pos_x1;
-        gui_to_far_left = abs(gui_to_far_left);
-        gui_win_pos_y1 = gui_win_pos_y1 + gui_to_far_left + 30;
-        gui_win_pos_x1 = 30;
-        xcDebug("Xchecklist: gui_win_pos_x1 = %d  gui_win_pos_y1 = %d  gui_to_far_left = %d\n", gui_win_pos_x1, gui_win_pos_y1, gui_to_far_left);
-    }
-
-    if (gui_win_pos_y2 < gbl_bottom) {
-        xcDebug("Xchecklist: Widget Checklist to far below the screen.\n");
-        gui_to_far_down = gui_win_pos_y2;
-        gui_to_far_down = abs(gui_to_far_down);
-        gui_win_pos_y2 = 30;
-        gui_win_pos_x2 = gui_win_pos_x2 + gui_to_far_down + 30;
-        xcDebug("Xchecklist: gui_win_pos_x2 = %d  gui_win_pos_y2 = %d  gui_to_far_down = %d\n", gui_win_pos_x2, gui_win_pos_y2, gui_to_far_down);
-    }
-
+    keep_window_on_screen(gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
     XPLMSetWindowGeometry(xcvr_g_window, gui_win_pos_x1, gui_win_pos_x2, gui_win_pos_y1, gui_win_pos_y2);
-  }
 
 
     fout<<widget_win_pos_x1<<" "<<widget_win_pos_x2<<" "<<widget_win_pos_y1<<" "<<widget_win_pos_y2<<std::endl;
@@ -881,16 +836,6 @@ void xcvr_create_gui_window() {
     xcDebug("Xchecklist: In xcvr_create_gui_window() function vr_is_enabled = %d\n", vr_is_enabled);
 
     if (xcvr_g_window==NULL) {
-        int xcvr_global_desktop_bounds[4]; // left, top, right, bottom
-        // We're not guaranteed that the main monitor's lower left is at (0, 0)...
-        // we'll need to query for the global desktop bounds!
-        if(XPLMGetScreenBoundsGlobal_ptr){
-          XPLMGetScreenBoundsGlobal_ptr(&xcvr_global_desktop_bounds[0], &xcvr_global_desktop_bounds[3], &xcvr_global_desktop_bounds[2], &xcvr_global_desktop_bounds[1]);
-        }else{
-          xcvr_global_desktop_bounds[0] = 0;
-          xcvr_global_desktop_bounds[1] = 0;
-        }
-
         XPLMCreateWindow_t params;
         if(VersionSDK < 300){
           #if defined(__x86_64__)
@@ -901,25 +846,12 @@ void xcvr_create_gui_window() {
         }else{
           params.structSize = sizeof(params);
         }
-        if (xcvr_global_desktop_bounds[0] < 0)
-        {
-            params.left = gui_left;
-        }
-        else
-        {
-            params.left = xcvr_global_desktop_bounds[0] + gui_left;
-        }
-        params.top = xcvr_global_desktop_bounds[1] + gui_top;
-
-        if (xcvr_global_desktop_bounds[0] < 0)
-        {
-            params.right = w + gui_left;
-        }
-        else
-        {
-            params.right = xcvr_global_desktop_bounds[0] + w + gui_left;
-        }
-        params.bottom = xcvr_global_desktop_bounds[1] + gui_top - h;
+        // gui_left/gui_top are already in global desktop coordinates
+        params.left = gui_left;
+        params.top = gui_top;
+        params.right = gui_left + w;
+        params.bottom = gui_top - h;
+        keep_window_on_screen(params.left, params.top, params.right, params.bottom);
 
         params.visible = 1;
         params.drawWindowFunc = xcvr_draw;
@@ -1108,6 +1040,7 @@ void CreateSetupWidget(int xx, int yy, int ww, int hh)
 {
         int xx2 = xx + ww;
         int yy2 = yy - hh;
+        keep_window_on_screen(xx, yy, xx2, yy2);
 
         int yOffset;
 
@@ -1483,6 +1416,7 @@ bool create_checklist(unsigned int size, const char *title,
     }
     x2 = x + w;
     y2 = y - h;
+    keep_window_on_screen(x, y, x2, y2);
     //int Index;  //unused
     int WindowCentre = x+w/2;
     int yOffset;
